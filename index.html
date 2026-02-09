@@ -502,34 +502,7 @@
         function initGame(config){
             if (!config) return;
             gameConfig = config;
-            gameState.lang = config.lang || 'ru';
-            updateUI(gameState.lang);
-
-            document.getElementById('game-title-display').textContent = gameConfig.title || '';
-            const charSelector = document.getElementById('character-selector');
-            charSelector.innerHTML = '';
-            (gameConfig.characters || []).forEach(url => {
-                const img = document.createElement('img');
-                img.src = url;
-                img.onclick = () => {
-                    charSelector.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
-                    img.classList.add('selected');
-                    gameState.character = url;
-                    checkStartButton();
-                };
-                charSelector.appendChild(img);
-            });
-
-            document.getElementById('start-game-btn').onclick = startGame;
-            checkStartButton();
-        }
-
-        function checkStartButton(){
-            document.getElementById('start-game-btn').disabled = !gameState.character;
-        }
-
-        function startGame(){
-            // allow sounds after user interaction in many browsers
+            gameState many browsers
             try { correctSound.play().then(()=>correctSound.pause(), ()=>{}); correctSound.pause(); } catch(e){}
             try { incorrectSound.play().then(()=>incorrectSound.pause(), ()=>{}); incorrectSound.pause(); } catch(e){}
 
@@ -660,8 +633,7 @@
                     <div class="card-content-area"></div>
                 </div>
             `;
-            const front = card.querySelector('.card-front');
-            const back = card.querySelector('.card-back');
+            
             const qTextEl = card.querySelector('.card-question');
             const content = card.querySelector('.card-content-area');
 
@@ -694,18 +666,14 @@
                 content.appendChild(btn);
             }
 
-            // flip when clicking the front (explicit listener to avoid issues with targets)
-            front.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-                if (!card.classList.contains('flipped')){
+            // ===== ISPRAVLENO ZDES =====
+            // Flip the card when it's clicked, but only if it's not already flipped.
+            card.addEventListener('click', () => {
+                if (!card.classList.contains('flipped')) {
                     card.classList.add('flipped');
                 }
             });
-
-            // stop click on back from flipping
-            back.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-            });
+            // ===========================
 
             return card;
         }
