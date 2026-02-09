@@ -59,7 +59,6 @@
         /* --- GAME STYLES --- */
         #game-container{ width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; box-sizing:border-box; background:none; }
 
-        /* center start screen content */
         #start-screen{ width:100%; max-width:700px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:30px; backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; box-sizing:border-box; }
         #game-title-display{ text-align:center; color:var(--accent-color); font-size:1.8em; margin:0; text-shadow:0 0 5px var(--accent-color); }
         #character-selector{ display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
@@ -82,9 +81,18 @@
 
         #card-stack-area{ position:absolute; bottom:15%; right:10%; width:45%; height:60%; perspective:1000px; }
 
-        .card{ position:absolute; width:100%; height:100%; transform-style:preserve-3d; transition:all .6s ease, transform .6s ease; cursor:pointer; border-radius:18px; box-shadow:0 10px 20px rgba(0,0,0,.4); overflow:hidden; display:flex; }
-        .card.flipped{ transform:rotateY(180deg); cursor:default; }
-        .card.swiped-away{ transform:translate(140%, -50%) rotate(25deg) scale(.95); opacity:0; pointer-events:none; }
+        /* ===== ИЗМЕНЕНИЕ #1 ЗДЕСЬ ===== */
+        .card{ 
+            position:absolute; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s ease; cursor:pointer; border-radius:18px; box-shadow:0 10px 20px rgba(0,0,0,.4); overflow:hidden; display:flex; 
+            transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px));
+        }
+        .card.flipped{ 
+            transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px)) rotateY(180deg);
+            cursor:default; 
+        }
+        /* ============================ */
+        
+        .card.swiped-away{ transform:translate(140%, -50%) rotate(25deg) scale(.95); opacity:0; pointer-events:none; transition: all .6s ease; }
 
         .card-face{ position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:18px;}
         .card-front{ background:linear-gradient(45deg,#00776b,#00bfa5); color:white; font-size:3em; z-index:2; width:100%; height:100%; }
@@ -105,7 +113,6 @@
         @keyframes jump-animation{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-30px);} }
         @keyframes shake-animation{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-12px) rotate(-3deg);} 75%{ transform:translateX(12px) rotate(3deg);} }
 
-        /* small overlay message on card when time is up */
         .time-overlay{
             position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2em; color:white; background:rgba(0,0,0,0.5); z-index:3;
         }
@@ -545,8 +552,14 @@
             for (let i = 0; i < gameState.questions.length; i++){
                 const q = gameState.questions[i];
                 const card = createCardElement(q, i);
-                const offset = (gameState.questions.length - 1 - i) * 6; // stacking offset
-                card.style.transform = `translateX(${offset}px) translateY(${offset}px)`;
+                const offset = (gameState.questions.length - 1 - i) * 6;
+                
+                // ===== ИЗМЕНЕНИЕ #2 ЗДЕСЬ =====
+                // Используем CSS переменные вместо прямого назначения transform
+                card.style.setProperty('--card-offset-x', `${offset}px`);
+                card.style.setProperty('--card-offset-y', `${offset}px`);
+                // ============================
+
                 card.style.zIndex = 100 + i;
                 stackArea.appendChild(card);
             }
@@ -677,7 +690,6 @@
                 content.appendChild(btn);
             }
             
-            // Correct way to flip the card
             card.addEventListener('click', () => {
                 if (!card.classList.contains('flipped')) {
                     card.classList.add('flipped');
