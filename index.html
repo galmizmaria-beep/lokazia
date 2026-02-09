@@ -259,12 +259,9 @@
             }
         };
 
-        // short sounds (kept small / dataURIs). If they don't work due to browser autoplay rules,
-        // they will play after user interaction (start game) in many browsers.
-        const correctSound = new Audio('data:audio/mpeg;base64,//uQZAAAAAAAAAAAAAAAAAAAAAA...'); // (put your base64 or URL)
+        const correctSound = new Audio('data:audio/mpeg;base64,//uQZAAAAAAAAAAAAAAAAAAAAAA...');
         const incorrectSound = new Audio('data:audio/mpeg;base64,//uQZAAAAAAAAAAAAAAAAAAAAAA...');
 
-        // GAME state
         let gameConfig = {};
         let gameState = {
             lang: 'ru',
@@ -276,7 +273,6 @@
         };
         let timerInterval = null;
 
-        // If running as the embedded player (iframe)
         if (isPlayerMode) {
             document.getElementById('editor-wrapper').style.display = 'none';
             document.querySelector('.main-title').style.display = 'none';
@@ -292,7 +288,6 @@
             initEditor();
         }
 
-        // ---------- Editor functions ----------
         function updateElementText(lang, key, element, attr = 'textContent'){
             if (element && translations[lang] && translations[lang][key] !== undefined) element[attr] = translations[lang][key];
         }
@@ -502,7 +497,33 @@
         function initGame(config){
             if (!config) return;
             gameConfig = config;
-            gameState many browsers
+            gameState.lang = config.lang || 'ru';
+            updateUI(gameState.lang);
+
+            document.getElementById('game-title-display').textContent = gameConfig.title || '';
+            const charSelector = document.getElementById('character-selector');
+            charSelector.innerHTML = '';
+            (gameConfig.characters || []).forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.onclick = () => {
+                    charSelector.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
+                    img.classList.add('selected');
+                    gameState.character = url;
+                    checkStartButton();
+                };
+                charSelector.appendChild(img);
+            });
+
+            document.getElementById('start-game-btn').onclick = startGame;
+            checkStartButton();
+        }
+
+        function checkStartButton(){
+            document.getElementById('start-game-btn').disabled = !gameState.character;
+        }
+
+        function startGame(){
             try { correctSound.play().then(()=>correctSound.pause(), ()=>{}); correctSound.pause(); } catch(e){}
             try { incorrectSound.play().then(()=>incorrectSound.pause(), ()=>{}); incorrectSound.pause(); } catch(e){}
 
@@ -521,7 +542,6 @@
             const stackArea = document.getElementById('card-stack-area');
             stackArea.innerHTML = '';
 
-            // append cards so that last question is on top visually
             for (let i = 0; i < gameState.questions.length; i++){
                 const q = gameState.questions[i];
                 const card = createCardElement(q, i);
@@ -555,7 +575,6 @@
             if (gameState.lives < 0) gameState.lives = 0;
             updateLivesDisplay();
             if (gameState.lives <= 0){
-                // small delay to show final animation
                 setTimeout(() => endGame('lose'), 700);
             }
         }
@@ -584,21 +603,17 @@
         }
 
         function handleTimeUpForTopCard(){
-            // show overlay on top card
             const stackArea = document.getElementById('card-stack-area');
             const topCard = stackArea.querySelector('.card:not(.swiped-away):not(.removed)');
             const overlayText = translations[gameState.lang]?.time_up || 'Время вышло!';
             if (topCard){
-                // add overlay element
                 const ov = document.createElement('div');
                 ov.className = 'time-overlay';
                 ov.textContent = overlayText;
                 topCard.appendChild(ov);
                 try { incorrectSound.play(); } catch(e){}
-                // small delay to show overlay
                 setTimeout(() => {
                     if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
-                    // animation on player
                     const playerImg = document.getElementById('player-char-img');
                     if (playerImg){
                         playerImg.classList.remove('correct-answer','incorrect-answer');
@@ -606,17 +621,14 @@
                         playerImg.classList.add('incorrect-answer');
                     }
                     loseLife();
-                    // swipe away topCard
                     topCard.classList.add('swiped-away','removed');
                     gameState.answeredCount++;
-                    // clear timer and go to next or end
                     setTimeout(() => {
                         if (playerImg) playerImg.classList.remove('incorrect-answer');
                         checkContinueAfterAnswer();
                     }, 700);
                 }, 1000);
             } else {
-                // nothing to do
                 checkContinueAfterAnswer();
             }
         }
@@ -633,7 +645,6 @@
                     <div class="card-content-area"></div>
                 </div>
             `;
-            
             const qTextEl = card.querySelector('.card-question');
             const content = card.querySelector('.card-content-area');
 
@@ -665,25 +676,21 @@
                 content.appendChild(input);
                 content.appendChild(btn);
             }
-
-            // ===== ISPRAVLENO ZDES =====
-            // Flip the card when it's clicked, but only if it's not already flipped.
+            
+            // Correct way to flip the card
             card.addEventListener('click', () => {
                 if (!card.classList.contains('flipped')) {
                     card.classList.add('flipped');
                 }
             });
-            // ===========================
 
             return card;
         }
 
         function handleAnswerFromButton(cardEl, isCorrect, buttonEl){
-            // Stop timer for this card
             clearInterval(timerInterval);
             gameState.timerRunning = false;
 
-            // disable other controls on this card
             const cardBack = cardEl.querySelector('.card-back');
             if (cardBack) cardBack.querySelectorAll('button,input').forEach(el => el.disabled = true);
 
@@ -704,7 +711,6 @@
                 loseLife();
             }
 
-            // after short animation, swipe away this card and go next
             setTimeout(() => {
                 if (playerImg) playerImg.classList.remove('correct-answer','incorrect-answer');
             }, 700);
@@ -717,19 +723,14 @@
         }
 
         function checkContinueAfterAnswer(){
-            // if no lives left => end lose
             if (gameState.lives <= 0){
                 endGame('lose');
                 return;
             }
-
-            // if all cards answered => win
             if (gameState.answeredCount >= gameState.questions.length){
                 endGame('win');
                 return;
             }
-
-            // otherwise start timer for next card
             startTimerForCurrentCard();
         }
 
@@ -747,12 +748,10 @@
             if (status === 'win'){
                 endTitle.textContent = translations[gameState.lang]?.game_end_win || 'Ты победил!';
                 confetti.classList.remove('hidden');
-                // animate player happy
                 const playerImg = endImg;
                 playerImg.classList.remove('incorrect-answer');
                 void playerImg.offsetWidth;
                 playerImg.classList.add('correct-answer');
-                // optionally sound
                 try { correctSound.play(); } catch(e){}
             } else {
                 endTitle.textContent = translations[gameState.lang]?.game_end_lose || 'Ты проиграл!';
@@ -765,7 +764,6 @@
             }
         }
 
-        // expose some small helpers for debugging in console (optional)
         window._gameState = gameState;
         window._gameConfig = gameConfig;
     });
