@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор Образовательных Квестов</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f9;
+            --panel-bg: #ffffff;
+            --border-color: #e0e6ed;
+            --text-color: #333;
+            --primary-color: #4a90e2;
+            --primary-hover: #357abd;
+            --danger-color: #d9534f;
+            --success-color: #5cb85c;
+            --font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Панель редактора (левая часть) --- */
+        #editor-panel {
+            width: 45%;
+            padding: 20px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        details {
+            background-color: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 10px;
+            transition: all 0.2s ease-in-out;
+        }
+        details[open] {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        summary {
+            font-weight: bold;
+            font-size: 1.2em;
+            cursor: pointer;
+            list-style: none;
+            padding: 5px;
+        }
+        summary::before {
+            content: '▶ ';
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="text"], textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-add {
+            margin-top: 10px;
+        }
+        .btn-delete {
+            background-color: var(--danger-color);
+            font-size: 0.8em;
+            padding: 5px 8px;
+        }
+
+        .list-item {
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .list-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+        }
+
+        /* --- Панель предпросмотра и кода (правая часть) --- */
+        #preview-panel {
+            width: 55%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #preview-window {
+            flex-grow: 1;
+            background-color: #333;
+            border: 5px solid #222;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease;
+        }
+
+        #preview-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        #preview-title {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        #preview-description {
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        #preview-character {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: auto;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+        }
+
+        #output-section {
+            flex-shrink: 0;
+        }
+        
+        #iframe-code {
+            width: calc(100% - 22px);
+            min-height: 100px;
+            background-color: #2d2d2d;
+            color: #9fcc7a;
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        #generate-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #generate-btn.copied {
+            background-color: var(--success-color);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Левая панель: Редактор -->
+        <aside id="editor-panel">
+            <h1>Редактор Квеста</h1>
+
+            <details open>
+                <summary>1. Настройки мира</summary>
+                <div class="form-group">
+                    <label for="quest-title">Название квеста</label>
+                    <input type="text" id="quest-title" placeholder="Путешествие в мир знаний">
+                </div>
+                <div class="form-group">
+                    <label for="quest-description">Краткое описание</label>
+                    <textarea id="quest-description" placeholder="Помоги герою пройти все испытания, используя свои знания!"></textarea>
+                </div>
+            </details>
+
+            <details>
+                <summary>2. Персонажи</summary>
+                <div id="characters-list"></div>
+                <button class="btn btn-add" onclick="addCharacter()">Добавить персонажа</button>
+            </details>
+
+            <details>
+                <summary>3. Локации</summary>
+                <div id="locations-list"></div>
+                <button class="btn btn-add" onclick="addLocation()">Добавить локацию</button>
+            </details>
+
+            <details>
+                <summary>4. Конструктор событий (упрощенный)</summary>
+                <p>Здесь будет логика для создания заданий и диалогов. Для прототипа не реализовано.</p>
+            </details>
+        </aside>
+
+        <!-- Правая панель: Предпросмотр и Генерация -->
+        <main id="preview-panel">
+            <h2>Предпросмотр</h2>
+            <div id="preview-window">
+                <div id="preview-overlay">
+                    <h2 id="preview-title">Название вашего квеста</h2>
+                    <p id="preview-description">Описание появится здесь.</p>
+                </div>
+                <img id="preview-character" src="" alt="">
+            </div>
+
+            <div id="output-section">
+                <h2>Код для вставки</h2>
+                <textarea id="iframe-code" readonly placeholder="Нажмите 'Сгенерировать код', чтобы получить iframe..."></textarea>
+                <button id="generate-btn" class="btn">Сгенерировать код</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Элементы DOM ---
+            const questTitleInput = document.getElementById('quest-title');
+            const questDescriptionInput = document.getElementById('quest-description');
+            
+            const previewTitle = document.getElementById('preview-title');
+            const previewDescription = document.getElementById('preview-description');
+            const previewWindow = document.getElementById('preview-window');
+            const previewCharacter = document.getElementById('preview-character');
+
+            const charactersList = document.getElementById('characters-list');
+            const locationsList = document.getElementById('locations-list');
+
+            const generateBtn = document.getElementById('generate-btn');
+            const iframeCodeTextarea = document.getElementById('iframe-code');
+
+            // --- ОБНОВЛЕНИЕ ПРЕДПРОСМОТРА ---
+            
+            // Обновление заголовка и описания
+            questTitleInput.addEventListener('input', () => {
+                previewTitle.textContent = questTitleInput.value || 'Название вашего квеста';
+            });
+            questDescriptionInput.addEventListener('input', () => {
+                previewDescription.textContent = questDescriptionInput.value || 'Описание появится здесь.';
+            });
+
+            // Глобальная функция для обновления превью
+            window.updatePreview = function(type, element) {
+                if (type === 'character') {
+                    // Устанавливаем первого персонажа как активного
+                    const firstCharacterImage = document.querySelector('.character-item input[type=file]');
+                    if (firstCharacterImage && firstCharacterImage.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            previewCharacter.src = e.target.result;
+                            previewCharacter.style.display = 'block';
+                        };
+                        reader.readAsDataURL(firstCharacterImage.files[0]);
+                    } else {
+                        previewCharacter.style.display = 'none';
+                    }
+                }
+                if (type === 'location') {
+                     // Устанавливаем фон первой локации
+                    const firstLocationImage = document.querySelector('.location-item input[type=file]');
+                    if (firstLocationImage && firstLocationImage.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            previewWindow.style.backgroundImage = `url('${e.target.result}')`;
+                        };
+                        reader.readAsDataURL(firstLocationImage.files[0]);
+                    } else {
+                        previewWindow.style.backgroundImage = 'none';
+                    }
+                }
+            }
+
+            // --- ДИНАМИЧЕСКОЕ ДОБАВЛЕНИЕ ЭЛЕМЕНТОВ ---
+
+            // Добавление персонажа
+            window.addCharacter = function() {
+                const charId = Date.now();
+                const characterDiv = document.createElement('div');
+                characterDiv.className = 'list-item character-item';
+                characterDiv.id = `char-${charId}`;
+                characterDiv.innerHTML = `
+                    <img src="https://via.placeholder.com/50" alt="avatar" id="img-char-${charId}">
+                    <div style="flex-grow: 1;">
+                        <input type="text" placeholder="Имя персонажа">
+                        <input type="file" accept="image/*" onchange="handleImageUpload(this, 'img-char-${charId}', 'character')">
+                    </div>
+                    <button class="btn btn-delete" onclick="this.parentElement.remove(); updatePreview('character');">X</button>
+                `;
+                charactersList.appendChild(characterDiv);
+            }
+
+            // Добавление локации
+            window.addLocation = function() {
+                const locId = Date.now();
+                const locationDiv = document.createElement('div');
+                locationDiv.className = 'list-item location-item';
+                locationDiv.id = `loc-${locId}`;
+                locationDiv.innerHTML = `
+                     <img src="https://via.placeholder.com/50" alt="location" id="img-loc-${locId}">
+                    <div style="flex-grow: 1;">
+                        <input type="text" placeholder="Название локации">
+                        <input type="file" accept="image/*" onchange="handleImageUpload(this, 'img-loc-${locId}', 'location')">
+                    </div>
+                    <button class="btn btn-delete" onclick="this.parentElement.remove(); updatePreview('location');">X</button>
+                `;
+                locationsList.appendChild(locationDiv);
+            }
+
+            // Обработка загрузки изображения
+            window.handleImageUpload = function(input, imgId, type) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById(imgId).src = e.target.result;
+                        updatePreview(type, input); // Обновить превью при загрузке
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+            
+            // --- ГЕНЕРАЦИЯ КОДА ---
+
+            generateBtn.addEventListener('click', () => {
+                // 1. Сбор данных из формы в JS объект
+                const gameData = {
+                    title: questTitleInput.value,
+                    description: questDescriptionInput.value,
+                    characters: [],
+                    locations: [],
+                };
+
+                // Сбор персонажей
+                document.querySelectorAll('.character-item').forEach(item => {
+                    gameData.characters.push({
+                        name: item.querySelector('input[type=text]').value,
+                        // В реальном приложении нужно было бы загрузить картинку и получить ссылку
+                        // Здесь для прототипа мы используем Data URL (Base64)
+                        image: item.querySelector('img').src
+                    });
+                });
+                
+                // Сбор локаций
+                 document.querySelectorAll('.location-item').forEach(item => {
+                    gameData.locations.push({
+                        name: item.querySelector('input[type=text]').value,
+                        background: item.querySelector('img').src
+                    });
+                });
+
+                // 2. Создание HTML-кода для плеера игры
+                // Этот код будет внутри iframe. Он берет данные и отображает их.
+                const playerHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { margin: 0; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; color: white; background-size: cover; background-position: center; }
+                            .overlay { background: rgba(0,0,0,0.6); padding: 2em; border-radius: 15px; }
+                            img { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 40%; max-height: 250px; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="overlay">
+                            <h1 id="title"></h1>
+                            <p id="desc"></p>
+                        </div>
+                        <img id="char_img" src="" alt="character">
+                        <script>
+                            // Декодируем данные, которые передал редактор
+                            const encodedData = '${btoa(JSON.stringify(gameData))}';
+                            const data = JSON.parse(atob(encodedData));
+                            
+                            // Отображаем данные в плеере
+                            document.getElementById('title').textContent = data.title || 'Квест';
+                            document.getElementById('desc').textContent = data.description || 'Начните приключение!';
+                            if (data.locations.length > 0) {
+                                document.body.style.backgroundImage = \`url('\${data.locations[0].background}')\`;
+                            }
+                            if (data.characters.length > 0) {
+                                document.getElementById('char_img').src = data.characters[0].image;
+                            }
+                        <\/script>
+                    </body>
+                    </html>
+                `.replace(/\s+/g, ' ').trim(); // Очищаем от лишних пробелов
+
+                // 3. Кодирование HTML в base64 для data URI
+                const encodedHtml = btoa(playerHTML);
+                const iframeSrc = `data:text/html;base64,${encodedHtml}`;
+                
+                // 4. Формирование финального iframe кода
+                const finalCode = `<iframe src="${iframeSrc}" width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
+
+                iframeCodeTextarea.value = finalCode;
+
+                // 5. Копирование в буфер обмена
+                navigator.clipboard.writeText(finalCode).then(() => {
+                    generateBtn.textContent = 'Скопировано!';
+                    generateBtn.classList.add('copied');
+                    setTimeout(() => {
+                        generateBtn.textContent = 'Сгенерировать код';
+                        generateBtn.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Не удалось скопировать текст: ', err);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
