@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор Образовательных Квестов 2.0</title>
+    <title>Редактор Образовательных Квестов 3.0</title>
     <style>
         :root {
             --bg-color: #f4f7f9; --panel-bg: #ffffff; --border-color: #e0e6ed;
@@ -23,13 +23,14 @@
         .form-group, .task-item { margin: 15px 0; border: 1px dashed var(--border-color); padding: 15px; border-radius: 8px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; }
         input[type="text"], textarea, select { width: calc(100% - 22px); padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1em; }
-        textarea { resize: vertical; min-height: 60px; }
+        textarea { resize: vertical; min-height: 100px; } /* Увеличил высоту для списков */
         .btn { background-color: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.2s; }
         .btn:hover { background-color: var(--primary-hover); }
         .btn-add { margin-top: 10px; }
         .btn-delete { background-color: var(--danger-color); font-size: 0.8em; padding: 5px 8px; float: right; }
         .list-item { padding: 10px; margin-top: 10px; border-radius: 4px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border-color); background: #fff; }
         .list-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid var(--border-color); cursor: pointer; }
+        .help-text { font-size: 0.9em; color: #666; margin-top: 5px; }
         #preview-panel { width: 55%; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         #preview-window { flex-grow: 1; background-color: #333; border: 5px solid #222; border-radius: 10px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; text-align: center; background-size: cover; background-position: center; transition: background-image 0.5s ease; }
         #preview-overlay { background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; color: white; }
@@ -54,19 +55,38 @@
                     <label for="quest-title">Название квеста</label>
                     <input type="text" id="quest-title" placeholder="Путешествие в мир знаний">
                     <label for="quest-description">Краткое описание</label>
-                    <textarea id="quest-description" placeholder="Помоги герою пройти все испытания!"></textarea>
+                    <textarea id="quest-description" placeholder="Помоги герою пройти все испытания!" style="min-height: 60px;"></textarea>
                 </div>
             </details>
             <details><summary>2. Герои</summary><div id="heroes-list"></div><button class="btn btn-add" onclick="addItem('hero')">Добавить героя</button></details>
-            <details><summary>3. Враги / Препятствия</summary><div id="enemies-list"></div><button class="btn btn-add" onclick="addItem('enemy')">Добавить врага</button></details>
-            <details><summary>4. Предметы инвентаря</summary><div id="inventory-list"></div><button class="btn btn-add" onclick="addItem('item')">Добавить предмет</button></details>
+            
+            <!-- ИЗМЕНЕНО: Раздел "Враги" теперь использует textarea -->
+            <details>
+                <summary>3. Неправильные предметы (избегать)</summary>
+                <div class="form-group">
+                    <label for="obs_bad">Список врагов или препятствий</label>
+                    <textarea id="obs_bad" placeholder="🦅,🧱,🚁,⛈️"></textarea>
+                    <p class="help-text">Вводите каждый элемент через запятую или с новой строки. Можно использовать эмодзи или ссылки на картинки.</p>
+                </div>
+            </details>
+
+            <!-- ИЗМЕНЕНО: Раздел "Предметы" теперь использует textarea -->
+            <details>
+                <summary>4. Правильные предметы (собирать)</summary>
+                <div class="form-group">
+                    <label for="obs_good">Список предметов для сбора</label>
+                    <textarea id="obs_good" placeholder="🌾,🌽,🍀,🍎"></textarea>
+                    <p class="help-text">Вводите каждый элемент через запятую или с новой строки.</p>
+                </div>
+            </details>
+
             <details><summary>5. Локации</summary><div id="locations-list"></div><button class="btn btn-add" onclick="addItem('location')">Добавить локацию</button></details>
             <details>
                 <summary>6. Уровни сложности</summary>
                 <div class="form-group">
-                    <label for="level-easy">Легкий</label><textarea id="level-easy" placeholder="Задания попроще, больше подсказок."></textarea>
-                    <label for="level-medium">Средний</label><textarea id="level-medium" placeholder="Стандартный набор заданий."></textarea>
-                    <label for="level-hard">Сложный</label><textarea id="level-hard" placeholder="Сложные задания, ограниченное время."></textarea>
+                    <label for="level-easy">Легкий</label><textarea id="level-easy" placeholder="Задания попроще, больше подсказок." style="min-height: 40px;"></textarea>
+                    <label for="level-medium">Средний</label><textarea id="level-medium" placeholder="Стандартный набор заданий." style="min-height: 40px;"></textarea>
+                    <label for="level-hard">Сложный</label><textarea id="level-hard" placeholder="Сложные задания, ограниченное время." style="min-height: 40px;"></textarea>
                 </div>
             </details>
             <details>
@@ -86,7 +106,6 @@
                 </div>
                 <img id="preview-character" src="" alt="">
             </div>
-
             <div id="output-section">
                 <h2>Код для вставки</h2>
                 <textarea id="iframe-code" readonly placeholder="Нажмите 'Сгенерировать код', чтобы получить iframe..."></textarea>
@@ -96,13 +115,13 @@
     </div>
 
     <script>
-        // --- ЗВУКИ (встроены в код через Base64) ---
-        const winSoundBase64 = "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTSEUAAAABA... (very long string)"; // Замените на реальный Base64 звука
-        const failSoundBase64 = "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTSEUAAAABA... (very long string)"; // Замените на реальный Base64 звука
-        // Примечание: Для краткости я оставил заглушки. Вы можете найти короткие mp3-файлы и сконвертировать их в Base64 онлайн.
-        // Для примера, вот короткие звуки:
         const winSoundExample = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
         const failSoundExample = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAA";
+
+        // ИЗМЕНЕНО: Добавлена вспомогательная функция для парсинга списков
+        function parseList(val){
+            return String(val).split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             const previewTitle = document.getElementById('preview-title');
@@ -112,7 +131,8 @@
 
             document.getElementById('quest-title').addEventListener('input', (e) => { previewTitle.textContent = e.target.value || 'Название квеста'; });
             document.getElementById('quest-description').addEventListener('input', (e) => { previewDescription.textContent = e.target.value || 'Описание появится здесь.'; });
-
+            
+            // Эта функция теперь нужна только для Героев и Локаций
             window.addItem = (type) => {
                 const id = Date.now();
                 const container = document.getElementById(`${type}s-list`);
@@ -120,10 +140,7 @@
                 itemDiv.className = 'list-item';
                 itemDiv.id = `${type}-${id}`;
                 
-                let placeholderText = 'Название';
-                if (type === 'hero') placeholderText = 'Имя героя';
-                if (type === 'enemy') placeholderText = 'Имя врага';
-                if (type === 'location') placeholderText = 'Название локации';
+                let placeholderText = (type === 'hero') ? 'Имя героя' : 'Название локации';
                 
                 itemDiv.innerHTML = `
                     <img src="https://via.placeholder.com/50" alt="${type}" id="img-${id}" data-base64="" ${type === 'hero' ? `onclick="setPreviewCharacter('${id}')"` : ''}>
@@ -142,9 +159,8 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const base64 = e.target.result;
-                        const img = document.getElementById(`img-${id}`);
-                        img.src = base64;
-                        img.dataset.base64 = base64;
+                        document.getElementById(`img-${id}`).src = base64;
+                        document.getElementById(`img-${id}`).dataset.base64 = base64;
                         updatePreview();
                     };
                     reader.readAsDataURL(input.files[0]);
@@ -184,21 +200,14 @@
                 taskDiv.id = `task-${id}`;
                 taskDiv.innerHTML = `
                     <button class="btn btn-delete" onclick="this.parentElement.remove()">X</button>
-                    <div class="form-group">
-                        <label>Вопрос:</label>
-                        <textarea placeholder="Введите текст вопроса..."></textarea>
-                    </div>
+                    <div class="form-group"><label>Вопрос:</label><textarea placeholder="Введите текст вопроса..."></textarea></div>
                     <div class="form-group">
                         <label>Тип задания:</label>
                         <select onchange="updateTaskUI(this, '${id}')">
-                            <option value="choice">Выбор ответа</option>
-                            <option value="input">Ввод текста</option>
+                            <option value="choice">Выбор ответа</option><option value="input">Ввод текста</option>
                         </select>
                     </div>
-                    <div id="task-body-${id}">
-                        <!-- Динамический контент для типа задания -->
-                    </div>
-                `;
+                    <div id="task-body-${id}"></div>`;
                 container.appendChild(taskDiv);
                 updateTaskUI(taskDiv.querySelector('select'), id);
             };
@@ -210,13 +219,9 @@
                     body.innerHTML = `
                         <label>Варианты ответов (отметьте правильный):</label>
                         <div class="task-options-container">
-                            ${[1,2,3,4].map(i => `
-                            <div class="option-group">
-                                <input type="radio" name="correct-answer-${id}" value="${i-1}">
-                                <input type="text" placeholder="Вариант ${i}">
-                            </div>`).join('')}
+                            ${[1,2,3,4].map(i => `<div class="option-group"><input type="radio" name="correct-answer-${id}" value="${i-1}"><input type="text" placeholder="Вариант ${i}"></div>`).join('')}
                         </div>`;
-                } else if (type === 'input') {
+                } else {
                     body.innerHTML = `<label>Правильный ответ (текст):</label><input type="text" placeholder="Введите точный ответ">`;
                 }
             };
@@ -230,7 +235,10 @@
                         medium: document.getElementById('level-medium').value,
                         hard: document.getElementById('level-hard').value,
                     },
-                    heroes: [], locations: [], enemies: [], items: [], tasks: []
+                    heroes: [], locations: [], tasks: [],
+                    // ИЗМЕНЕНО: Сбор данных из новых полей
+                    enemies: parseList(document.getElementById('obs_bad').value),
+                    items: parseList(document.getElementById('obs_good').value),
                 };
 
                 document.querySelectorAll('#heroes-list .list-item').forEach(el => {
@@ -239,7 +247,6 @@
                 document.querySelectorAll('#locations-list .list-item').forEach(el => {
                     gameData.locations.push({ name: el.querySelector('input').value, desc: el.querySelector('textarea').value, img: el.querySelector('img').dataset.base64 });
                 });
-                // ... (можно добавить сбор врагов и предметов аналогично) ...
                 
                 document.querySelectorAll('.task-item').forEach(el => {
                     const task = {
@@ -247,12 +254,11 @@
                         type: el.querySelector('select').value,
                     };
                     if (task.type === 'choice') {
-                        task.options = [];
-                        el.querySelectorAll('.option-group input[type="text"]').forEach(opt => task.options.push(opt.value));
+                        task.options = Array.from(el.querySelectorAll('.option-group input[type="text"]')).map(opt => opt.value);
                         const correctRadio = el.querySelector('input[type="radio"]:checked');
                         task.correct = correctRadio ? parseInt(correctRadio.value) : 0;
                     } else {
-                        task.correct = el.querySelector('#task-body-' + el.id.split('-')[1] + ' input').value;
+                        task.correct = el.querySelector(`#task-body-${el.id.split('-')[1]} input`).value;
                     }
                     gameData.tasks.push(task);
                 });
@@ -275,7 +281,8 @@
             });
 
             function createPlayerHTML(data) {
-                // Вся логика и стили игры будут здесь. Это большая строка.
+                // Плеер пока не использует enemies и items, но они уже встроены в данные
+                // и готовы к использованию в будущих версиях игры.
                 return `
 <!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8">
 <style>
@@ -308,58 +315,33 @@ h1{font-size:3em;} p{font-size:1.2em;}
 <div id="task-modal"><div class="task-content"><h2 id="task-question"></h2><div id="task-body"></div></div></div>
 <script>
 const gameData = JSON.parse(decodeURIComponent(escape(atob('${btoa(unescape(encodeURIComponent(JSON.stringify(data))))}'))));
+console.log("Game Data Loaded:", gameData); // Можно посмотреть в консоли, что все списки загрузились
 const game = {
     state: { level: null, hero: null, currentTask: 0, score: 0 },
-    
     init() {
         document.querySelector('#start-screen h1').textContent = gameData.title;
         document.querySelector('#start-screen p').textContent = gameData.description;
-        if (gameData.locations.length > 0) {
-            document.querySelectorAll('.screen').forEach(s => s.style.backgroundImage = \`url(\${gameData.locations[0].img})\`);
-        }
-        
-        const levelButtons = document.getElementById('level-buttons');
+        if (gameData.locations.length > 0) { document.querySelectorAll('.screen').forEach(s => s.style.backgroundImage = \`url(\${gameData.locations[0].img})\`); }
+        const levelButtons = document.getElementById('level-buttons'); levelButtons.innerHTML = '';
         Object.keys(gameData.levels).forEach(key => {
-            const btn = document.createElement('button');
-            btn.className = 'game-btn';
-            btn.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-            btn.onclick = () => this.selectLevel(key);
-            levelButtons.appendChild(btn);
+            if (gameData.levels[key]) {
+                const btn = document.createElement('button'); btn.className = 'game-btn';
+                btn.textContent = key.charAt(0).toUpperCase() + key.slice(1); btn.onclick = () => this.selectLevel(key); levelButtons.appendChild(btn);
+            }
         });
-
-        const heroCards = document.getElementById('hero-cards');
+        const heroCards = document.getElementById('hero-cards'); heroCards.innerHTML = '';
         gameData.heroes.forEach((hero, index) => {
-            const card = document.createElement('div');
-            card.className = 'hero-card';
+            const card = document.createElement('div'); card.className = 'hero-card';
             card.innerHTML = \`<img src="\${hero.img}" alt="\${hero.name}"><h3>\${hero.name}</h3><p>\${hero.desc}</p>\`;
-            card.onclick = () => this.selectHero(index);
-            heroCards.appendChild(card);
+            card.onclick = () => this.selectHero(index); heroCards.appendChild(card);
         });
     },
-    showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-    },
-    selectLevel(level) {
-        this.state.level = level;
-        this.showScreen('hero-screen');
-    },
-    selectHero(heroIndex) {
-        this.state.hero = gameData.heroes[heroIndex];
-        document.getElementById('game-character').src = this.state.hero.img;
-        this.startGame();
-    },
-    startGame() {
-        this.showScreen('game-screen');
-        this.state.currentTask = 0;
-        setTimeout(() => this.showNextTask(), 1500);
-    },
+    showScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); },
+    selectLevel(level) { this.state.level = level; this.showScreen('hero-screen'); },
+    selectHero(heroIndex) { this.state.hero = gameData.heroes[heroIndex]; document.getElementById('game-character').src = this.state.hero.img; this.startGame(); },
+    startGame() { this.showScreen('game-screen'); this.state.currentTask = 0; setTimeout(() => this.showNextTask(), 1500); },
     showNextTask() {
-        if(this.state.currentTask >= gameData.tasks.length){
-            alert('Поздравляем! Вы прошли квест! Ваш счет: ' + this.state.score);
-            this.showScreen('start-screen');
-            return;
-        }
+        if(this.state.currentTask >= gameData.tasks.length){ alert('Поздравляем! Вы прошли квест! Ваш счет: ' + this.state.score); this.showScreen('start-screen'); return; }
         const task = gameData.tasks[this.state.currentTask];
         document.getElementById('task-question').textContent = task.question;
         const taskBody = document.getElementById('task-body');
@@ -371,25 +353,12 @@ const game = {
         document.getElementById('task-modal').classList.add('active');
     },
     checkAnswer(answer) {
-        const task = gameData.tasks[this.state.currentTask];
-        let isCorrect = false;
-        if(task.type === 'choice') {
-            if(answer === task.correct) isCorrect = true;
-        } else {
-            const userAnswer = document.getElementById('text-answer').value;
-            if(userAnswer.trim().toLowerCase() === task.correct.trim().toLowerCase()) isCorrect = true;
-        }
-        
-        if(isCorrect) {
-            document.getElementById('win-sound').play();
-            this.state.score += 10;
-        } else {
-            document.getElementById('fail-sound').play();
-        }
-        
-        document.getElementById('task-modal').classList.remove('active');
-        this.state.currentTask++;
-        setTimeout(() => this.showNextTask(), 1000);
+        const task = gameData.tasks[this.state.currentTask]; let isCorrect = false;
+        if(task.type === 'choice') { if(answer === task.correct) isCorrect = true; } 
+        else { const userAnswer = document.getElementById('text-answer').value; if(userAnswer.trim().toLowerCase() === task.correct.trim().toLowerCase()) isCorrect = true; }
+        if(isCorrect) { document.getElementById('win-sound').play(); this.state.score += 10; } 
+        else { document.getElementById('fail-sound').play(); }
+        document.getElementById('task-modal').classList.remove('active'); this.state.currentTask++; setTimeout(() => this.showNextTask(), 1000);
     }
 };
 game.init();
