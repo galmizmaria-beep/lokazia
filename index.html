@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор Образовательных Игр</title>
+    <title>Генератор интерактивных карточек</title>
     <style>
         :root {
             --bg-dark: #101820;
@@ -14,233 +14,131 @@
             --border-color: rgba(0, 255, 231, 0.2);
             --hover-bg: rgba(0, 255, 231, 0.05);
         }
-
-        /* --- ОБЩИЕ СТИЛИ --- */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-image: linear-gradient(180deg, #1a2a3a, #101820);
             color: var(--text-light);
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            overflow-x: hidden;
+            align-items: center;
         }
 
         .master-container {
-            width: 100%;
+            width: 95vw;
             max-width: 1400px;
+            height: calc(95vw * 9 / 16);
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-title {
+            text-align: center;
+            color: var(--accent-color);
+            text-shadow: 0 0 5px var(--accent-color);
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         button {
-            background-color: transparent;
-            color: var(--accent-color);
-            border: 1px solid var(--accent-color);
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s;
+            background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color);
+            padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s;
         }
-        button:hover {
-            background-color: var(--accent-color);
-            color: var(--bg-dark);
-            box-shadow: 0 0 15px var(--accent-color);
+        button:hover { background-color: var(--accent-color); color: var(--bg-dark); box-shadow: 0 0 15px var(--accent-color); }
+        button:disabled { background-color: #4a5568; border-color: #4a5568; color: #a0aec0; cursor: not-allowed; box-shadow: none; }
+        
+        input, textarea, select {
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;
+            box-sizing: border-box; margin-top: 5px; margin-bottom: 10px; background-color: rgba(0,0,0,0.2);
+            color: var(--text-light); transition: all 0.3s;
         }
-        button:disabled {
-            background-color: #4a5568;
-            border-color: #4a5568;
-            color: #a0aec0;
-            cursor: not-allowed;
-            box-shadow: none;
+        input:hover, textarea:hover, select:hover, input:focus, textarea:focus, select:focus {
+            border-color: var(--accent-color); box-shadow: 0 0 5px var(--accent-color); outline: none;
         }
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-sizing: border-box;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            background-color: rgba(0,0,0,0.2);
-            color: var(--text-light);
-            transition: all 0.3s;
-        }
-        input:hover, textarea:hover, input:focus, textarea:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 5px var(--accent-color);
-            outline: none;
-        }
-
-        /* --- СТИЛИ РЕДАКТОРА --- */
-        #editor-wrapper {
-            display: flex;
-            gap: 20px;
-        }
-        #editor-panel { flex: 1; min-width: 400px; }
-        #preview-panel { flex: 1.5; }
+        
+        #editor-wrapper { display: flex; gap: 20px; height: 100%; overflow: hidden; }
+        #editor-panel { flex: 1; min-width: 350px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--accent-color) transparent; }
+        #preview-section { flex: 1.5; display: flex; flex-direction: column; }
         
         .editor-panel-inner {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
+            background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 25px; backdrop-filter: blur(10px); height: 100%; box-sizing: border-box;
         }
+        .editor-panel-inner h2 { color: var(--accent-color); text-shadow: 0 0 5px var(--accent-color); }
         
-        .editor-panel-inner h1, .editor-panel-inner h2 { color: var(--accent-color); text-shadow: 0 0 5px var(--accent-color); }
-        .editor-panel-inner p { color: #a0aec0; }
+        .editor-section { margin-bottom: 15px; padding: 10px; border-radius: 8px; border: 1px solid transparent; transition: all 0.3s; }
+        .editor-section:hover { background-color: var(--hover-bg); border-color: var(--border-color); }
         
-        .editor-section {
-            margin-bottom: 25px;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            transition: all 0.3s;
-        }
-        .editor-section:hover {
-            background-color: var(--hover-bg);
-            border-color: var(--border-color);
-        }
-        
-        .question-block {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
-        }
+        .question-block { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid var(--border-color); }
         .option-group { display: flex; align-items: center; margin-bottom: 8px; }
         .option-group input[type="radio"] { width: auto; margin-right: 10px; margin-top: 0; }
+        
+        .character-upload-group { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .character-upload-group img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .character-upload-group input[type="file"] { display: none; }
+        .character-upload-group label { background-color: #4a5568; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; text-align: center; flex-grow: 1; }
         
         .remove-btn { border-color: #e53e3e; color: #e53e3e; }
         .remove-btn:hover { background-color: #e53e3e; color: white; box-shadow: 0 0 15px #e53e3e;}
 
-        #preview-iframe {
-            width: 100%;
-            height: 700px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-dark);
-        }
-        
-        #generated-code-area { display: none; margin-top: 20px; }
-        #iframe-code { min-height: 120px; }
+        #preview-iframe { width: 100%; flex-grow: 1; border-radius: 12px; border: 1px solid var(--border-color); background-color: var(--bg-dark); }
+        #generate-code-wrapper { margin-top: 20px; }
+        #iframe-code { display: none; margin-top: 10px; min-height: 80px; }
         
         /* --- СТИЛИ ИГРЫ --- */
         #game-container {
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
+            width: 100%; height: 100%; text-align: center; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
         }
-        
         .game-frame {
-            width: 100%;
-            max-width: 500px;
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
+            width: 100%; max-width: 500px; background-color: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 30px; backdrop-filter: blur(10px);
         }
-        
         #start-screen h2 { color: var(--accent-color); margin-top: 0;}
         #start-screen img {
-            width: 80px; height: 80px;
-            border: 3px solid transparent;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-            object-fit: cover;
-            margin: 5px;
+            width: 80px; height: 80px; border: 3px solid transparent; border-radius: 50%;
+            cursor: pointer; transition: all 0.3s; object-fit: cover; margin: 5px;
         }
         #start-screen img:hover { transform: scale(1.1); }
         #start-screen img.selected { border-color: var(--accent-color); transform: scale(1.1); box-shadow: 0 0 10px var(--accent-color); }
-        .level-selector { margin: 20px 0; }
+        .level-selector { margin: 20px 0; display: flex; gap: 10px; justify-content: center; }
         .level-btn.selected { background-color: var(--accent-color); color: var(--bg-dark); }
         
-        #game-layout {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            gap: 20px;
-        }
+        #game-layout { display: flex; width: 100%; height: 100%; gap: 20px; }
         #character-display {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;
         }
         #character-display img { max-width: 100%; max-height: 80%; border-radius: 12px; }
         
-        #card-stack-area {
-            flex: 1.2;
-            position: relative;
-            perspective: 1000px;
-            min-height: 450px;
-        }
+        #card-stack-area { flex: 1.2; position: relative; perspective: 1000px; min-height: 450px; }
         .card {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: all 0.6s ease;
-            cursor: pointer;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: all 0.6s ease;
+            cursor: pointer; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
-        .card.swiped-away {
-            transform: translate(150%, -50%) rotate(30deg) !important;
-            opacity: 0;
-        }
+        .card.swiped-away { transform: translate(150%, -50%) rotate(30deg) !important; opacity: 0; }
         .card.flipped { transform: rotateY(180deg); cursor: default; }
-        
         .card-face {
-            position: absolute;
-            width: 100%; height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 12px;
-            overflow: hidden;
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 12px; overflow: hidden;
         }
         .card-front { background: linear-gradient(45deg, #00776b, #00bfa5); color: white; font-size: 3em; }
         .card-back {
-            background-color: #e0e0e0;
-            color: var(--text-dark);
-            transform: rotateY(180deg);
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: left;
-            justify-content: flex-start;
+            background-color: #e0e0e0; color: var(--text-dark); transform: rotateY(180deg); padding: 20px;
+            box-sizing: border-box; text-align: left; justify-content: flex-start;
         }
         .card-question { font-size: 1.2em; font-weight: bold; margin-bottom: 20px; }
-        .card-answers button {
-            width: 100%;
-            margin-bottom: 10px;
-            background-color: #f1f5f9;
-            color: var(--text-dark);
-            border: 1px solid #ccc;
-            text-align: left;
-        }
+        .card-answers button, .card-input-area button { width: 100%; margin-bottom: 10px; background-color: #f1f5f9; color: var(--text-dark); border: 1px solid #ccc; text-align: left; }
         .card-answers button:hover:not(:disabled) { background-color: #e2e8f0; }
-        .card-answers button.correct { background-color: #4ade80 !important; border-color: #38a169 !important; color: white; }
-        .card-answers button.incorrect { background-color: #f87171 !important; border-color: #c53030 !important; color: white; }
+        .card-answers button.correct, .card-input-area button.correct { background-color: #4ade80 !important; border-color: #38a169 !important; color: white; }
+        .card-answers button.incorrect, .card-input-area button.incorrect { background-color: #f87171 !important; border-color: #c53030 !important; color: white; }
 
         #end-screen h2 { font-size: 2.5em; color: var(--accent-color); }
         .hidden { display: none !important; }
@@ -248,30 +146,24 @@
 </head>
 <body>
     <div class="master-container">
+        <h1 class="main-title">Генератор интерактивных карточек</h1>
         <!-- ======================= РЕДАКТОР (виден по умолчанию) ======================= -->
         <div id="editor-wrapper">
             <div id="editor-panel">
                 <div class="editor-panel-inner">
-                    <h1>📝 Редактор Игры</h1>
-                    <p>Настройте параметры игры слева, и вы сразу увидите результат в окне предпросмотра справа.</p>
-                    
                     <div class="editor-section">
-                        <h2>1. Основные настройки</h2>
-                        <label for="game-title">Название игры:</label>
+                        <h2>1. Название игры</h2>
                         <input type="text" id="game-title" value="Проверь свои знания!">
                     </div>
 
                     <div class="editor-section">
                         <h2>2. Персонажи</h2>
-                        <div id="characters-container">
-                            <input type="text" class="character-input" placeholder="https://..." value="https://images.gnwcdn.com/2023/usgamer/mega-man-battle-network-legacy-collection-screenshot-4-1.jpg/EG11/thumbnail/1920x1080/format/jpg/quality/80">
-                        </div>
+                        <div id="characters-container"></div>
                         <button id="add-character-btn">Добавить персонажа</button>
                     </div>
 
                     <div class="editor-section">
                         <h2>3. Уровни</h2>
-                        <p>На данный момент уровни не влияют на механику "стопки карточек", но их можно будет добавить в будущем.</p>
                         <label for="level-easy-name">Название уровня 1:</label>
                         <input type="text" id="level-easy-name" value="Легкий">
                         <label for="level-hard-name">Название уровня 2:</label>
@@ -283,44 +175,33 @@
                         <div id="questions-container"></div>
                         <button id="add-question-btn">Добавить вопрос</button>
                     </div>
-
-                    <button id="generate-code-btn">🚀 Сгенерировать код iframe</button>
-                    <div id="generated-code-area">
-                        <h3>Готово!</h3>
-                        <textarea id="iframe-code" readonly onclick="this.select()"></textarea>
-                    </div>
                 </div>
             </div>
-            <div id="preview-panel">
+            <div id="preview-section">
                 <iframe id="preview-iframe"></iframe>
+                <div id="generate-code-wrapper">
+                    <button id="generate-code-btn">Сгенерировать код</button>
+                    <textarea id="iframe-code"></textarea>
+                </div>
             </div>
         </div>
 
-        <!-- ======================= ИГРА (скрыта по умолчанию, загружается в iframe) ======================= -->
+        <!-- ======================= ИГРА (загружается в iframe) ======================= -->
         <div id="game-container" class="hidden">
-             <!-- Экран 1: Старт -->
             <div id="start-screen" class="game-frame">
                 <h1 id="game-title-display"></h1>
-                <div class="start-section">
-                    <h2>Выберите персонажа:</h2>
-                    <div id="character-selector"></div>
-                </div>
-                <div class="start-section">
-                     <h2>Выберите уровень:</h2>
-                    <div id="level-selector"></div>
-                </div>
+                <h2>Выберите персонажа:</h2>
+                <div id="character-selector"></div>
+                <h2>Выберите уровень:</h2>
+                <div id="level-selector" class="level-selector"></div>
                 <button id="start-game-btn" disabled>Начать игру!</button>
             </div>
-            <!-- Экран 2: Игровой процесс -->
             <div id="game-process" class="hidden">
                 <div id="game-layout">
-                    <div id="character-display">
-                        <img id="player-char-img" src="" alt="Выбранный персонаж">
-                    </div>
+                    <div id="character-display"><img id="player-char-img" src="" alt="Выбранный персонаж"></div>
                     <div id="card-stack-area"></div>
                 </div>
             </div>
-            <!-- Экран 3: Конец игры -->
             <div id="end-screen" class="hidden game-frame">
                 <h2 id="end-title">Игра окончена!</h2>
                 <button onclick="window.location.reload()">Сыграть еще раз</button>
@@ -336,97 +217,155 @@
         let gameState = { level: '', character: '', currentCardIndex: 0 };
         const urlParams = new URLSearchParams(window.location.search);
         const configData = urlParams.get('config');
+        let characterDataUrls = [];
+        let isCodeGenerated = false;
 
         if (configData) {
             try {
                 const decodedConfig = decodeURIComponent(atob(configData));
                 gameConfig = JSON.parse(decodedConfig);
-                editorWrapper.classList.add('hidden');
-                document.querySelector('body').style.padding = '0'; 
+                editorWrapper.style.display = 'none';
+                document.querySelector('.main-title').style.display = 'none';
+                document.querySelector('body').style.padding = '0';
                 gameContainer.classList.remove('hidden');
                 initGame();
-            } catch (e) {
-                document.body.innerHTML = "<h1>Ошибка загрузки игры.</h1>";
-            }
+            } catch (e) { document.body.innerHTML = "<h1>Ошибка загрузки игры.</h1>"; }
         } else {
             initEditor();
         }
 
-        // ======================= ЛОГИКА РЕДАКТОРА =======================
         function initEditor() {
             document.getElementById('add-character-btn').addEventListener('click', addCharacterInput);
             document.getElementById('add-question-btn').addEventListener('click', addQuestionBlock);
-            document.getElementById('generate-code-btn').addEventListener('click', () => {
-                document.getElementById('generated-code-area').style.display = 'block';
-            });
-            
-            // Live Preview Listener
+            document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCodeClick);
             document.getElementById('editor-panel').addEventListener('input', updatePreview);
-
+            addCharacterInput();
             addQuestionBlock();
             updatePreview();
         }
-
-        function collectConfig() {
-            const config = {
+        
+        async function collectConfig() {
+            return {
                 title: document.getElementById('game-title').value,
-                characters: Array.from(document.querySelectorAll('.character-input')).map(input => input.value).filter(Boolean),
+                characters: characterDataUrls.filter(Boolean),
                 levels: [
                     document.getElementById('level-easy-name').value,
                     document.getElementById('level-hard-name').value
                 ],
-                questions: []
+                questions: Array.from(document.querySelectorAll('.question-block')).map(block => {
+                    const questionType = block.querySelector('.question-type-select').value;
+                    const question = {
+                        type: questionType,
+                        question: block.querySelector('.question-text').value
+                    };
+                    if (questionType === 'multiple-choice') {
+                        question.options = Array.from(block.querySelectorAll('.option-text')).map(input => input.value);
+                        const correctInput = block.querySelector('input[type="radio"]:checked');
+                        question.answer = correctInput ? parseInt(correctInput.value) : 0;
+                    } else if (questionType === 'text-input') {
+                        question.answer = block.querySelector('.text-answer-input').value;
+                    }
+                    return question;
+                }).filter(q => q.question)
             };
-            document.querySelectorAll('.question-block').forEach((block, index) => {
-                const questionText = block.querySelector('.question-text').value;
-                const options = Array.from(block.querySelectorAll('.option-text')).map(input => input.value);
-                const correctOptionInput = block.querySelector(`input[name="correct_q${index}"]:checked`);
-                if (questionText && options.length > 1 && options.every(Boolean) && correctOptionInput) {
-                    config.questions.push({
-                        question: questionText,
-                        options: options,
-                        answer: parseInt(correctOptionInput.value)
-                    });
-                }
-            });
-            return config;
         }
-        
-        function updatePreview() {
-            const config = collectConfig();
-            if (config.questions.length === 0 || config.characters.length === 0) return;
 
+        async function updatePreview() {
+            const config = await collectConfig();
+            if (config.questions.length === 0 || config.characters.length === 0) return;
             const jsonConfig = JSON.stringify(config);
             const base64Config = btoa(encodeURIComponent(jsonConfig));
             const gameUrl = `${window.location.origin}${window.location.pathname}?config=${base64Config}`;
-            
             document.getElementById('preview-iframe').src = gameUrl;
-            document.getElementById('iframe-code').value = `<iframe src="${gameUrl}" width="800" height="700" frameborder="0"></iframe>`;
+            document.getElementById('iframe-code').value = `<iframe src="${gameUrl}" width="1200" height="675" frameborder="0"></iframe>`;
+            isCodeGenerated = false;
+            document.getElementById('generate-code-btn').textContent = 'Сгенерировать код';
+        }
+
+        function handleGenerateCodeClick() {
+            const codeTextarea = document.getElementById('iframe-code');
+            const btn = document.getElementById('generate-code-btn');
+            
+            if (!isCodeGenerated) {
+                codeTextarea.style.display = 'block';
+                btn.textContent = 'Копировать';
+                isCodeGenerated = true;
+            } else {
+                codeTextarea.select();
+                navigator.clipboard.writeText(codeTextarea.value).then(() => {
+                    btn.textContent = 'Скопировано!';
+                    setTimeout(() => { btn.textContent = 'Копировать'; }, 2000);
+                });
+            }
         }
 
         function addCharacterInput() {
             const container = document.getElementById('characters-container');
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'character-input';
-            input.placeholder = 'https://...';
-            container.appendChild(input);
-            updatePreview();
+            const index = container.children.length;
+            characterDataUrls[index] = '';
+            const group = document.createElement('div');
+            group.className = 'character-upload-group';
+            group.innerHTML = `
+                <img src="https://placehold.co/40x40/101820/00ffe7?text=+" alt="preview" id="char-preview-${index}">
+                <input type="file" id="char-upload-${index}" accept="image/*">
+                <label for="char-upload-${index}">Загрузить...</label>
+            `;
+            container.appendChild(group);
+            document.getElementById(`char-upload-${index}`).addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById(`char-preview-${index}`).src = e.target.result;
+                        characterDataUrls[index] = e.target.result;
+                        updatePreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
         }
-
+        
         function addQuestionBlock() {
             const container = document.getElementById('questions-container');
-            const questionIndex = Date.now(); // Use timestamp for unique name
+            const qIndex = Date.now();
             const block = document.createElement('div');
             block.className = 'question-block';
-            block.innerHTML = `<h4>Вопрос ${container.children.length + 1}</h4><textarea class="question-text" placeholder="Текст вопроса..."></textarea><div class="options-container"><div class="option-group"><input type="radio" name="correct_q${questionIndex}" value="0" checked><input type="text" class="option-text" placeholder="Вариант ответа 1"></div><div class="option-group"><input type="radio" name="correct_q${questionIndex}" value="1"><input type="text" class="option-text" placeholder="Вариант ответа 2"></div></div><button type="button" class="add-option-btn">Добавить вариант</button><button type="button" class="remove-question-btn remove-btn">Удалить</button>`;
+            block.innerHTML = `
+                <h4>Вопрос ${container.children.length + 1}</h4>
+                <select class="question-type-select">
+                    <option value="multiple-choice">Один из многих</option>
+                    <option value="text-input">Ввод текста</option>
+                </select>
+                <textarea class="question-text" placeholder="Текст вопроса..."></textarea>
+                <div class="question-type-wrapper multiple-choice">
+                    <div class="options-container"></div>
+                    <button type="button" class="add-option-btn">Добавить вариант</button>
+                </div>
+                <div class="question-type-wrapper text-input hidden">
+                    <input type="text" class="text-answer-input" placeholder="Правильный ответ...">
+                </div>
+                <button type="button" class="remove-question-btn remove-btn">Удалить</button>`;
             container.appendChild(block);
-            block.querySelector('.add-option-btn').onclick = () => addOption(block, questionIndex);
+            
+            const typeSelect = block.querySelector('.question-type-select');
+            const mcWrapper = block.querySelector('.multiple-choice');
+            const textWrapper = block.querySelector('.text-input');
+            
+            typeSelect.addEventListener('change', () => {
+                mcWrapper.classList.toggle('hidden', typeSelect.value !== 'multiple-choice');
+                textWrapper.classList.toggle('hidden', typeSelect.value !== 'text-input');
+                updatePreview();
+            });
+
+            addOption(block.querySelector('.options-container'), qIndex);
+            addOption(block.querySelector('.options-container'), qIndex);
+            block.querySelector('input[type="radio"]').checked = true;
+
+            block.querySelector('.add-option-btn').onclick = () => addOption(block.querySelector('.options-container'), qIndex);
             block.querySelector('.remove-question-btn').onclick = () => { block.remove(); updatePreview(); };
         }
-
-        function addOption(block, qIndex) {
-            const container = block.querySelector('.options-container');
+        
+        function addOption(container, qIndex) {
             const optionIndex = container.children.length;
             const group = document.createElement('div');
             group.className = 'option-group';
@@ -442,7 +381,7 @@
                 const img = document.createElement('img');
                 img.src = url;
                 img.onclick = () => {
-                    document.querySelectorAll('#character-selector img').forEach(i => i.classList.remove('selected'));
+                    charSelector.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
                     img.classList.add('selected');
                     gameState.character = url;
                     checkStartButton();
@@ -455,7 +394,7 @@
                 btn.className = 'level-btn';
                 btn.textContent = levelName;
                 btn.onclick = () => {
-                    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+                    levelSelector.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                     gameState.level = levelName;
                     checkStartButton();
@@ -464,23 +403,20 @@
             });
             document.getElementById('start-game-btn').onclick = startGame;
         }
-        
-        function checkStartButton() {
-            document.getElementById('start-game-btn').disabled = !(gameState.character && gameState.level);
-        }
 
+        function checkStartButton() { document.getElementById('start-game-btn').disabled = !(gameState.character && gameState.level); }
+        
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-process').classList.remove('hidden');
             document.getElementById('player-char-img').src = gameState.character;
-            
             const stackArea = document.getElementById('card-stack-area');
             stackArea.innerHTML = '';
             gameState.currentCardIndex = 0;
-            
-            gameConfig.questions.reverse().forEach((q, index) => {
+            const reversedQuestions = [...gameConfig.questions].reverse();
+            reversedQuestions.forEach((q, index) => {
                 const card = createCardElement(q, gameConfig.questions.length - 1 - index);
-                const offset = (gameConfig.questions.length - 1 - index) * 4;
+                const offset = index * 4;
                 card.style.transform = `translateX(${offset}px) translateY(${offset}px)`;
                 stackArea.appendChild(card);
             });
@@ -490,47 +426,52 @@
             const card = document.createElement('div');
             card.className = 'card';
             card.dataset.index = index;
-            card.innerHTML = `<div class="card-face card-front"></div><div class="card-face card-back"><div class="card-question">${qData.question}</div><div class="card-answers"></div></div>`;
+            card.innerHTML = `<div class="card-face card-front"></div><div class="card-face card-back"><div class="card-question">${qData.question}</div><div class="card-content"></div></div>`;
+            const contentContainer = card.querySelector('.card-content');
             
-            const answersContainer = card.querySelector('.card-answers');
-            qData.options.forEach((opt, optIndex) => {
+            if (qData.type === 'multiple-choice') {
+                contentContainer.classList.add('card-answers');
+                qData.options.forEach((opt, optIndex) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = opt;
+                    btn.onclick = () => checkAnswer(optIndex === qData.answer, btn);
+                    contentContainer.appendChild(btn);
+                });
+            } else if (qData.type === 'text-input') {
+                contentContainer.classList.add('card-input-area');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = 'Введите ваш ответ...';
                 const btn = document.createElement('button');
-                btn.textContent = opt;
-                btn.onclick = () => checkAnswer(optIndex === qData.answer, btn);
-                answersContainer.appendChild(btn);
-            });
-
-            card.addEventListener('click', () => {
-                if (!card.classList.contains('flipped')) {
+                btn.textContent = 'Проверить';
+                btn.onclick = () => checkAnswer(input.value.trim().toLowerCase() === qData.answer.trim().toLowerCase(), btn);
+                contentContainer.appendChild(input);
+                contentContainer.appendChild(btn);
+            }
+            card.addEventListener('click', (e) => {
+                if (!card.classList.contains('flipped') && e.target.closest('.card-front')) {
                     card.classList.add('flipped');
                 }
-            }, { once: true });
+            }, { capture: true });
             return card;
         }
-
+        
         function checkAnswer(isCorrect, button) {
             const cardBack = button.closest('.card-back');
-            cardBack.querySelectorAll('button').forEach(b => b.disabled = true);
-            
+            cardBack.querySelectorAll('button, input').forEach(el => el.disabled = true);
             button.classList.add(isCorrect ? 'correct' : 'incorrect');
-            
-            if (!isCorrect) {
+            if (!isCorrect && button.closest('.multiple-choice')) {
                 const correctButton = cardBack.querySelectorAll('button')[gameConfig.questions[gameState.currentCardIndex].answer];
-                correctButton.classList.add('correct');
+                if (correctButton) correctButton.classList.add('correct');
             }
-
-            setTimeout(nextCard, 1500);
+            setTimeout(nextCard, 2000);
         }
 
         function nextCard() {
             const stackArea = document.getElementById('card-stack-area');
             const currentCard = stackArea.querySelector(`.card[data-index="${gameState.currentCardIndex}"]`);
-            if (currentCard) {
-                currentCard.classList.add('swiped-away');
-            }
-            
+            if (currentCard) currentCard.classList.add('swiped-away');
             gameState.currentCardIndex++;
-            
             if (gameState.currentCardIndex >= gameConfig.questions.length) {
                 setTimeout(endGame, 600);
             }
