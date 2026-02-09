@@ -1,162 +1,121 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Генератор интерактивных карточек</title>
     <style>
-        :root {
-            --bg-dark: #101820;
-            --panel-bg: rgba(23, 37, 51, 0.85);
-            --accent-color: #00ffe7;
-            --text-light: #e0e0e0;
-            --text-dark: #333;
-            --border-color: rgba(0, 255, 231, 0.2);
-            --hover-bg: rgba(0, 255, 231, 0.05);
-            --correct-color: #4ade80;
-            --incorrect-color: #f87171;
+        :root{
+            --bg-dark:#101820;
+            --panel-bg:rgba(23,37,51,0.85);
+            --accent-color:#00ffe7;
+            --text-light:#e0e0e0;
+            --text-dark:#333;
+            --border-color:rgba(0,255,231,0.2);
+            --hover-bg:rgba(0,255,231,0.05);
+            --correct-color:#4ade80;
+            --incorrect-color:#f87171;
         }
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-image: linear-gradient(180deg, #1a2a3a, #101820);
-            color: var(--text-light);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+        body{
+            background-image:linear-gradient(180deg,#1a2a3a,#101820);
+            color:var(--text-light);
+            display:flex;justify-content:center;align-items:center;
         }
-        .master-container {
-            width: 95vw; max-width: 1400px; height: calc(95vw * 9 / 16); max-height: 95vh;
-            display: flex; flex-direction: column;
+        .master-container{
+            width:95vw;max-width:1400px;height:calc(95vw * 9 / 16);max-height:95vh;display:flex;flex-direction:column;
         }
-        .main-title {
-            text-align: center; color: var(--accent-color); text-shadow: 0 0 5px var(--accent-color);
-            margin-bottom: 20px; flex-shrink: 0;
-        }
-        button {
-            background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color);
-            padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s;
-        }
-        button:hover { background-color: var(--accent-color); color: var(--bg-dark); box-shadow: 0 0 15px var(--accent-color); }
-        button:disabled { background-color: #4a5568; border-color: #4a5568; color: #a0aec0; cursor: not-allowed; box-shadow: none; }
+        .main-title{ text-align:center; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); margin-bottom:20px; flex-shrink:0; }
 
-        input, textarea, select {
-            width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;
-            box-sizing: border-box; margin-top: 5px; margin-bottom: 10px; background-color: rgba(0,0,0,0.2);
-            color: var(--text-light); transition: all 0.3s;
+        button{ background-color:transparent; color:var(--accent-color); border:1px solid var(--accent-color); padding:10px 15px; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; transition:all .3s; }
+        button:hover{ background-color:var(--accent-color); color:var(--bg-dark); box-shadow:0 0 15px var(--accent-color); }
+        button:disabled{ background-color:#4a5568; border-color:#4a5568; color:#a0aec0; cursor:not-allowed; box-shadow:none; }
+
+        input,textarea,select{ width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box; margin-top:5px; margin-bottom:10px; background-color:rgba(0,0,0,0.2); color:var(--text-light); transition:all .3s; }
+        input:hover,textarea:hover,select:hover,input:focus,textarea:focus,select:focus{ border-color:var(--accent-color); box-shadow:0 0 5px var(--accent-color); outline:none; }
+
+        #editor-wrapper{ display:flex; gap:20px; height:100%; overflow:hidden; }
+        #editor-panel{ flex:1; min-width:350px; }
+        #preview-section{ flex:1.5; display:flex; flex-direction:column; }
+
+        .editor-panel-inner{ background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:25px; backdrop-filter:blur(10px); height:100%; box-sizing:border-box; overflow-y:auto; }
+        .editor-panel-inner h2{ color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); }
+
+        .editor-section{ margin-bottom:15px; padding:10px; border-radius:8px; border:1px solid transparent; transition:all .3s; }
+        .editor-section:hover{ background-color:var(--hover-bg); border-color:var(--border-color); }
+
+        .question-block{ background:rgba(0,0,0,0.2); padding:15px; border-radius:6px; margin-bottom:15px; border:1px solid var(--border-color); }
+        .option-group{ display:flex; align-items:center; margin-bottom:8px; }
+        .character-upload-group{ display:flex; align-items:center; gap:10px; margin-bottom:15px; position:relative; }
+        .character-upload-group img{ width:40px;height:40px;border-radius:50%;object-fit:cover; }
+        .character-upload-group input[type="file"]{ display:none; }
+        .character-upload-group label{ background-color:#4a5568; color:white; padding:8px 12px; border-radius:5px; cursor:pointer; text-align:center; flex-grow:1; }
+
+        .char-remove-btn-x{ position:absolute; top:-5px; right:-5px; width:22px; height:22px; border-radius:50%; background:#e53e3e; color:white; border:none; font-size:16px; font-weight:bold; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; box-shadow:0 2px 4px rgba(0,0,0,.4); }
+
+        #preview-iframe{ width:100%; flex-grow:1; border-radius:12px; border:1px solid var(--border-color); background-color:var(--bg-dark); }
+        #iframe-code{ display:none; margin-top:10px; min-height:80px; font-size:12px; }
+
+        /* --- GAME STYLES --- */
+        #game-container{ width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; box-sizing:border-box; background:none; }
+
+        /* center start screen content */
+        #start-screen{ width:100%; max-width:700px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:30px; backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; box-sizing:border-box; }
+        #game-title-display{ text-align:center; color:var(--accent-color); font-size:1.8em; margin:0; text-shadow:0 0 5px var(--accent-color); }
+        #character-selector{ display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
+        #character-selector img{ width:80px; height:80px; border-radius:50%; border:3px solid transparent; cursor:pointer; object-fit:cover; transition:all .2s; }
+        #character-selector img.selected{ border-color:var(--accent-color); box-shadow:0 0 10px var(--accent-color); transform:scale(1.05); }
+
+        #start-game-btn{ align-self:center; }
+
+        .game-frame{ width:100%; max-width:700px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:20px; box-sizing:border-box; }
+
+        #game-process{ width:100%; height:100%; position:relative; padding:20px; box-sizing:border-box; display:block; }
+        #game-ui-top{ position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; }
+        #timer-display{ font-size:2em; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); }
+        #lives-container{ display:flex; gap:5px; font-size:2.0em; }
+
+        #character-display{ position:absolute; bottom:5%; left:10%; width:25%; height:50%; display:flex; justify-content:center; align-items:center; }
+        #player-char-img{ max-width:100%; max-height:100%; transition:transform .3s ease, box-shadow .3s ease; }
+        #player-char-img.correct-answer{ animation:jump-animation .6s ease; box-shadow:0 0 30px 10px var(--correct-color); }
+        #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; box-shadow:0 0 30px 10px var(--incorrect-color); }
+
+        #card-stack-area{ position:absolute; bottom:15%; right:10%; width:45%; height:60%; perspective:1000px; }
+
+        .card{ position:absolute; width:100%; height:100%; transform-style:preserve-3d; transition:all .6s ease, transform .6s ease; cursor:pointer; border-radius:18px; box-shadow:0 10px 20px rgba(0,0,0,.4); overflow:hidden; display:flex; }
+        .card.flipped{ transform:rotateY(180deg); cursor:default; }
+        .card.swiped-away{ transform:translate(140%, -50%) rotate(25deg) scale(.95); opacity:0; pointer-events:none; }
+
+        .card-face{ position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:18px;}
+        .card-front{ background:linear-gradient(45deg,#00776b,#00bfa5); color:white; font-size:3em; z-index:2; width:100%; height:100%; }
+        .card-back{ background-color:#e0e0e0; color:var(--text-dark); transform:rotateY(180deg); padding:20px; box-sizing:border-box; text-align:left; justify-content:flex-start; z-index:1; }
+        .card-question{ font-size:1.2em; font-weight:bold; margin-bottom:20px; }
+        .card-answers button, .card-input-area button{ width:100%; margin-bottom:10px; background-color:#f1f5f9; color:var(--text-dark); border:1px solid #ccc; text-align:left; padding:10px; }
+        .card-answers button.correct, .card-input-area button.correct{ background-color:var(--correct-color) !important; border-color:#38a169 !important; color:white; }
+        .card-answers button.incorrect, .card-input-area button.incorrect{ background-color:var(--incorrect-color) !important; border-color:#c53030 !important; color:white; }
+        .card-input-area input{ width:100%; padding:10px; margin-bottom:10px; border-radius:6px; }
+
+        #end-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; max-width:700px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:30px; box-sizing:border-box; }
+        #end-screen h2{ font-size:2em; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); text-align:center; margin:0; }
+        #end-screen .end-player{ width:160px; height:160px; border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+        #end-screen .confetti{ font-size:3em; }
+
+        .hidden{ display:none !important; }
+
+        @keyframes jump-animation{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-30px);} }
+        @keyframes shake-animation{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-12px) rotate(-3deg);} 75%{ transform:translateX(12px) rotate(3deg);} }
+
+        /* small overlay message on card when time is up */
+        .time-overlay{
+            position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2em; color:white; background:rgba(0,0,0,0.5); z-index:3;
         }
-        input:hover, textarea:hover, select:hover, input:focus, textarea:focus, select:focus {
-            border-color: var(--accent-color); box-shadow: 0 0 5px var(--accent-color); outline: none;
-        }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .checkbox-group input[type="checkbox"] { width: auto; margin: 0; }
-
-        #editor-wrapper { display: flex; gap: 20px; height: 100%; overflow: hidden; }
-        #editor-panel { flex: 1; min-width: 350px; }
-        #preview-section { flex: 1.5; display: flex; flex-direction: column; }
-
-        .editor-panel-inner {
-            background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px;
-            padding: 25px; backdrop-filter: blur(10px); height: 100%; box-sizing: border-box;
-            overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--accent-color) transparent;
-        }
-        .editor-panel-inner h2 { color: var(--accent-color); text-shadow: 0 0 5px var(--accent-color); }
-
-        .editor-section { margin-bottom: 15px; padding: 10px; border-radius: 8px; border: 1px solid transparent; transition: all 0.3s; }
-        .editor-section:hover { background-color: var(--hover-bg); border-color: var(--border-color); }
-
-        .question-block { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid var(--border-color); }
-        .option-group { display: flex; align-items: center; margin-bottom: 8px; }
-        .option-group input[type="radio"] { width: auto; margin-right: 10px; margin-top: 0; }
-
-        .character-upload-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; position: relative; }
-        .character-upload-group img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .character-upload-group input[type="file"] { display: none; }
-        .character-upload-group label { background-color: #4a5568; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; text-align: center; flex-grow: 1; }
-        .char-remove-btn-x {
-            position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; border-radius: 50%;
-            background: #e53e3e; color: white; border: none; font-size: 16px; font-weight: bold;
-            display: flex; justify-content: center; align-items: center; cursor: pointer; line-height: 1;
-            padding: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-        }
-
-        .question-buttons { display: flex; gap: 10px; margin-top: 15px; }
-
-        #preview-iframe { width: 100%; flex-grow: 1; border-radius: 12px; border: 1px solid var(--border-color); background-color: var(--bg-dark); }
-        #generate-code-wrapper { margin-top: 20px; }
-        #iframe-code { display: none; margin-top: 10px; min-height: 80px; font-size: 12px; }
-
-        /* --- СТИЛИ ИГРЫ --- */
-        #game-container {
-            width: 100%; height: 100%; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; box-sizing: border-box; background: none;
-        }
-        .game-frame {
-            width: 100%; max-width: 500px; background-color: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 30px; backdrop-filter: blur(10px);
-        }
-        #start-screen h2 { color: var(--accent-color); margin-top: 1em; margin-bottom: 0.5em; }
-        #start-screen img {
-            width: 80px; height: 80px; border: 3px solid transparent; border-radius: 50%;
-            cursor: pointer; transition: all 0.3s; object-fit: cover; margin: 5px;
-        }
-        #start-screen img:hover { transform: scale(1.1); }
-        #start-screen img.selected { border-color: var(--accent-color); transform: scale(1.1); box-shadow: 0 0 10px var(--accent-color); }
-
-        #game-process { width: 100%; height: 100%; position: relative; padding: 20px; box-sizing: border-box; }
-        #game-ui-top { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; }
-        #lives-container { display: flex; gap: 5px; font-size: 2.5em; }
-        .life-heart.lost { animation: flash-out 0.5s ease-out forwards; }
-        #timer-display { font-size: 2em; color: var(--accent-color); text-shadow: 0 0 5px var(--accent-color); }
-
-        #character-display {
-            position: absolute; bottom: 5%; left: 10%; width: 25%; height: 50%;
-            display: flex; justify-content: center; align-items: center;
-        }
-        #player-char-img { max-width: 100%; max-height: 100%; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        #player-char-img.correct-answer { animation: jump-animation 0.5s ease; box-shadow: 0 0 30px 10px var(--correct-color); }
-        #player-char-img.incorrect-answer { animation: shake-animation 0.5s ease; box-shadow: 0 0 30px 10px var(--incorrect-color); }
-
-        #card-stack-area {
-            position: absolute; bottom: 15%; right: 15%; width: 35%; height: 60%;
-            perspective: 1000px;
-        }
-        .card {
-            position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: all 0.6s ease;
-            cursor: pointer; border-radius: 18px; box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        }
-        .card.swiped-away { transform: translate(150%, -50%) rotate(30deg) !important; opacity: 0; }
-        .card.flipped { transform: rotateY(180deg); cursor: default; }
-        .card-face {
-            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 18px; overflow: auto;
-        }
-        .card-front { background: linear-gradient(45deg, #00776b, #00bfa5); color: white; font-size: 3em; }
-        .card-back {
-            background-color: #e0e0e0; color: var(--text-dark); transform: rotateY(180deg); padding: 20px;
-            box-sizing: border-box; text-align: left; justify-content: flex-start;
-        }
-        .card-question { font-size: 1.2em; font-weight: bold; margin-bottom: 20px; }
-        .card-answers button, .card-input-area button { width: 100%; margin-bottom: 10px; background-color: #f1f5f9; color: var(--text-dark); border: 1px solid #ccc; text-align: left; }
-        .card-answers button:hover:not(:disabled) { background-color: #e2e8f0; }
-        .card-answers button.correct, .card-input-area button.correct { background-color: var(--correct-color) !important; border-color: #38a169 !important; color: white; }
-        .card-answers button.incorrect, .card-input-area button.incorrect { background-color: var(--incorrect-color) !important; border-color: #c53030 !important; color: white; }
-        .card-input-area { width: 100%; }
-        .card-input-area input { color: var(--text-dark); background-color: white; }
-
-
-        #end-screen h2 { font-size: 2.5em; color: var(--accent-color); }
-        .hidden { display: none !important; }
-
-        @keyframes jump-animation { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
-        @keyframes shake-animation { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px) rotate(-3deg); } 75% { transform: translateX(10px) rotate(3deg); } }
-        @keyframes flash-out { 0% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: scale(0.5); } }
 
     </style>
 </head>
 <body>
     <div class="master-container">
         <h1 class="main-title">Генератор интерактивных карточек</h1>
+
         <div id="editor-wrapper">
             <div id="editor-panel">
                 <div class="editor-panel-inner">
@@ -164,11 +123,13 @@
                         <h2 data-lang-key="editor_title">1. Название игры</h2>
                         <input type="text" id="game-title" value="Проверь свои знания!">
                     </div>
+
                     <div class="editor-section">
                         <h2 data-lang-key="editor_characters">2. Персонажи</h2>
                         <div id="characters-container"></div>
                         <button id="add-character-btn" data-lang-key="editor_add_char">Добавить персонажа</button>
                     </div>
+
                     <div class="editor-section">
                         <h2 data-lang-key="editor_settings">3. Настройки игры</h2>
                         <label for="language-select" data-lang-key="editor_lang">Язык интерфейса:</label>
@@ -176,13 +137,16 @@
                             <option value="ru">Русский</option>
                             <option value="en">English</option>
                         </select>
+
                         <label for="card-count-input" data-lang-key="editor_card_count">Количество карточек в игре (0 = все):</label>
                         <input type="number" id="card-count-input" value="0" min="0">
+
                         <div class="checkbox-group">
                            <input type="checkbox" id="timer-enabled-checkbox">
                            <label for="timer-enabled-checkbox" data-lang-key="editor_timer">Включить таймер (30 сек/вопрос)</label>
                         </div>
                     </div>
+
                     <div class="editor-section">
                         <h2 data-lang-key="editor_questions">4. Задания</h2>
                         <div id="questions-container"></div>
@@ -190,6 +154,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="preview-section">
                 <iframe id="preview-iframe"></iframe>
                 <div id="generate-code-wrapper">
@@ -198,6 +163,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- In-iframe game area (used in preview mode) -->
         <div id="game-container" class="hidden">
             <div id="start-screen" class="game-frame">
                 <h1 id="game-title-display"></h1>
@@ -205,16 +172,22 @@
                 <div id="character-selector"></div>
                 <button id="start-game-btn" disabled data-lang-key="game_start">Начать игру!</button>
             </div>
+
             <div id="game-process" class="hidden">
                 <div id="game-ui-top">
                     <div id="timer-display"></div>
                     <div id="lives-container"></div>
                 </div>
+
                 <div id="character-display"><img id="player-char-img" src="" alt="Выбранный персонаж"></div>
+
                 <div id="card-stack-area"></div>
             </div>
-            <div id="end-screen" class="hidden game-frame">
+
+            <div id="end-screen" class="hidden">
+                <div class="end-player"><img id="end-player-img" src="" alt="player" style="max-width:100%;max-height:100%"></div>
                 <h2 id="end-title">Игра окончена!</h2>
+                <div class="confetti hidden" id="confetti">🎉🎉🎉</div>
                 <button id="play-again-btn" onclick="window.location.reload()" data-lang-key="game_play_again">Сыграть еще раз</button>
             </div>
         </div>
@@ -251,9 +224,10 @@
                 game_select_char: "Выберите персонажа:",
                 game_start: "Начать игру!",
                 game_check: "Проверить",
-                game_end_win: "🎉 Отлично! Вы завершили игру! 🎉",
-                game_end_lose: "😢 Увы, вы проиграли. Попробуйте снова!",
+                game_end_win: "Ты победил!",
+                game_end_lose: "Ты проиграл!",
                 game_play_again: "Сыграть еще раз",
+                time_up: "Время вышло!"
             },
             en: {
                 editor_title: "1. Game Title",
@@ -278,15 +252,31 @@
                 game_select_char: "Select a Character:",
                 game_start: "Start Game!",
                 game_check: "Check",
-                game_end_win: "🎉 Excellent! You've completed the game! 🎉",
-                game_end_lose: "😢 Oh no, you lost. Try again!",
+                game_end_win: "You win!",
+                game_end_lose: "You lose!",
                 game_play_again: "Play Again",
+                time_up: "Time's up!"
             }
         };
 
-        const correctSound = new Audio('data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU2LjQwLjEwMQAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6aW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV//OECAwEAFQAAECEAAFBqZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZm:**-');
-        const incorrectSound = new Audio('data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU2LjQwLjEwMQAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6aW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV//OECBAAAMPgAAaBIAABpB///////////p//////////////////8AAAAATGF2YzU2LjI1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECBwAY0QAACAAADSAAAAQARERGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoa'); // long base64s - kept as-is
+        // short sounds (kept small / dataURIs). If they don't work due to browser autoplay rules,
+        // they will play after user interaction (start game) in many browsers.
+        const correctSound = new Audio('data:audio/mpeg;base64,//uQZAAAAAAAAAAAAAAAAAAAAAA...'); // (put your base64 or URL)
+        const incorrectSound = new Audio('data:audio/mpeg;base64,//uQZAAAAAAAAAAAAAAAAAAAAAA...');
 
+        // GAME state
+        let gameConfig = {};
+        let gameState = {
+            lang: 'ru',
+            character: '',
+            questions: [],
+            answeredCount: 0,
+            lives: 5,
+            timerRunning: false
+        };
+        let timerInterval = null;
+
+        // If running as the embedded player (iframe)
         if (isPlayerMode) {
             document.getElementById('editor-wrapper').style.display = 'none';
             document.querySelector('.main-title').style.display = 'none';
@@ -302,45 +292,35 @@
             initEditor();
         }
 
-        function updateElementText(lang, key, element, attr = 'textContent') {
-            if (element && translations[lang] && translations[lang][key] !== undefined) {
-                element[attr] = translations[lang][key];
-            }
+        // ---------- Editor functions ----------
+        function updateElementText(lang, key, element, attr = 'textContent'){
+            if (element && translations[lang] && translations[lang][key] !== undefined) element[attr] = translations[lang][key];
         }
 
-        function updateUI(lang) {
+        function updateUI(lang){
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.dataset.langKey;
-                if (el.tagName === 'INPUT' && el.type === 'text') {
-                    updateElementText(lang, key, el, 'placeholder');
-                } else {
-                    updateElementText(lang, key, el);
-                }
+                if (el.tagName === 'INPUT' && el.type === 'text') updateElementText(lang, key, el, 'placeholder');
+                else updateElementText(lang, key, el);
             });
             document.querySelectorAll('.question-block').forEach(block => updateQuestionBlockLang(lang, block));
         }
 
-        function updateQuestionBlockLang(lang, block) {
+        function updateQuestionBlockLang(lang, block){
             const t = translations[lang] || translations.ru;
-            const qText = block.querySelector('.question-text');
-            if (qText) qText.placeholder = t.q_placeholder;
-            const addOptBtn = block.querySelector('.add-option-btn');
-            if (addOptBtn) addOptBtn.textContent = t.q_add_option;
-            const remBtn = block.querySelector('.remove-question-btn');
-            if (remBtn) remBtn.textContent = t.q_remove_q;
-            block.querySelectorAll('.option-text').forEach((opt, i) => {
-                opt.placeholder = `${t.q_option_placeholder} ${i+1}`;
-            });
-            const textIn = block.querySelector('.text-answer-input');
-            if (textIn) textIn.placeholder = t.q_text_answer_placeholder;
+            const qText = block.querySelector('.question-text'); if (qText) qText.placeholder = t.q_placeholder;
+            const addOptBtn = block.querySelector('.add-option-btn'); if (addOptBtn) addOptBtn.textContent = t.q_add_option;
+            const remBtn = block.querySelector('.remove-question-btn'); if (remBtn) remBtn.textContent = t.q_remove_q;
+            block.querySelectorAll('.option-text').forEach((opt, i) => { opt.placeholder = `${t.q_option_placeholder} ${i+1}`; });
+            const textIn = block.querySelector('.text-answer-input'); if (textIn) textIn.placeholder = t.q_text_answer_placeholder;
             const typeSelect = block.querySelector('.question-type-select');
-            if (typeSelect && typeSelect.options && typeSelect.options.length >= 2) {
+            if (typeSelect && typeSelect.options && typeSelect.options.length >= 2){
                 typeSelect.options[0].textContent = t.q_type_mc;
                 typeSelect.options[1].textContent = t.q_type_text;
             }
         }
 
-        function initEditor() {
+        function initEditor(){
             document.getElementById('add-character-btn').addEventListener('click', addCharacterInput);
             document.getElementById('add-question-btn').addEventListener('click', addQuestionBlock);
             document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCodeClick);
@@ -357,7 +337,7 @@
             addQuestionBlock();
         }
 
-        function collectConfig() {
+        function collectConfig(){
             const lang = document.getElementById('language-select').value;
             return {
                 lang: lang,
@@ -367,15 +347,12 @@
                 timerEnabled: document.getElementById('timer-enabled-checkbox').checked,
                 questions: Array.from(document.querySelectorAll('.question-block')).map(block => {
                     const questionType = block.querySelector('.question-type-select').value;
-                    const question = {
-                        type: questionType,
-                        question: block.querySelector('.question-text').value || ''
-                    };
-                    if (questionType === 'multiple-choice') {
-                        question.options = Array.from(block.querySelectorAll('.option-text')).map(input => input.value);
+                    const question = { type: questionType, question: block.querySelector('.question-text').value || '' };
+                    if (questionType === 'multiple-choice'){
+                        question.options = Array.from(block.querySelectorAll('.option-text')).map(i => i.value);
                         const correctInput = block.querySelector('input[type="radio"]:checked');
                         question.answer = correctInput ? parseInt(correctInput.value, 10) : 0;
-                    } else if (questionType === 'text-input') {
+                    } else {
                         question.answer = block.querySelector('.text-answer-input').value || '';
                     }
                     return question;
@@ -383,10 +360,10 @@
             };
         }
 
-        function updatePreview() {
+        function updatePreview(){
             const config = collectConfig();
             const previewIframe = document.getElementById('preview-iframe');
-            if (previewIframe.contentWindow) {
+            if (previewIframe.contentWindow){
                 previewIframe.contentWindow.postMessage({ type: 'gameConfig', config }, '*');
             }
             isCodeGenerated = false;
@@ -394,12 +371,12 @@
             document.getElementById('generate-code-btn').textContent = translations[lang].editor_generate;
         }
 
-        function handleGenerateCodeClick() {
+        function handleGenerateCodeClick(){
             const codeTextarea = document.getElementById('iframe-code');
             const btn = document.getElementById('generate-code-btn');
             const lang = document.getElementById('language-select').value;
 
-            if (!isCodeGenerated) {
+            if (!isCodeGenerated){
                 const config = collectConfig();
                 const gameUrl = `${window.location.origin}${window.location.pathname}?mode=player`;
                 const configString = JSON.stringify(config).replace(/</g, '\\u003c');
@@ -417,7 +394,6 @@
         };
     })();
 <\/script>`;
-
                 codeTextarea.style.display = 'block';
                 btn.textContent = translations[lang].editor_copy;
                 isCodeGenerated = true;
@@ -430,7 +406,7 @@
             }
         }
 
-        function addCharacterInput() {
+        function addCharacterInput(){
             const container = document.getElementById('characters-container');
             const index = container.children.length;
             characterDataUrls[index] = null;
@@ -465,7 +441,7 @@
             });
         }
 
-        function addQuestionBlock() {
+        function addQuestionBlock(){
             const container = document.getElementById('questions-container');
             const qIndex = Date.now();
             const block = document.createElement('div');
@@ -513,21 +489,17 @@
             block.querySelector('.remove-question-btn').onclick = () => { block.remove(); updatePreview(); };
         }
 
-        function addOption(container, qIndex) {
+        function addOption(container, qIndex){
             const optionIndex = container.children.length;
             const group = document.createElement('div');
             group.className = 'option-group';
             const lang = document.getElementById('language-select').value;
-            group.innerHTML = `<input type="radio" name="correct_q${qIndex}" value="${optionIndex}"><input type="text" class="option-text" placeholder="${translations[lang].q_option_placeholder} ${optionIndex + 1}">`;
+            group.innerHTML = `<input type="radio" name="correct_q${qIndex}" value="${optionIndex}"><input type="text" class="option-text" placeholder="${translations[lang].q_option_placeholder} ${optionIndex+1}">`;
             container.appendChild(group);
         }
 
-        // ======================= ЛОГИКА ИГРЫ =======================
-        let gameConfig = {};
-        let gameState = { character: '', currentCardIndex: 0, lives: 5, questions: [] };
-        let timerInterval = null;
-
-        function initGame(config) {
+        // ---------- Game functions ----------
+        function initGame(config){
             if (!config) return;
             gameConfig = config;
             gameState.lang = config.lang || 'ru';
@@ -547,200 +519,287 @@
                 };
                 charSelector.appendChild(img);
             });
+
             document.getElementById('start-game-btn').onclick = startGame;
             checkStartButton();
         }
 
-        function checkStartButton() { document.getElementById('start-game-btn').disabled = !gameState.character; }
+        function checkStartButton(){
+            document.getElementById('start-game-btn').disabled = !gameState.character;
+        }
 
-        function startGame() {
+        function startGame(){
+            // allow sounds after user interaction in many browsers
+            try { correctSound.play().then(()=>correctSound.pause(), ()=>{}); correctSound.pause(); } catch(e){}
+            try { incorrectSound.play().then(()=>incorrectSound.pause(), ()=>{}); incorrectSound.pause(); } catch(e){}
+
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-process').classList.remove('hidden');
             document.getElementById('player-char-img').src = gameState.character;
 
-            // Prepare questions
             const shuffled = [...(gameConfig.questions || [])].sort(() => 0.5 - Math.random());
-            const count = gameConfig.cardCount > 0 ? gameConfig.cardCount : shuffled.length;
+            const count = (gameConfig.cardCount > 0 && gameConfig.cardCount <= shuffled.length) ? gameConfig.cardCount : shuffled.length;
             gameState.questions = shuffled.slice(0, count);
 
-            const stackArea = document.getElementById('card-stack-area');
-            stackArea.innerHTML = '';
-            gameState.currentCardIndex = 0;
+            gameState.answeredCount = 0;
             gameState.lives = 5;
             updateLivesDisplay();
 
-            const reversedQuestions = [...gameState.questions].reverse();
-            reversedQuestions.forEach((q, index) => {
-                const card = createCardElement(q, gameState.questions.length - 1 - index);
-                const offset = index * 4;
+            const stackArea = document.getElementById('card-stack-area');
+            stackArea.innerHTML = '';
+
+            // append cards so that last question is on top visually
+            for (let i = 0; i < gameState.questions.length; i++){
+                const q = gameState.questions[i];
+                const card = createCardElement(q, i);
+                const offset = (gameState.questions.length - 1 - i) * 6; // stacking offset
                 card.style.transform = `translateX(${offset}px) translateY(${offset}px)`;
+                card.style.zIndex = 100 + i;
                 stackArea.appendChild(card);
-            });
-            if (gameState.questions.length > 0) {
-                startTimer();
+            }
+
+            if (gameState.questions.length > 0){
+                startTimerForCurrentCard();
             } else {
                 endGame('win');
             }
         }
 
-        function updateLivesDisplay() {
+        function updateLivesDisplay(){
             const livesContainer = document.getElementById('lives-container');
             livesContainer.innerHTML = '';
-            for(let i=0; i < 5; i++) {
+            for (let i=0;i<5;i++){
                 const heart = document.createElement('span');
                 heart.className = 'life-heart';
                 heart.textContent = '❤️';
-                if(i >= gameState.lives) {
-                    heart.style.opacity = '0.2';
-                }
+                if (i >= gameState.lives) heart.style.opacity = '0.2';
                 livesContainer.appendChild(heart);
             }
         }
 
-        function loseLife() {
+        function loseLife(){
             gameState.lives--;
-            const hearts = document.querySelectorAll('.life-heart');
-            const heartToLose = hearts[gameState.lives];
-            if (heartToLose) {
-                heartToLose.classList.add('lost');
-            }
-            if (gameState.lives <= 0) {
-                setTimeout(() => endGame('lose'), 500);
+            if (gameState.lives < 0) gameState.lives = 0;
+            updateLivesDisplay();
+            if (gameState.lives <= 0){
+                // small delay to show final animation
+                setTimeout(() => endGame('lose'), 700);
             }
         }
 
-        function startTimer() {
+        function startTimerForCurrentCard(){
             clearInterval(timerInterval);
             const timerDisplay = document.getElementById('timer-display');
-            if (!gameConfig.timerEnabled) {
+            if (!gameConfig.timerEnabled){
                 timerDisplay.style.display = 'none';
                 return;
             }
             timerDisplay.style.display = 'block';
             let timeLeft = 30;
             timerDisplay.textContent = timeLeft;
+            gameState.timerRunning = true;
 
             timerInterval = setInterval(() => {
                 timeLeft--;
                 timerDisplay.textContent = timeLeft;
-                if (timeLeft <= 0) {
+                if (timeLeft <= 0){
                     clearInterval(timerInterval);
-                    try { incorrectSound.play(); } catch (e) {}
-                    loseLife();
-                    setTimeout(nextCard, 1000);
+                    gameState.timerRunning = false;
+                    handleTimeUpForTopCard();
                 }
             }, 1000);
         }
 
-        function createCardElement(qData, index) {
+        function handleTimeUpForTopCard(){
+            // show overlay on top card
+            const stackArea = document.getElementById('card-stack-area');
+            const topCard = stackArea.querySelector('.card:not(.swiped-away):not(.removed)');
+            const overlayText = translations[gameState.lang]?.time_up || 'Время вышло!';
+            if (topCard){
+                // add overlay element
+                const ov = document.createElement('div');
+                ov.className = 'time-overlay';
+                ov.textContent = overlayText;
+                topCard.appendChild(ov);
+                try { incorrectSound.play(); } catch(e){}
+                // small delay to show overlay
+                setTimeout(() => {
+                    if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+                    // animation on player
+                    const playerImg = document.getElementById('player-char-img');
+                    if (playerImg){
+                        playerImg.classList.remove('correct-answer','incorrect-answer');
+                        void playerImg.offsetWidth;
+                        playerImg.classList.add('incorrect-answer');
+                    }
+                    loseLife();
+                    // swipe away topCard
+                    topCard.classList.add('swiped-away','removed');
+                    gameState.answeredCount++;
+                    // clear timer and go to next or end
+                    setTimeout(() => {
+                        if (playerImg) playerImg.classList.remove('incorrect-answer');
+                        checkContinueAfterAnswer();
+                    }, 700);
+                }, 1000);
+            } else {
+                // nothing to do
+                checkContinueAfterAnswer();
+            }
+        }
+
+        function createCardElement(qData, qIndex){
             const card = document.createElement('div');
             card.className = 'card';
-            card.dataset.index = index;
+            card.dataset.qindex = qIndex;
 
             card.innerHTML = `
-                <div class="card-face card-front">?</div>
+                <div class="card-face card-front"><div style="font-size:2em">?</div></div>
                 <div class="card-face card-back">
                     <div class="card-question"></div>
                     <div class="card-content-area"></div>
-                </div>`;
+                </div>
+            `;
+            const front = card.querySelector('.card-front');
+            const back = card.querySelector('.card-back');
+            const qTextEl = card.querySelector('.card-question');
+            const content = card.querySelector('.card-content-area');
 
-            const questionTextEl = card.querySelector('.card-question');
-            const contentContainer = card.querySelector('.card-content-area');
-            if(!questionTextEl || !contentContainer) return card;
+            qTextEl.textContent = qData.question || '';
 
-            questionTextEl.textContent = qData.question || '';
-
-            if (qData.type === 'multiple-choice') {
-                contentContainer.className = 'card-content-area card-answers';
-                (qData.options || []).forEach((option, i) => {
+            if (qData.type === 'multiple-choice'){
+                content.className = 'card-content-area card-answers';
+                (qData.options || []).forEach((opt, i) => {
                     const btn = document.createElement('button');
-                    btn.textContent = option || `Вариант ${i+1}`;
-                    btn.onclick = (ev) => { ev.stopPropagation(); checkAnswer(i === qData.answer, btn); };
-                    contentContainer.appendChild(btn);
+                    btn.textContent = opt || `Вариант ${i+1}`;
+                    btn.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        handleAnswerFromButton(card, i === qData.answer, btn);
+                    });
+                    content.appendChild(btn);
                 });
-            } else if (qData.type === 'text-input') {
-                contentContainer.className = 'card-content-area card-input-area';
+            } else {
+                content.className = 'card-content-area card-input-area';
                 const input = document.createElement('input');
                 input.type = 'text';
+                input.placeholder = translations[gameState.lang]?.q_text_answer_placeholder || '';
                 const btn = document.createElement('button');
                 btn.textContent = translations[gameState.lang]?.game_check || 'Проверить';
-                btn.onclick = (ev) => { ev.stopPropagation(); checkAnswer((input.value || '').trim().toLowerCase() === (qData.answer || '').trim().toLowerCase(), btn); };
-                contentContainer.appendChild(input);
-                contentContainer.appendChild(btn);
+                btn.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const correct = (input.value || '').trim().toLowerCase() === (qData.answer || '').trim().toLowerCase();
+                    handleAnswerFromButton(card, correct, btn);
+                });
+                content.appendChild(input);
+                content.appendChild(btn);
             }
-            card.addEventListener('click', (e) => {
-                if (!card.classList.contains('flipped') && e.target.closest('.card-front')) {
+
+            // flip when clicking the front (explicit listener to avoid issues with targets)
+            front.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                if (!card.classList.contains('flipped')){
                     card.classList.add('flipped');
                 }
-            }, { capture: true });
+            });
+
+            // stop click on back from flipping
+            back.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+            });
+
             return card;
         }
 
-        function checkAnswer(isCorrect, button) {
+        function handleAnswerFromButton(cardEl, isCorrect, buttonEl){
+            // Stop timer for this card
             clearInterval(timerInterval);
-            const cardBack = button.closest('.card-back');
-            if (cardBack) cardBack.querySelectorAll('button, input').forEach(el => el.disabled = true);
+            gameState.timerRunning = false;
+
+            // disable other controls on this card
+            const cardBack = cardEl.querySelector('.card-back');
+            if (cardBack) cardBack.querySelectorAll('button,input').forEach(el => el.disabled = true);
 
             const playerImg = document.getElementById('player-char-img');
-            if (playerImg) {
-                playerImg.classList.remove('correct-answer', 'incorrect-answer');
-                void playerImg.offsetWidth; // reflow
+            if (playerImg){
+                playerImg.classList.remove('correct-answer','incorrect-answer');
+                void playerImg.offsetWidth;
             }
 
-            if (isCorrect) {
-                try { correctSound.play(); } catch (e) {}
+            if (isCorrect){
+                try { correctSound.play(); } catch(e){}
                 if (playerImg) playerImg.classList.add('correct-answer');
-                button.classList.add('correct');
+                buttonEl.classList.add('correct');
             } else {
-                try { incorrectSound.play(); } catch (e) {}
+                try { incorrectSound.play(); } catch(e){}
                 if (playerImg) playerImg.classList.add('incorrect-answer');
-                button.classList.add('incorrect');
-                if (button.closest('.card-answers')) {
-                    const cardBackEl = button.closest('.card-back');
-                    if (cardBackEl) {
-                        const allBtns = cardBackEl.querySelectorAll('button');
-                        const correctIdx = gameState.questions[gameState.currentCardIndex] ? gameState.questions[gameState.currentCardIndex].answer : null;
-                        if (allBtns && correctIdx !== null && allBtns[correctIdx]) allBtns[correctIdx].classList.add('correct');
-                    }
-                }
+                buttonEl.classList.add('incorrect');
                 loseLife();
             }
 
+            // after short animation, swipe away this card and go next
             setTimeout(() => {
-                if (playerImg) playerImg.classList.remove('correct-answer', 'incorrect-answer');
-            }, 600);
+                if (playerImg) playerImg.classList.remove('correct-answer','incorrect-answer');
+            }, 700);
 
-            if (gameState.lives > 0) {
-                 setTimeout(nextCard, 2000);
-            }
+            setTimeout(() => {
+                cardEl.classList.add('swiped-away','removed');
+                gameState.answeredCount++;
+                checkContinueAfterAnswer();
+            }, 900);
         }
 
-        function nextCard() {
-            if (gameState.lives <= 0) return;
-
-            const stackArea = document.getElementById('card-stack-area');
-            const currentCard = stackArea.querySelector(`.card[data-index="${gameState.currentCardIndex}"]`);
-            if (currentCard) currentCard.classList.add('swiped-away');
-
-            gameState.currentCardIndex++;
-            if (gameState.currentCardIndex >= gameState.questions.length) {
-                setTimeout(() => endGame('win'), 600);
-            } else {
-                startTimer();
+        function checkContinueAfterAnswer(){
+            // if no lives left => end lose
+            if (gameState.lives <= 0){
+                endGame('lose');
+                return;
             }
+
+            // if all cards answered => win
+            if (gameState.answeredCount >= gameState.questions.length){
+                endGame('win');
+                return;
+            }
+
+            // otherwise start timer for next card
+            startTimerForCurrentCard();
         }
 
-        function endGame(status) {
+        function endGame(status){
             clearInterval(timerInterval);
             document.getElementById('game-process').classList.add('hidden');
-            document.getElementById('end-screen').classList.remove('hidden');
+            const endScreen = document.getElementById('end-screen');
+            endScreen.classList.remove('hidden');
+
             const endTitle = document.getElementById('end-title');
-            if (status === 'win') {
-                endTitle.textContent = translations[gameState.lang].game_end_win;
+            const confetti = document.getElementById('confetti');
+            const endImg = document.getElementById('end-player-img');
+            endImg.src = gameState.character || '';
+
+            if (status === 'win'){
+                endTitle.textContent = translations[gameState.lang]?.game_end_win || 'Ты победил!';
+                confetti.classList.remove('hidden');
+                // animate player happy
+                const playerImg = endImg;
+                playerImg.classList.remove('incorrect-answer');
+                void playerImg.offsetWidth;
+                playerImg.classList.add('correct-answer');
+                // optionally sound
+                try { correctSound.play(); } catch(e){}
             } else {
-                endTitle.textContent = translations[gameState.lang].game_end_lose;
+                endTitle.textContent = translations[gameState.lang]?.game_end_lose || 'Ты проиграл!';
+                confetti.classList.add('hidden');
+                const playerImg = endImg;
+                playerImg.classList.remove('correct-answer');
+                void playerImg.offsetWidth;
+                playerImg.classList.add('incorrect-answer');
+                try { incorrectSound.play(); } catch(e){}
             }
         }
+
+        // expose some small helpers for debugging in console (optional)
+        window._gameState = gameState;
+        window._gameConfig = gameConfig;
     });
     </script>
 </body>
