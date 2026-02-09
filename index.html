@@ -45,6 +45,12 @@
         .editor-section:hover{ background-color:var(--hover-bg); border-color:var(--border-color); }
 
         .question-block{ background:rgba(0,0,0,0.2); padding:15px; border-radius:6px; margin-bottom:15px; border:1px solid var(--border-color); }
+        .question-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .question-header h4{ margin:0; font-size:1.1em; }
+        .question-actions .icon-btn{ background:none; border:none; color:var(--text-light); font-size:20px; cursor:pointer; padding:2px 5px; opacity:0.7; }
+        .question-actions .icon-btn:hover{ opacity:1; color:var(--accent-color); }
+        .question-actions .icon-btn.edit-btn{ cursor:not-allowed; opacity:0.3; }
+
         .option-group{ display:flex; align-items:center; margin-bottom:8px; }
         .character-upload-group{ display:flex; align-items:center; gap:10px; margin-bottom:15px; position:relative; }
         .character-upload-group img{ width:40px;height:40px;border-radius:50%;object-fit:cover; }
@@ -75,13 +81,12 @@
         #lives-container{ display:flex; gap:5px; font-size:2.0em; }
 
         #character-display{ position:absolute; bottom:5%; left:10%; width:25%; height:50%; display:flex; justify-content:center; align-items:center; }
-        #player-char-img{ max-width:100%; max-height:100%; transition:transform .3s ease, box-shadow .3s ease; }
-        #player-char-img.correct-answer{ animation:jump-animation .6s ease; box-shadow:0 0 30px 10px var(--correct-color); }
-        #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; box-shadow:0 0 30px 10px var(--incorrect-color); }
+        #player-char-img{ max-width:100%; max-height:100%; transition:transform .3s ease, filter .3s ease; }
+        #player-char-img.correct-answer{ animation:jump-animation .6s ease; filter: drop-shadow(0 0 15px var(--correct-color)); }
+        #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop-shadow(0 0 15px var(--incorrect-color)); }
 
         #card-stack-area{ position:absolute; bottom:15%; right:10%; width:45%; height:60%; perspective:1000px; }
 
-        /* ===== ИЗМЕНЕНИЕ #1 ЗДЕСЬ ===== */
         .card{ 
             position:absolute; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s ease; cursor:pointer; border-radius:18px; box-shadow:0 10px 20px rgba(0,0,0,.4); overflow:hidden; display:flex; 
             transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px));
@@ -90,9 +95,8 @@
             transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px)) rotateY(180deg);
             cursor:default; 
         }
-        /* ============================ */
         
-        .card.swiped-away{ transform:translate(140%, -50%) rotate(25deg) scale(.95); opacity:0; pointer-events:none; transition: all .6s ease; }
+        .card.swiped-away{ transform:translate(140%, -50%) rotate(25deg) scale(.95) !important; opacity:0; pointer-events:none; transition: all .6s ease; }
 
         .card-face{ position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:18px;}
         .card-front{ background:linear-gradient(45deg,#00776b,#00bfa5); color:white; font-size:3em; z-index:2; width:100%; height:100%; }
@@ -114,7 +118,7 @@
         @keyframes shake-animation{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-12px) rotate(-3deg);} 75%{ transform:translateX(12px) rotate(3deg);} }
 
         .time-overlay{
-            position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2em; color:white; background:rgba(0,0,0,0.5); z-index:3;
+            position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2em; font-weight:bold; color:white; background:rgba(248, 113, 113, 0.7); z-index:3;
         }
 
     </style>
@@ -149,7 +153,7 @@
                         <input type="number" id="card-count-input" value="0" min="0">
 
                         <div class="checkbox-group">
-                           <input type="checkbox" id="timer-enabled-checkbox">
+                           <input type="checkbox" id="timer-enabled-checkbox" checked>
                            <label for="timer-enabled-checkbox" data-lang-key="editor_timer">Включить таймер (30 сек/вопрос)</label>
                         </div>
                     </div>
@@ -224,7 +228,7 @@
                 q_placeholder: "Текст вопроса...",
                 q_option_placeholder: "Вариант ответа",
                 q_text_answer_placeholder: "Правильный ответ...",
-                q_add_option: "Добавить вариант",
+                q_add_option: "+ Добавить вариант",
                 q_remove_q: "Удалить вопрос",
                 q_type_mc: "Один из многих",
                 q_type_text: "Ввод текста",
@@ -234,7 +238,7 @@
                 game_end_win: "Ты победил!",
                 game_end_lose: "Ты проиграл!",
                 game_play_again: "Сыграть еще раз",
-                time_up: "Время вышло!"
+                time_up: "ВРЕМЯ ВЫШЛО!"
             },
             en: {
                 editor_title: "1. Game Title",
@@ -252,7 +256,7 @@
                 q_placeholder: "Question text...",
                 q_option_placeholder: "Answer option",
                 q_text_answer_placeholder: "Correct answer...",
-                q_add_option: "Add Option",
+                q_add_option: "+ Add Option",
                 q_remove_q: "Delete Question",
                 q_type_mc: "Multiple Choice",
                 q_type_text: "Text Input",
@@ -262,7 +266,7 @@
                 game_end_win: "You win!",
                 game_end_lose: "You lose!",
                 game_play_again: "Play Again",
-                time_up: "Time's up!"
+                time_up: "TIME'S UP!"
             }
         };
 
@@ -312,7 +316,6 @@
             const t = translations[lang] || translations.ru;
             const qText = block.querySelector('.question-text'); if (qText) qText.placeholder = t.q_placeholder;
             const addOptBtn = block.querySelector('.add-option-btn'); if (addOptBtn) addOptBtn.textContent = t.q_add_option;
-            const remBtn = block.querySelector('.remove-question-btn'); if (remBtn) remBtn.textContent = t.q_remove_q;
             block.querySelectorAll('.option-text').forEach((opt, i) => { opt.placeholder = `${t.q_option_placeholder} ${i+1}`; });
             const textIn = block.querySelector('.text-answer-input'); if (textIn) textIn.placeholder = t.q_text_answer_placeholder;
             const typeSelect = block.querySelector('.question-type-select');
@@ -349,7 +352,10 @@
                 timerEnabled: document.getElementById('timer-enabled-checkbox').checked,
                 questions: Array.from(document.querySelectorAll('.question-block')).map(block => {
                     const questionType = block.querySelector('.question-type-select').value;
-                    const question = { type: questionType, question: block.querySelector('.question-text').value || '' };
+                    const question = { 
+                        type: questionType, 
+                        question: block.querySelector('.question-text').value || '' 
+                    };
                     if (questionType === 'multiple-choice'){
                         question.options = Array.from(block.querySelectorAll('.option-text')).map(i => i.value);
                         const correctInput = block.querySelector('input[type="radio"]:checked');
@@ -449,35 +455,38 @@
             const block = document.createElement('div');
             block.className = 'question-block';
             const lang = document.getElementById('language-select').value;
+            const t = translations[lang] || translations.ru;
 
             block.innerHTML = `
-                <h4>Вопрос ${container.children.length + 1}</h4>
+                <div class="question-header">
+                    <h4>Вопрос ${container.children.length + 1}</h4>
+                    <div class="question-actions">
+                        <button type="button" class="icon-btn edit-btn" title="Редактировать">✏️</button>
+                        <button type="button" class="icon-btn remove-question-btn" title="${t.q_remove_q}">🗑️</button>
+                    </div>
+                </div>
                 <select class="question-type-select">
-                    <option value="multiple-choice">${translations[lang].q_type_mc}</option>
-                    <option value="text-input">${translations[lang].q_type_text}</option>
+                    <option value="multiple-choice">${t.q_type_mc}</option>
+                    <option value="text-input">${t.q_type_text}</option>
                 </select>
-                <textarea class="question-text" placeholder="${translations[lang].q_placeholder}"></textarea>
+                <textarea class="question-text" placeholder="${t.q_placeholder}"></textarea>
                 <div class="question-type-wrapper multiple-choice">
                     <div class="options-container"></div>
+                    <button type="button" class="add-option-btn">${t.q_add_option}</button>
                 </div>
                 <div class="question-type-wrapper text-input hidden">
-                    <input type="text" class="text-answer-input" placeholder="${translations[lang].q_text_answer_placeholder}">
+                    <input type="text" class="text-answer-input" placeholder="${t.q_text_answer_placeholder}">
                 </div>
-                <div class="question-buttons">
-                    <button type="button" class="add-option-btn">${translations[lang].q_add_option}</button>
-                    <button type="button" class="remove-question-btn remove-btn">${translations[lang].q_remove_q}</button>
-                </div>`;
+            `;
             container.appendChild(block);
 
             const typeSelect = block.querySelector('.question-type-select');
             const mcWrapper = block.querySelector('.multiple-choice');
             const textWrapper = block.querySelector('.text-input');
-            const addOptionBtn = block.querySelector('.add-option-btn');
-
+            
             typeSelect.addEventListener('change', () => {
                 const isMc = typeSelect.value === 'multiple-choice';
                 mcWrapper.classList.toggle('hidden', !isMc);
-                addOptionBtn.classList.toggle('hidden', !isMc);
                 textWrapper.classList.toggle('hidden', isMc);
                 updatePreview();
             });
@@ -487,7 +496,7 @@
             const firstRadio = block.querySelector('input[type="radio"]');
             if (firstRadio) firstRadio.checked = true;
 
-            addOptionBtn.onclick = () => { addOption(block.querySelector('.options-container'), qIndex); updatePreview(); };
+            block.querySelector('.add-option-btn').onclick = () => { addOption(block.querySelector('.options-container'), qIndex); updatePreview(); };
             block.querySelector('.remove-question-btn').onclick = () => { block.remove(); updatePreview(); };
         }
 
@@ -538,9 +547,14 @@
             document.getElementById('game-process').classList.remove('hidden');
             document.getElementById('player-char-img').src = gameState.character;
 
-            const shuffled = [...(gameConfig.questions || [])].sort(() => 0.5 - Math.random());
-            const count = (gameConfig.cardCount > 0 && gameConfig.cardCount <= shuffled.length) ? gameConfig.cardCount : shuffled.length;
-            gameState.questions = shuffled.slice(0, count);
+            let questionsToPlay = [...(gameConfig.questions || [])];
+            // Do not shuffle if in preview, so cards match editor order
+            if (window.location.search.indexOf('mode=player') === -1) {
+                 questionsToPlay.sort(() => 0.5 - Math.random());
+            }
+
+            const count = (gameConfig.cardCount > 0 && gameConfig.cardCount <= questionsToPlay.length) ? gameConfig.cardCount : questionsToPlay.length;
+            gameState.questions = questionsToPlay.slice(0, count);
 
             gameState.answeredCount = 0;
             gameState.lives = 5;
@@ -554,11 +568,8 @@
                 const card = createCardElement(q, i);
                 const offset = (gameState.questions.length - 1 - i) * 6;
                 
-                // ===== ИЗМЕНЕНИЕ #2 ЗДЕСЬ =====
-                // Используем CSS переменные вместо прямого назначения transform
                 card.style.setProperty('--card-offset-x', `${offset}px`);
                 card.style.setProperty('--card-offset-y', `${offset}px`);
-                // ============================
 
                 card.style.zIndex = 100 + i;
                 stackArea.appendChild(card);
@@ -618,7 +629,7 @@
         function handleTimeUpForTopCard(){
             const stackArea = document.getElementById('card-stack-area');
             const topCard = stackArea.querySelector('.card:not(.swiped-away):not(.removed)');
-            const overlayText = translations[gameState.lang]?.time_up || 'Время вышло!';
+            const overlayText = translations[gameState.lang]?.time_up || "ВРЕМЯ ВЫШЛО!";
             if (topCard){
                 const ov = document.createElement('div');
                 ov.className = 'time-overlay';
@@ -640,7 +651,7 @@
                         if (playerImg) playerImg.classList.remove('incorrect-answer');
                         checkContinueAfterAnswer();
                     }, 700);
-                }, 1000);
+                }, 1500); // Increased delay to show the message longer
             } else {
                 checkContinueAfterAnswer();
             }
@@ -667,7 +678,7 @@
                 content.className = 'card-content-area card-answers';
                 (qData.options || []).forEach((opt, i) => {
                     const btn = document.createElement('button');
-                    btn.textContent = opt || `Вариант ${i+1}`;
+                    btn.textContent = opt || `${translations[gameState.lang].q_option_placeholder} ${i+1}`;
                     btn.addEventListener('click', (ev) => {
                         ev.stopPropagation();
                         handleAnswerFromButton(card, i === qData.answer, btn);
@@ -724,7 +735,7 @@
             }
 
             setTimeout(() => {
-                if (playerImg) playerImg.classList.remove('correct-answer','incorrect-answer');
+                if(playerImg) playerImg.classList.remove('correct-answer','incorrect-answer');
             }, 700);
 
             setTimeout(() => {
@@ -782,3 +793,6 @@
     </script>
 </body>
 </html>
+            
+                
+           
