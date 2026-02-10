@@ -79,6 +79,7 @@
         #game-ui-top{ position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; }
         #timer-display{ font-size:2em; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); }
         #lives-container{ display:flex; gap:5px; font-size:2.0em; }
+        .life-heart { transition: all 0.5s ease; }
 
         #character-display{ position:absolute; bottom:5%; left:10%; width:25%; height:50%; display:flex; justify-content:center; align-items:center; }
         #player-char-img{ max-width:100%; max-height:100%; transition:transform .3s ease, filter .3s ease; }
@@ -87,15 +88,15 @@
 
         #card-stack-area{ position:absolute; bottom:15%; right:10%; width:45%; height:60%; perspective:1000px; }
 
-        .card{ 
-            position:absolute; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s ease; cursor:pointer; border-radius:18px; box-shadow:0 10px 20px rgba(0,0,0,.4); overflow:hidden; display:flex; 
+        .card{
+            position:absolute; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s ease; cursor:pointer; border-radius:18px; box-shadow:0 10px 20px rgba(0,0,0,.4); overflow:hidden; display:flex;
             transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px));
         }
-        .card.flipped{ 
+        .card.flipped{
             transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px)) rotateY(180deg);
-            cursor:default; 
+            cursor:default;
         }
-        
+
         .card.swiped-away{ transform:translate(140%, -50%) rotate(25deg) scale(.95) !important; opacity:0; pointer-events:none; transition: all .6s ease; }
 
         .card-face{ position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:18px;}
@@ -116,11 +117,25 @@
 
         @keyframes jump-animation{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-30px);} }
         @keyframes shake-animation{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-12px) rotate(-3deg);} 75%{ transform:translateX(12px) rotate(3deg);} }
+        @keyframes sway-animation {
+            0%   { transform: rotate(-8deg); }
+            50%  { transform: rotate(8deg); }
+            100% { transform: rotate(-8deg); }
+        }
+        #end-player-img.sway {
+            animation: sway-animation 2.5s ease-in-out infinite;
+        }
+        @keyframes life-lost-animation {
+            0%   { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.2; transform: scale(0.8); }
+        }
+        .life-heart.lost {
+            animation: life-lost-animation 0.5s ease-out forwards;
+        }
 
         .time-overlay{
             position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2em; font-weight:bold; color:white; background:rgba(248, 113, 113, 0.7); z-index:3;
         }
-
     </style>
 </head>
 <body>
@@ -235,8 +250,8 @@
                 game_select_char: "Выберите персонажа:",
                 game_start: "Начать игру!",
                 game_check: "Проверить",
-                game_end_win: "Ты победил!",
-                game_end_lose: "Ты проиграл!",
+                game_end_win: "ТЫ ПОБЕДИЛ!",
+                game_end_lose: "ТЫ ПРОИГРАЛ!",
                 game_play_again: "Сыграть еще раз",
                 time_up: "ВРЕМЯ ВЫШЛО!"
             },
@@ -263,15 +278,15 @@
                 game_select_char: "Select a Character:",
                 game_start: "Start Game!",
                 game_check: "Check",
-                game_end_win: "You win!",
-                game_end_lose: "You lose!",
+                game_end_win: "YOU WIN!",
+                game_end_lose: "YOU LOSE!",
                 game_play_again: "Play Again",
                 time_up: "TIME'S UP!"
             }
         };
 
-        const correctSound = new Audio('data:audio/mpeg;base64,//uQZAAAAAAAAAAAAAAAAAAAAAA...');
-        const incorrectSound = new Audio('data:audio/mpeg;base64,//uQZAAAAAAAAAAAAAAAAAAAAAA...');
+        const correctSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(1e3).join('123'));
+        const incorrectSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(1e3).join('321'));
 
         let gameConfig = {};
         let gameState = {
@@ -352,9 +367,9 @@
                 timerEnabled: document.getElementById('timer-enabled-checkbox').checked,
                 questions: Array.from(document.querySelectorAll('.question-block')).map(block => {
                     const questionType = block.querySelector('.question-type-select').value;
-                    const question = { 
-                        type: questionType, 
-                        question: block.querySelector('.question-text').value || '' 
+                    const question = {
+                        type: questionType,
+                        question: block.querySelector('.question-text').value || ''
                     };
                     if (questionType === 'multiple-choice'){
                         question.options = Array.from(block.querySelectorAll('.option-text')).map(i => i.value);
@@ -483,7 +498,7 @@
             const typeSelect = block.querySelector('.question-type-select');
             const mcWrapper = block.querySelector('.multiple-choice');
             const textWrapper = block.querySelector('.text-input');
-            
+
             typeSelect.addEventListener('change', () => {
                 const isMc = typeSelect.value === 'multiple-choice';
                 mcWrapper.classList.toggle('hidden', !isMc);
@@ -548,17 +563,14 @@
             document.getElementById('player-char-img').src = gameState.character;
 
             let questionsToPlay = [...(gameConfig.questions || [])];
-            // Do not shuffle if in preview, so cards match editor order
-            if (window.location.search.indexOf('mode=player') === -1) {
-                 questionsToPlay.sort(() => 0.5 - Math.random());
-            }
+            questionsToPlay.sort(() => 0.5 - Math.random());
 
             const count = (gameConfig.cardCount > 0 && gameConfig.cardCount <= questionsToPlay.length) ? gameConfig.cardCount : questionsToPlay.length;
             gameState.questions = questionsToPlay.slice(0, count);
 
             gameState.answeredCount = 0;
             gameState.lives = 5;
-            updateLivesDisplay();
+            setupLivesDisplay();
 
             const stackArea = document.getElementById('card-stack-area');
             stackArea.innerHTML = '';
@@ -567,7 +579,7 @@
                 const q = gameState.questions[i];
                 const card = createCardElement(q, i);
                 const offset = (gameState.questions.length - 1 - i) * 6;
-                
+
                 card.style.setProperty('--card-offset-x', `${offset}px`);
                 card.style.setProperty('--card-offset-y', `${offset}px`);
 
@@ -582,22 +594,28 @@
             }
         }
 
-        function updateLivesDisplay(){
+        function setupLivesDisplay(){
             const livesContainer = document.getElementById('lives-container');
             livesContainer.innerHTML = '';
             for (let i=0;i<5;i++){
                 const heart = document.createElement('span');
                 heart.className = 'life-heart';
                 heart.textContent = '❤️';
-                if (i >= gameState.lives) heart.style.opacity = '0.2';
                 livesContainer.appendChild(heart);
             }
         }
 
         function loseLife(){
+            if (gameState.lives > 0) {
+                 const hearts = document.querySelectorAll('#lives-container .life-heart');
+                 const heartToLose = hearts[gameState.lives - 1];
+                 if (heartToLose) {
+                    heartToLose.classList.add('lost');
+                 }
+            }
             gameState.lives--;
             if (gameState.lives < 0) gameState.lives = 0;
-            updateLivesDisplay();
+
             if (gameState.lives <= 0){
                 setTimeout(() => endGame('lose'), 700);
             }
@@ -651,7 +669,7 @@
                         if (playerImg) playerImg.classList.remove('incorrect-answer');
                         checkContinueAfterAnswer();
                     }, 700);
-                }, 1500); // Increased delay to show the message longer
+                }, 1500);
             } else {
                 checkContinueAfterAnswer();
             }
@@ -700,7 +718,7 @@
                 content.appendChild(input);
                 content.appendChild(btn);
             }
-            
+
             card.addEventListener('click', () => {
                 if (!card.classList.contains('flipped')) {
                     card.classList.add('flipped');
@@ -747,7 +765,7 @@
 
         function checkContinueAfterAnswer(){
             if (gameState.lives <= 0){
-                endGame('lose');
+                // The endGame('lose') is already called from loseLife()
                 return;
             }
             if (gameState.answeredCount >= gameState.questions.length){
@@ -768,21 +786,19 @@
             const endImg = document.getElementById('end-player-img');
             endImg.src = gameState.character || '';
 
+            // Сброс классов анимаций перед добавлением нового
+            endImg.classList.remove('correct-answer', 'incorrect-answer', 'sway');
+            void endImg.offsetWidth; // Трюк для перезапуска анимации CSS
+
             if (status === 'win'){
                 endTitle.textContent = translations[gameState.lang]?.game_end_win || 'Ты победил!';
                 confetti.classList.remove('hidden');
-                const playerImg = endImg;
-                playerImg.classList.remove('incorrect-answer');
-                void playerImg.offsetWidth;
-                playerImg.classList.add('correct-answer');
+                endImg.classList.add('correct-answer'); // Анимация прыжка
                 try { correctSound.play(); } catch(e){}
             } else {
                 endTitle.textContent = translations[gameState.lang]?.game_end_lose || 'Ты проиграл!';
                 confetti.classList.add('hidden');
-                const playerImg = endImg;
-                playerImg.classList.remove('correct-answer');
-                void playerImg.offsetWidth;
-                playerImg.classList.add('incorrect-answer');
+                endImg.classList.add('sway'); // Анимация качания
                 try { incorrectSound.play(); } catch(e){}
             }
         }
@@ -793,9 +809,3 @@
     </script>
 </body>
 </html>
-           
-         
-               
-
-         
-       
