@@ -305,11 +305,15 @@
             document.body.style.padding = '0';
             document.getElementById('game-container').classList.remove('hidden');
 
+            // Listen for config from parent
             window.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'gameConfig') {
                     initGame(event.data.config);
                 }
             });
+            // When ready, request config from parent
+            window.parent.postMessage({ type: 'requestConfig' }, '*');
+
         } else {
             initEditor();
         }
@@ -350,7 +354,13 @@
 
             const previewIframe = document.getElementById('preview-iframe');
             previewIframe.src = `${window.location.pathname}?mode=player`;
-            previewIframe.onload = () => updatePreview();
+            
+            // Listen for request from iframe
+            window.addEventListener('message', (event) => {
+                if(event.source === previewIframe.contentWindow && event.data.type === 'requestConfig') {
+                    updatePreview();
+                }
+            });
 
             updateUI('ru');
             addCharacterInput();
@@ -563,7 +573,11 @@
             document.getElementById('player-char-img').src = gameState.character;
 
             let questionsToPlay = [...(gameConfig.questions || [])];
-            questionsToPlay.sort(() => 0.5 - Math.random());
+            
+            // Do not shuffle in editor's preview mode, but shuffle in final generated game
+            if (window.self === window.top) { // This checks if it's NOT in an iframe
+                 questionsToPlay.sort(() => 0.5 - Math.random());
+            }
 
             const count = (gameConfig.cardCount > 0 && gameConfig.cardCount <= questionsToPlay.length) ? gameConfig.cardCount : questionsToPlay.length;
             gameState.questions = questionsToPlay.slice(0, count);
@@ -652,6 +666,12 @@
                 const ov = document.createElement('div');
                 ov.className = 'time-overlay';
                 ov.textContent = overlayText;
+                
+                // **FIX:** Counter-rotate overlay if card is flipped to prevent mirrored text
+                if (topCard.classList.contains('flipped')) {
+                    ov.style.transform = 'rotateY(180deg)';
+                }
+
                 topCard.appendChild(ov);
                 try { incorrectSound.play(); } catch(e){}
                 setTimeout(() => {
@@ -765,7 +785,6 @@
 
         function checkContinueAfterAnswer(){
             if (gameState.lives <= 0){
-                // The endGame('lose') is already called from loseLife()
                 return;
             }
             if (gameState.answeredCount >= gameState.questions.length){
@@ -786,19 +805,18 @@
             const endImg = document.getElementById('end-player-img');
             endImg.src = gameState.character || '';
 
-            // Сброс классов анимаций перед добавлением нового
             endImg.classList.remove('correct-answer', 'incorrect-answer', 'sway');
-            void endImg.offsetWidth; // Трюк для перезапуска анимации CSS
+            void endImg.offsetWidth;
 
             if (status === 'win'){
                 endTitle.textContent = translations[gameState.lang]?.game_end_win || 'Ты победил!';
                 confetti.classList.remove('hidden');
-                endImg.classList.add('correct-answer'); // Анимация прыжка
+                endImg.classList.add('correct-answer');
                 try { correctSound.play(); } catch(e){}
             } else {
                 endTitle.textContent = translations[gameState.lang]?.game_end_lose || 'Ты проиграл!';
                 confetti.classList.add('hidden');
-                endImg.classList.add('sway'); // Анимация качания
+                endImg.classList.add('sway');
                 try { incorrectSound.play(); } catch(e){}
             }
         }
