@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+               <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
@@ -285,7 +286,7 @@
             }
         };
 
-        const correctSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(1e3).join('123'));
+        const correctSound = new Audio('data:audio/wav;base64,UklGRlAZGF0YU'+Array(1e3).join('123'));
         const incorrectSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(1e3).join('321'));
 
         let gameConfig = {};
@@ -305,14 +306,12 @@
             document.body.style.padding = '0';
             document.getElementById('game-container').classList.remove('hidden');
 
-            // Listen for config from parent
+            // **FIXED LOGIC**: Player just listens for data from the parent editor.
             window.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'gameConfig') {
                     initGame(event.data.config);
                 }
             });
-            // When ready, request config from parent
-            window.parent.postMessage({ type: 'requestConfig' }, '*');
 
         } else {
             initEditor();
@@ -355,12 +354,11 @@
             const previewIframe = document.getElementById('preview-iframe');
             previewIframe.src = `${window.location.pathname}?mode=player`;
             
-            // Listen for request from iframe
-            window.addEventListener('message', (event) => {
-                if(event.source === previewIframe.contentWindow && event.data.type === 'requestConfig') {
-                    updatePreview();
-                }
-            });
+            // **FIXED LOGIC**: Editor proactively sends the config to the iframe once it's loaded.
+            // This is the most reliable way to handle the initial data load.
+            previewIframe.onload = () => {
+                updatePreview();
+            };
 
             updateUI('ru');
             addCharacterInput();
@@ -667,7 +665,6 @@
                 ov.className = 'time-overlay';
                 ov.textContent = overlayText;
                 
-                // **FIX:** Counter-rotate overlay if card is flipped to prevent mirrored text
                 if (topCard.classList.contains('flipped')) {
                     ov.style.transform = 'rotateY(180deg)';
                 }
