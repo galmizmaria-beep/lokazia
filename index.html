@@ -1,5 +1,4 @@
-
-               <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
@@ -82,32 +81,65 @@
         #lives-container{ display:flex; gap:5px; font-size:2.0em; }
         .life-heart { transition: all 0.5s ease; }
 
-        #character-display{ position:absolute; bottom:5%; left:10%; width:25%; height:50%; display:flex; justify-content:center; align-items:center; }
+        #character-display{ position:absolute; bottom:5%; left:10%; width:25%; height:50%; display:flex; justify-content:center; align-items:center; z-index: 10; }
         #player-char-img{ max-width:100%; max-height:100%; transition:transform .3s ease, filter .3s ease; }
         #player-char-img.correct-answer{ animation:jump-animation .6s ease; filter: drop-shadow(0 0 15px var(--correct-color)); }
         #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop-shadow(0 0 15px var(--incorrect-color)); }
 
-        #card-stack-area{ position:absolute; bottom:15%; right:10%; width:45%; height:60%; perspective:1000px; }
-
+        #card-grid-area{ position:absolute; bottom:15%; right:10%; width:60%; height:70%; display:flex; flex-wrap: wrap; gap: 15px; align-content: flex-start; justify-content: center; }
+        
         .card{
-            position:absolute; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s ease; cursor:pointer; border-radius:18px; box-shadow:0 10px 20px rgba(0,0,0,.4); overflow:hidden; display:flex;
-            transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px));
+            width: 90px; height: 130px;
+            background:linear-gradient(45deg,#00776b,#00bfa5);
+            color:white;
+            border-radius:12px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:3em; font-weight:bold;
+            cursor:pointer;
+            transition: all 0.3s ease;
+            box-shadow:0 5px 15px rgba(0,0,0,.3);
         }
-        .card.flipped{
-            transform: translateX(var(--card-offset-x, 0px)) translateY(var(--card-offset-y, 0px)) rotateY(180deg);
-            cursor:default;
+        .card:hover{
+            transform: translateY(-5px);
+            box-shadow:0 8px 20px rgba(0,255,231,0.3);
+        }
+        .card.completed{
+            background: var(--correct-color);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .card.completed:after {
+            content: '✔';
+            font-size: 1.5em;
+            color: white;
+        }
+         .card.completed span {
+            display: none;
         }
 
-        .card.swiped-away{ transform:translate(140%, -50%) rotate(25deg) scale(.95) !important; opacity:0; pointer-events:none; transition: all .6s ease; }
 
-        .card-face{ position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:18px;}
-        .card-front{ background:linear-gradient(45deg,#00776b,#00bfa5); color:white; font-size:3em; z-index:2; width:100%; height:100%; }
-        .card-back{ background-color:#e0e0e0; color:var(--text-dark); transform:rotateY(180deg); padding:20px; box-sizing:border-box; text-align:left; justify-content:flex-start; z-index:1; }
+        /* MODAL STYLES */
+        #question-modal-overlay{
+            position:fixed; inset:0;
+            background:rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display:flex; align-items:center; justify-content:center;
+            z-index: 1000;
+        }
+        #question-modal-content{
+            background-color:#e0e0e0; color:var(--text-dark);
+            padding:30px; border-radius:12px;
+            min-width: 450px; max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
         .card-question{ font-size:1.2em; font-weight:bold; margin-bottom:20px; }
         .card-answers button, .card-input-area button{ width:100%; margin-bottom:10px; background-color:#f1f5f9; color:var(--text-dark); border:1px solid #ccc; text-align:left; padding:10px; }
+        .card-answers button:hover, .card-input-area button:hover{ background-color: #e2e8f0; }
+
         .card-answers button.correct, .card-input-area button.correct{ background-color:var(--correct-color) !important; border-color:#38a169 !important; color:white; }
         .card-answers button.incorrect, .card-input-area button.incorrect{ background-color:var(--incorrect-color) !important; border-color:#c53030 !important; color:white; }
-        .card-input-area input{ width:100%; padding:10px; margin-bottom:10px; border-radius:6px; }
+        .card-input-area input{ width:100%; padding:10px; margin-bottom:10px; border-radius:6px; color: var(--text-dark); background: white; border:1px solid #ccc; }
+
 
         #end-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; max-width:700px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:30px; box-sizing:border-box; }
         #end-screen h2{ font-size:2em; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); text-align:center; margin:0; }
@@ -132,10 +164,6 @@
         }
         .life-heart.lost {
             animation: life-lost-animation 0.5s ease-out forwards;
-        }
-
-        .time-overlay{
-            position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2em; font-weight:bold; color:white; background:rgba(248, 113, 113, 0.7); z-index:3;
         }
     </style>
 </head>
@@ -208,7 +236,14 @@
 
                 <div id="character-display"><img id="player-char-img" src="" alt="Выбранный персонаж"></div>
 
-                <div id="card-stack-area"></div>
+                <div id="card-grid-area"></div>
+
+                <div id="question-modal-overlay" class="hidden">
+                    <div id="question-modal-content">
+                        <div class="card-question"></div>
+                        <div class="card-content-area"></div>
+                    </div>
+                </div>
             </div>
 
             <div id="end-screen" class="hidden">
@@ -254,6 +289,7 @@
                 game_end_win: "ТЫ ПОБЕДИЛ!",
                 game_end_lose: "ТЫ ПРОИГРАЛ!",
                 game_play_again: "Сыграть еще раз",
+                game_try_again: "Попробуй еще раз!",
                 time_up: "ВРЕМЯ ВЫШЛО!"
             },
             en: {
@@ -282,6 +318,7 @@
                 game_end_win: "YOU WIN!",
                 game_end_lose: "YOU LOSE!",
                 game_play_again: "Play Again",
+                game_try_again: "Try Again!",
                 time_up: "TIME'S UP!"
             }
         };
@@ -294,9 +331,8 @@
             lang: 'ru',
             character: '',
             questions: [],
-            answeredCount: 0,
             lives: 5,
-            timerRunning: false
+            completedCards: 0
         };
         let timerInterval = null;
 
@@ -306,7 +342,6 @@
             document.body.style.padding = '0';
             document.getElementById('game-container').classList.remove('hidden');
 
-            // **FIXED LOGIC**: Player just listens for data from the parent editor.
             window.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'gameConfig') {
                     initGame(event.data.config);
@@ -354,8 +389,6 @@
             const previewIframe = document.getElementById('preview-iframe');
             previewIframe.src = `${window.location.pathname}?mode=player`;
             
-            // **FIXED LOGIC**: Editor proactively sends the config to the iframe once it's loaded.
-            // This is the most reliable way to handle the initial data load.
             previewIframe.onload = () => {
                 updatePreview();
             };
@@ -572,35 +605,26 @@
 
             let questionsToPlay = [...(gameConfig.questions || [])];
             
-            // Do not shuffle in editor's preview mode, but shuffle in final generated game
-            if (window.self === window.top) { // This checks if it's NOT in an iframe
+            if (window.self === window.top) {
                  questionsToPlay.sort(() => 0.5 - Math.random());
             }
 
             const count = (gameConfig.cardCount > 0 && gameConfig.cardCount <= questionsToPlay.length) ? gameConfig.cardCount : questionsToPlay.length;
             gameState.questions = questionsToPlay.slice(0, count);
 
-            gameState.answeredCount = 0;
             gameState.lives = 5;
+            gameState.completedCards = 0;
             setupLivesDisplay();
 
-            const stackArea = document.getElementById('card-stack-area');
-            stackArea.innerHTML = '';
-
-            for (let i = 0; i < gameState.questions.length; i++){
-                const q = gameState.questions[i];
-                const card = createCardElement(q, i);
-                const offset = (gameState.questions.length - 1 - i) * 6;
-
-                card.style.setProperty('--card-offset-x', `${offset}px`);
-                card.style.setProperty('--card-offset-y', `${offset}px`);
-
-                card.style.zIndex = 100 + i;
-                stackArea.appendChild(card);
-            }
+            const gridArea = document.getElementById('card-grid-area');
+            gridArea.innerHTML = '';
 
             if (gameState.questions.length > 0){
-                startTimerForCurrentCard();
+                for (let i = 0; i < gameState.questions.length; i++){
+                    const card = createCardElement(i);
+                    gridArea.appendChild(card);
+                }
+                startGlobalTimer();
             } else {
                 endGame('win');
             }
@@ -626,14 +650,12 @@
                  }
             }
             gameState.lives--;
-            if (gameState.lives < 0) gameState.lives = 0;
-
             if (gameState.lives <= 0){
                 setTimeout(() => endGame('lose'), 700);
             }
         }
 
-        function startTimerForCurrentCard(){
+        function startGlobalTimer() {
             clearInterval(timerInterval);
             const timerDisplay = document.getElementById('timer-display');
             if (!gameConfig.timerEnabled){
@@ -641,73 +663,41 @@
                 return;
             }
             timerDisplay.style.display = 'block';
-            let timeLeft = 30;
-            timerDisplay.textContent = timeLeft;
-            gameState.timerRunning = true;
+            let totalTime = gameState.questions.length * 30; // 30 seconds per question
 
             timerInterval = setInterval(() => {
-                timeLeft--;
-                timerDisplay.textContent = timeLeft;
-                if (timeLeft <= 0){
-                    clearInterval(timerInterval);
-                    gameState.timerRunning = false;
-                    handleTimeUpForTopCard();
+                totalTime--;
+                const minutes = Math.floor(totalTime / 60);
+                const seconds = totalTime % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (totalTime <= 0){
+                   endGame('timeup');
                 }
             }, 1000);
         }
-
-        function handleTimeUpForTopCard(){
-            const stackArea = document.getElementById('card-stack-area');
-            const topCard = stackArea.querySelector('.card:not(.swiped-away):not(.removed)');
-            const overlayText = translations[gameState.lang]?.time_up || "ВРЕМЯ ВЫШЛО!";
-            if (topCard){
-                const ov = document.createElement('div');
-                ov.className = 'time-overlay';
-                ov.textContent = overlayText;
-                
-                if (topCard.classList.contains('flipped')) {
-                    ov.style.transform = 'rotateY(180deg)';
-                }
-
-                topCard.appendChild(ov);
-                try { incorrectSound.play(); } catch(e){}
-                setTimeout(() => {
-                    if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
-                    const playerImg = document.getElementById('player-char-img');
-                    if (playerImg){
-                        playerImg.classList.remove('correct-answer','incorrect-answer');
-                        void playerImg.offsetWidth;
-                        playerImg.classList.add('incorrect-answer');
-                    }
-                    loseLife();
-                    topCard.classList.add('swiped-away','removed');
-                    gameState.answeredCount++;
-                    setTimeout(() => {
-                        if (playerImg) playerImg.classList.remove('incorrect-answer');
-                        checkContinueAfterAnswer();
-                    }, 700);
-                }, 1500);
-            } else {
-                checkContinueAfterAnswer();
-            }
-        }
-
-        function createCardElement(qData, qIndex){
+        
+        function createCardElement(qIndex){
             const card = document.createElement('div');
             card.className = 'card';
             card.dataset.qindex = qIndex;
+            card.innerHTML = `<span>${qIndex + 1}</span>`;
+            card.addEventListener('click', () => {
+                if (!card.classList.contains('completed')) {
+                    showQuestionModal(qIndex);
+                }
+            });
+            return card;
+        }
 
-            card.innerHTML = `
-                <div class="card-face card-front"><div style="font-size:2em">?</div></div>
-                <div class="card-face card-back">
-                    <div class="card-question"></div>
-                    <div class="card-content-area"></div>
-                </div>
-            `;
-            const qTextEl = card.querySelector('.card-question');
-            const content = card.querySelector('.card-content-area');
+        function showQuestionModal(qIndex){
+            const qData = gameState.questions[qIndex];
+            const modalOverlay = document.getElementById('question-modal-overlay');
+            const qTextEl = modalOverlay.querySelector('.card-question');
+            const content = modalOverlay.querySelector('.card-content-area');
 
             qTextEl.textContent = qData.question || '';
+            content.innerHTML = '';
 
             if (qData.type === 'multiple-choice'){
                 content.className = 'card-content-area card-answers';
@@ -716,7 +706,7 @@
                     btn.textContent = opt || `${translations[gameState.lang].q_option_placeholder} ${i+1}`;
                     btn.addEventListener('click', (ev) => {
                         ev.stopPropagation();
-                        handleAnswerFromButton(card, i === qData.answer, btn);
+                        handleAnswer(qIndex, i === qData.answer, btn);
                     });
                     content.appendChild(btn);
                 });
@@ -730,65 +720,59 @@
                 btn.addEventListener('click', (ev) => {
                     ev.stopPropagation();
                     const correct = (input.value || '').trim().toLowerCase() === (qData.answer || '').trim().toLowerCase();
-                    handleAnswerFromButton(card, correct, btn);
+                    handleAnswer(qIndex, correct, btn);
                 });
                 content.appendChild(input);
                 content.appendChild(btn);
             }
-
-            card.addEventListener('click', () => {
-                if (!card.classList.contains('flipped')) {
-                    card.classList.add('flipped');
-                }
-            });
-
-            return card;
+            modalOverlay.classList.remove('hidden');
         }
 
-        function handleAnswerFromButton(cardEl, isCorrect, buttonEl){
-            clearInterval(timerInterval);
-            gameState.timerRunning = false;
+        function closeQuestionModal(){
+            document.getElementById('question-modal-overlay').classList.add('hidden');
+        }
 
-            const cardBack = cardEl.querySelector('.card-back');
-            if (cardBack) cardBack.querySelectorAll('button,input').forEach(el => el.disabled = true);
-
+        function handleAnswer(qIndex, isCorrect, buttonEl){
+            const modalContent = document.getElementById('question-modal-content');
+            modalContent.querySelectorAll('button,input').forEach(el => el.disabled = true);
+            
             const playerImg = document.getElementById('player-char-img');
-            if (playerImg){
-                playerImg.classList.remove('correct-answer','incorrect-answer');
-                void playerImg.offsetWidth;
-            }
-
+            playerImg.classList.remove('correct-answer','incorrect-answer');
+            void playerImg.offsetWidth;
+            
             if (isCorrect){
                 try { correctSound.play(); } catch(e){}
-                if (playerImg) playerImg.classList.add('correct-answer');
+                playerImg.classList.add('correct-answer');
                 buttonEl.classList.add('correct');
+                
+                setTimeout(() => {
+                    closeQuestionModal();
+                    const cardEl = document.querySelector(`.card[data-qindex="${qIndex}"]`);
+                    cardEl.classList.add('completed');
+                    gameState.completedCards++;
+                    checkWinCondition();
+                }, 900);
+
             } else {
                 try { incorrectSound.play(); } catch(e){}
-                if (playerImg) playerImg.classList.add('incorrect-answer');
+                playerImg.classList.add('incorrect-answer');
                 buttonEl.classList.add('incorrect');
-                loseLife();
+                
+                setTimeout(() => {
+                   closeQuestionModal();
+                   loseLife();
+                }, 900);
             }
 
             setTimeout(() => {
-                if(playerImg) playerImg.classList.remove('correct-answer','incorrect-answer');
+                playerImg.classList.remove('correct-answer','incorrect-answer');
             }, 700);
-
-            setTimeout(() => {
-                cardEl.classList.add('swiped-away','removed');
-                gameState.answeredCount++;
-                checkContinueAfterAnswer();
-            }, 900);
         }
 
-        function checkContinueAfterAnswer(){
-            if (gameState.lives <= 0){
-                return;
+        function checkWinCondition(){
+            if (gameState.completedCards >= gameState.questions.length) {
+                setTimeout(() => endGame('win'), 500);
             }
-            if (gameState.answeredCount >= gameState.questions.length){
-                endGame('win');
-                return;
-            }
-            startTimerForCurrentCard();
         }
 
         function endGame(status){
@@ -798,29 +782,44 @@
             endScreen.classList.remove('hidden');
 
             const endTitle = document.getElementById('end-title');
+            const endButton = document.getElementById('play-again-btn');
             const confetti = document.getElementById('confetti');
             const endImg = document.getElementById('end-player-img');
             endImg.src = gameState.character || '';
 
             endImg.classList.remove('correct-answer', 'incorrect-answer', 'sway');
             void endImg.offsetWidth;
+            
+            const t = translations[gameState.lang];
 
             if (status === 'win'){
-                endTitle.textContent = translations[gameState.lang]?.game_end_win || 'Ты победил!';
+                endTitle.textContent = t.game_end_win;
+                endButton.textContent = t.game_play_again;
                 confetti.classList.remove('hidden');
                 endImg.classList.add('correct-answer');
                 try { correctSound.play(); } catch(e){}
-            } else {
-                endTitle.textContent = translations[gameState.lang]?.game_end_lose || 'Ты проиграл!';
+            } else if (status === 'lose') {
+                endTitle.textContent = t.game_end_lose;
+                endButton.textContent = t.game_play_again;
+                confetti.classList.add('hidden');
+                endImg.classList.add('sway');
+                try { incorrectSound.play(); } catch(e){}
+            } else if (status === 'timeup') {
+                endTitle.textContent = t.time_up;
+                endButton.textContent = t.game_try_again;
                 confetti.classList.add('hidden');
                 endImg.classList.add('sway');
                 try { incorrectSound.play(); } catch(e){}
             }
         }
-
-        window._gameState = gameState;
-        window._gameConfig = gameConfig;
     });
     </script>
 </body>
 </html>
+       
+
+       
+         
+           
+              
+      
