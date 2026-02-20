@@ -331,7 +331,6 @@
             <div id="end-screen" class="hidden">
                 <div class="end-player"><img id="end-player-img" src=""></div>
                 <h2 id="end-title">Игра окончена!</h2>
-                <!-- FIX: Changed from window.location.reload() to a button with an ID for iframe compatibility -->
                 <button id="play-again-btn" data-lang-key="game_play_again">Сыграть еще раз</button>
             </div>
         </div>
@@ -613,7 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // FIX: Modified this function to return true if questions were added, for UI feedback.
     function parseAndAddQuestions(textarea, questionsContainer) {
         const text = textarea.value.trim();
         if (!text) return false;
@@ -695,12 +693,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // FIX: Added UI feedback for the "Add Questions" button.
         block.querySelector('.parse-questions-btn').onclick = (e) => {
             const button = e.target;
-            const bulkAddSection = button.closest('.bulk-add-section');
-            if (bulkAddSection) {
-                const textarea = bulkAddSection.querySelector('.bulk-questions-input');
-                const questionsContainer = button.closest('details').querySelector('.mission-questions-container');
+            const detailsElement = button.closest('details'); // Get the parent <details> element
+            
+            if (detailsElement) {
+                const textarea = detailsElement.querySelector('.bulk-questions-input');
+                const questionsContainer = detailsElement.querySelector('.mission-questions-container');
+
                 if (textarea && questionsContainer) {
                     if (parseAndAddQuestions(textarea, questionsContainer)) {
+                        // FIX: Automatically open the details section to show the new questions.
+                        detailsElement.open = true;
+
                         const lang = document.getElementById('language-select').value;
                         const originalText = translations[lang].editor_add_questions;
                         button.style.backgroundColor = 'var(--correct-color)';
@@ -738,7 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
         block.className = 'question-block';
         block.innerHTML = `
             <div class="question-header"><span>Вопрос ${container.children.length + 1}</span><button type="button" class="remove-question-btn">Удалить</button></div>
-            <textarea class="question-text"></textarea>
+            <textarea class="question-text" rows="2"></textarea>
             <div class="mc-options"><div class="options-container"></div><button type="button" class="add-option-btn">+ Добавить вариант</button></div>
         `;
         container.appendChild(block);
@@ -788,7 +791,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const titleEl = document.getElementById('game-title-display');
         titleEl.textContent = config.title;
-        titleEl.className = 'main-title'; // Clear previous animations
+        titleEl.className = ''; // Clear previous animations, leave only main-title from HTML
         if (d.titleAnimation) titleEl.classList.add(d.titleAnimation);
 
         const charSelector = document.getElementById('character-selector');
@@ -818,7 +821,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('start-game-btn').onclick = startGame;
         document.getElementById('back-btn-map').onclick = showStartScreen;
         document.getElementById('back-btn-mission').onclick = showMissionMap;
-        // FIX: Added event listener for the new play-again button ID
         document.getElementById('play-again-btn').onclick = showStartScreen;
 
         checkStartButton();
@@ -901,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (firstUncompleted !== -1 && index > firstUncompleted) iconDiv.classList.add('locked');
             else if (index === firstUncompleted) iconDiv.classList.add('active');
 
-            if (!gameState.completedMissions.has(index) && (firstUncompleted === -1 || index <= firstUncompleted)) {
+            if (!iconDiv.classList.contains('completed') && !iconDiv.classList.contains('locked')) {
                 iconDiv.onmouseenter = () => displayMissionDescription(mission);
                 iconDiv.onmouseleave = () => document.getElementById('mission-description-panel').classList.add('hidden');
                 iconDiv.onclick = () => startMission(index);
