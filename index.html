@@ -78,70 +78,65 @@
 
         #game-process{ width:100%; height:100%; position:relative; padding:20px; box-sizing:border-box; display:block; }
         #game-ui-top{ position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; z-index: 100; }
-        /* Removed #global-timer-display styles */
         #lives-container{ display:flex; gap:5px; font-size:2.0em; }
         .life-heart { transition: all 0.5s ease; }
 
-        #character-display{ position:absolute; bottom:5%; left:10%; width:25%; height:50%; display:flex; justify-content:center; align-items:center; z-index: 10; }
-        #player-char-img{ max-width:100%; max-height:100%; transition:transform .3s ease, filter .3s ease; }
-        #player-char-img.correct-answer{ animation:jump-animation .6s ease; filter: drop-shadow(0 0 15px var(--correct-color)); }
-        #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop_shadow(0 0 15px var(--incorrect-color)); }
-
-        /* Inventory slots instead of cards */
-        #inventory-slots-container{
-            position:absolute; top:20px; right:20px;
-            display:flex; flex-wrap: wrap; gap:10px;
-            padding:10px; background:rgba(0,0,0,0.3); border-radius:8px;
-            z-index: 50; /* Ensure it's above character/background */
-        }
-        .inventory-slot {
-            width: 70px; /* Smaller slot size */
-            height: 70px;
-            background: linear-gradient(45deg, #1a2a3a, #2a3a4a); /* Empty slot background */
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-            position: relative;
-        }
-        .inventory-slot:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 5px 15px var(--accent-color);
-        }
-        .inventory-slot.completed {
-            background: var(--correct-color); /* Filled slot background */
-            border-style: solid;
-            cursor: not-allowed;
-            box-shadow: 0 2px 8px var(--correct-color);
-        }
-        .inventory-slot img {
-            max-width: 80%;
-            max-height: 80%;
-            object-fit: contain;
-            opacity: 0; /* Hidden initially */
-            transition: opacity 0.5s ease;
-        }
-        .inventory-slot.completed img {
-            opacity: 1; /* Visible when completed */
-        }
-        .inventory-slot.completed::after {
-            content: '✔';
+        /* CHARACTER DISPLAY - NOW FULL SLIDE */
+        #character-display{
             position: absolute;
+            left: 50%;
+            bottom: 0%;
+            transform: translateX(-50%);
+            width: 70%; /* Wider to feel 'full slide' but still containable */
+            height: 80%; /* Taller */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* Align character to bottom of its container */
+            z-index: 10;
+        }
+        #player-char-img{ max-width:100%; max-height:100%; object-fit: contain; transition:transform .3s ease, filter .3s ease; }
+        #player-char-img.correct-answer{ animation:jump-animation .6s ease; filter: drop-shadow(0 0 15px var(--correct-color)); }
+        #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop-shadow(0 0 15px var(--incorrect-color)); }
+
+        /* CARD GRID AREA - Reinstated */
+        #card-grid-area{ 
+            position:absolute; top:20px; right:20px;
+            display:flex; flex-wrap: wrap; gap:15px;
+            padding:10px; background:rgba(0,0,0,0.3); border-radius:8px;
+            z-index: 50; 
+            align-content: flex-start; justify-content: center; /* Adjust for card layout */
+        }
+        .card{
+            width: 90px; height: 130px;
+            background:linear-gradient(45deg,#00776b,#00bfa5); /* Default if no image */
+            background-size: cover; /* For custom card background image */
+            background-position: center;
+            color:white;
+            border-radius:12px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:3em; font-weight:bold;
+            cursor:pointer;
+            transition: all 0.3s ease;
+            box-shadow:0 5px 15px rgba(0,0,0,.3);
+            position: relative; /* For completed checkmark */
+        }
+        .card:hover{
+            transform: translateY(-5px);
+            box-shadow:0 8px 20px rgba(0,255,231,0.3);
+        }
+        .card.completed{
+            background: var(--correct-color);
+            cursor: not-allowed;
+            opacity: 0.6;
+            color: transparent; /* Hide number */
+            pointer-events: none; /* Cannot click completed cards */
+        }
+        .card.completed::after {
+            content: '✔';
             font-size: 1.5em;
             color: white;
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
-            /* Initially hidden, only shown if no icon or fallback */
-            opacity: 0;
+            position: absolute;
         }
-        .inventory-slot.completed:not(:has(img[src]:not([src*="placehold.co"]))) /* If no actual image */
-        .inventory-slot.completed::after {
-            opacity: 1;
-        }
-
 
         /* MODAL STYLES */
         #question-modal-overlay{
@@ -259,8 +254,8 @@
             margin-bottom: 8px;
         }
 
-        /* Mission Upload Group */
-        .mission-upload-group, .map-background-upload-group, .inventory-icon-upload-group {
+        /* Mission Upload Group, Map Background, Card Background */
+        .mission-upload-group, .map-background-upload-group, .card-background-upload-group {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -272,10 +267,10 @@
             border:1px solid var(--border-color);
             flex-wrap: wrap;
         }
-        .mission-upload-group > div, .map-background-upload-group > div, .inventory-icon-upload-group > div {
+        .mission-upload-group > div, .map-background-upload-group > div, .card-background-upload-group > div {
             flex-grow: 1;
         }
-        .mission-upload-group img, .inventory-icon-upload-group img {
+        .mission-upload-group img {
             width: 50px;
             height: 50px;
             object-fit: cover;
@@ -289,13 +284,20 @@
             border-radius: 8px;
             flex-shrink: 0;
         }
-        .mission-upload-group label, .map-background-upload-group label, .inventory-icon-upload-group label {
+        .card-background-upload-group img { /* New style for card background preview */
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .mission-upload-group label, .map-background-upload-group label, .card-background-upload-group label {
             flex-grow: 1;
         }
         .mission-upload-group input[type="text"] {
             width: calc(100% - 22px);
         }
-        .mission-upload-group .char-remove-btn-x, .inventory-icon-upload-group .char-remove-btn-x {
+        .mission-upload-group .char-remove-btn-x {
             top: -8px;
             right: -8px;
         }
@@ -325,6 +327,8 @@
         /* Game Styles - Mission Map */
         #mission-map-screen {
             background-image: var(--map-bg-image, linear-gradient(180deg,#1a2a3a,#101820)); /* Default map background */
+            background-size: cover; /* Ensure background covers */
+            background-position: center;
         }
         .mission-map-icon:hover {
             transform: scale(1.1); /* Increased size on hover */
@@ -333,11 +337,15 @@
         .mission-map-icon.locked {
             pointer-events: none; /* Cannot click locked missions */
             cursor: default;
+            filter: grayscale(80%) brightness(0.5); /* Dim and desaturate locked missions */
+            opacity: 0.7;
         }
 
 
         #current-mission-game-area {
             background-image: var(--map-bg-image, linear-gradient(180deg,#1a2a3a,#101820)); /* Default background for mission area */
+            background-size: cover;
+            background-position: center;
         }
 
         /* Music Controls */
@@ -451,13 +459,18 @@
                         <audio id="bg-music-player-preview" controls class="hidden"></audio>
                     </div>
 
-                    <!-- 7. Иконки инвентаря -->
+                    <!-- 7. Фон карточек -->
                     <div class="editor-section">
-                        <h2 data-lang-key="editor_inventory_heading">7. Иконки инвентаря</h2>
-                        <div id="inventory-icons-container"></div>
-                        <button id="add-inventory-icon-btn" data-lang-key="editor_add_inv_icon">Добавить иконку</button>
+                        <h2 data-lang-key="editor_card_background_heading">7. Фон карточек</h2>
+                        <div class="card-background-upload-group">
+                            <img src="https://placehold.co/100x70/101820/00ffe7?text=CardBG" alt="card-bg-preview" id="card-bg-preview-img">
+                            <div>
+                                <input type="file" id="card-bg-upload" accept="image/*">
+                                <label for="card-bg-upload" data-lang-key="editor_upload_card_bg">Загрузить фон карточек...</label>
+                            </div>
+                        </div>
                     </div>
-
+                    
                     <!-- 8. Настройки уровней сложности -->
                     <div class="editor-section">
                         <h2 data-lang-key="editor_difficulty_settings_heading">8. Настройки уровней сложности:</h2>
@@ -525,7 +538,6 @@
 
             <div id="game-process" class="hidden">
                 <div id="game-ui-top">
-                    <!-- Removed global-timer-display -->
                     <div id="lives-container"></div>
                     <div id="music-controls">
                         <audio id="game-bg-music" loop></audio>
@@ -549,8 +561,10 @@
                 </div>
 
                 <div id="current-mission-game-area" class="hidden">
+                    <!-- Character is now full-slide -->
                     <div id="character-display"><img id="player-char-img" src="" alt="Выбранный персонаж"></div>
-                    <div id="inventory-slots-container"></div>
+                    <!-- Card grid instead of inventory slots -->
+                    <div id="card-grid-area"></div>
                 </div>
 
                 <div id="question-modal-overlay" class="hidden">
@@ -576,6 +590,7 @@
         const isPlayerMode = urlParams.get('mode') === 'player';
         
         let mapBackgroundUrl = null; // Stores map background image URL
+        let cardBackgroundUrl = null; // Stores card background image URL
         let backgroundMusicUrl = null; // Stores global background music URL
         let isCodeGenerated = false;
 
@@ -594,12 +609,12 @@
                 editor_characters_heading: "5. Персонажи",
                 editor_add_char: "Добавить персонажа",
                 editor_music_heading: "6. Фоновая музыка",
-                editor_inventory_heading: "7. Иконки инвентаря",
-                editor_add_inv_icon: "Добавить иконку",
-                inv_icon_upload_label: "Загрузить иконку инвентаря...",
+                editor_card_background_heading: "7. Фон карточек", /* New */
+                editor_upload_card_bg: "Загрузить фон карточек...", /* New */
                 editor_difficulty_settings_heading: "8. Настройки уровней сложности:",
                 settings_lives: "Жизни:",
                 editor_questions_heading: "9. Задания по сложности",
+                editor_add_q: "Добавить вопрос", /* Added missing translation */
                 editor_generate: "Сгенерировать код",
                 editor_copy: "Копировать",
                 editor_copied: "Скопировано!",
@@ -642,12 +657,12 @@
                 editor_characters_heading: "5. Characters",
                 editor_add_char: "Add Character",
                 editor_music_heading: "6. Background Music",
-                editor_inventory_heading: "7. Inventory Icons",
-                editor_add_inv_icon: "Add Icon",
-                inv_icon_upload_label: "Upload Inventory Icon...",
+                editor_card_background_heading: "7. Card Background", /* New */
+                editor_upload_card_bg: "Upload card background...", /* New */
                 editor_difficulty_settings_heading: "8. Difficulty Settings:",
                 settings_lives: "Lives:",
                 editor_questions_heading: "9. Questions by Difficulty",
+                editor_add_q: "Add Question", /* Added missing translation */
                 editor_generate: "Generate Code",
                 editor_copy: "Copy",
                 editor_copied: "Copied!",
@@ -689,9 +704,8 @@
             globalLives: 0,
             currentMissionIndex: 0,
             currentMissionQuestions: [], // Questions for current mission
-            completedInventorySlotsInMission: 0, 
-            completedMissions: new Set(),
-            currentMissionInventoryIcons: [] // Icons for the current mission's inventory slots
+            completedCardsInMission: 0, // Back to cards
+            completedMissions: new Set()
         };
         let bgAudioElement = null; // Reference to the game's background audio element
 
@@ -734,7 +748,11 @@
             const gameTitleInput = document.getElementById('game-title');
             if (gameTitleInput) {
                 // Only update value if it's the default "Проверь свои знания!" or "Check your knowledge!"
-                if (gameTitleInput.value === "Проверь свои знания!" || gameTitleInput.value === "Check your knowledge!") {
+                // Or if it matches the previous language's default
+                const currentDefaultRu = translations['ru'].editor_title_game;
+                const currentDefaultEn = translations['en'].editor_title_game;
+
+                if (gameTitleInput.value === currentDefaultRu || gameTitleInput.value === currentDefaultEn) {
                     gameTitleInput.value = translations[lang].editor_title_game;
                 }
             }
@@ -746,23 +764,15 @@
             document.querySelectorAll('.mission-upload-group label.mission-icon-upload-label').forEach(label => {
                 label.textContent = translations[lang].mission_icon_upload_label;
             });
-            document.querySelectorAll('.inventory-icon-upload-group label.inv-icon-upload-label').forEach(label => {
-                label.textContent = translations[lang].inv_icon_upload_label;
+            document.querySelectorAll('.card-background-upload-group label').forEach(label => {
+                label.textContent = translations[lang].editor_upload_card_bg;
             });
-
-            // Specific UI elements for music toggle
-            const musicToggleBtn = document.getElementById('music-toggle-btn');
-            if (musicToggleBtn) {
-                musicToggleBtn.textContent = bgAudioElement && !bgAudioElement.paused ? translations[lang].music_on : translations[lang].music_off;
-            }
+            document.querySelectorAll('.map-background-upload-group label').forEach(label => {
+                label.textContent = translations[lang].editor_upload_map_bg;
+            });
         }
 
-        // Removed updateQuestionBlockLang, updateMissionBlockLang, updateInventoryIconBlockLang
-        // because updateUI now handles these via data-lang-key attributes and general selectors.
-
         function initEditor(){
-            // Removed redundant updateUI('ru') here, updateUI is called once at the end of initEditor
-            
             document.getElementById('language-select').addEventListener('change', (e) => {
                 gameState.lang = e.target.value; // Update game state language
                 updateUI(gameState.lang); // Update editor UI
@@ -772,11 +782,12 @@
             // Add button event listeners
             document.getElementById('add-character-btn').addEventListener('click', addCharacterInput);
             document.getElementById('add-mission-btn').addEventListener('click', addMissionBlock);
-            document.getElementById('add-inventory-icon-btn').addEventListener('click', addInventoryIconInput);
+            // Removed addInventoryIconInput()
 
             // File input listeners (directly on the inputs)
             document.getElementById('bg-music-upload').addEventListener('change', handleMusicUpload);
             document.getElementById('map-bg-upload').addEventListener('change', handleMapBackgroundUpload);
+            document.getElementById('card-bg-upload').addEventListener('change', handleCardBackgroundUpload); // New
 
             // Question add buttons
             document.querySelectorAll('.add-question-btn').forEach(btn => {
@@ -801,7 +812,7 @@
             // Add initial elements
             addCharacterInput(); 
             addMissionBlock(); 
-            addInventoryIconInput();
+            // Removed addInventoryIconInput()
             addQuestionBlock('easy');
             addQuestionBlock('medium');
             addQuestionBlock('hard');
@@ -835,11 +846,7 @@
                 };
             }).filter(m => m.name && m.name.trim()); // Only include missions with a non-empty name
 
-            // Collect inventory icons directly from DOM
-            const inventoryIcons = Array.from(document.getElementById('inventory-icons-container').children).map(group => {
-                const img = group.querySelector('img');
-                return (img && img.src && !img.src.includes('placehold.co')) ? img.src : null;
-            }).filter(Boolean); // Remove any null entries
+            // Removed inventoryIcons collection
 
             const allQuestions = {};
             ['easy', 'medium', 'hard'].forEach(difficulty => {
@@ -867,9 +874,9 @@
                 characters: characters,
                 backgroundMusic: backgroundMusicUrl,
                 mapBackground: mapBackgroundUrl, 
+                cardBackground: cardBackgroundUrl, /* New */
                 difficultySettings: difficultySettings,
                 missions: missions,
-                inventoryIcons: inventoryIcons,
                 questions: allQuestions
             };
         }
@@ -959,8 +966,6 @@
             updatePreview(); 
         }
 
-        // Removed updateCharacterInputsIndices as data is collected directly from DOM now.
-
         function handleMusicUpload(event) {
             const file = event.target.files[0];
             const previewPlayer = document.getElementById('bg-music-player-preview');
@@ -998,6 +1003,24 @@
             } else {
                 mapBackgroundUrl = null;
                 previewImg.src = "https://placehold.co/100x50/101820/00ffe7?text=Map";
+                updatePreview();
+            }
+        }
+
+        function handleCardBackgroundUpload(event){ /* New function */
+            const file = event.target.files[0];
+            const previewImg = document.getElementById('card-bg-preview-img');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    cardBackgroundUrl = e.target.result;
+                    previewImg.src = e.target.result;
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                cardBackgroundUrl = null;
+                previewImg.src = "https://placehold.co/100x70/101820/00ffe7?text=CardBG";
                 updatePreview();
             }
         }
@@ -1046,48 +1069,6 @@
             });
             updatePreview();
         }
-
-        // Removed updateMissionBlockIndices as data is collected directly from DOM now.
-
-        function addInventoryIconInput(){
-            const container = document.getElementById('inventory-icons-container');
-            const uniqueId = Date.now();
-
-            const group = document.createElement('div');
-            group.className = 'inventory-icon-upload-group';
-            group.dataset.id = uniqueId;
-            const lang = document.getElementById('language-select').value;
-            const t = translations[lang] || translations.ru;
-
-            group.innerHTML = `
-                <img src="https://placehold.co/50x50/101820/00ffe7?text=I" alt="inventory-icon" id="inv-icon-preview-${uniqueId}">
-                <input type="file" id="inv-icon-upload-${uniqueId}" accept="image/*">
-                <label for="inv-icon-upload-${uniqueId}" class="inv-icon-upload-label">${t.inv_icon_upload_label}</label>
-                <button type="button" class="char-remove-btn-x" title="Удалить">&times;</button>
-            `;
-            container.appendChild(group);
-
-            group.querySelector('.char-remove-btn-x').onclick = () => {
-                group.remove();
-                updatePreview();
-            };
-
-            document.getElementById(`inv-icon-upload-${uniqueId}`).addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = document.getElementById(`inv-icon-preview-${uniqueId}`);
-                        if (img) img.src = e.target.result;
-                        updatePreview();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            updatePreview();
-        }
-
-        // Removed updateInventoryIconInputsIndices as data is collected directly from DOM now.
 
         function addQuestionBlock(difficulty){
             const container = document.getElementById(`${difficulty}-questions-container`);
@@ -1236,10 +1217,9 @@
 
         function checkStartButton(){
             const startBtn = document.getElementById('start-game-btn');
-            // Ensure there's at least one mission and one inventory icon for a meaningful game
-            const canStart = gameState.character && gameState.difficulty &&
-                             gameConfig.missions.length > 0 &&
-                             gameConfig.inventoryIcons.length > 0;
+            // Ensure there's at least one mission, character and question for the selected difficulty
+            const hasQuestionsForDifficulty = gameState.difficulty && gameConfig.questions[gameState.difficulty] && gameConfig.questions[gameState.difficulty].length > 0;
+            const canStart = gameState.character && gameState.difficulty && gameConfig.missions.length > 0 && hasQuestionsForDifficulty;
             startBtn.disabled = !canStart;
         }
 
@@ -1332,7 +1312,6 @@
                 if (firstUncompletedIndex !== -1) {
                     missionToSelect = firstUncompletedIndex;
                 } else {
-                    // Should theoretically be caught by the all missions completed check above, but for safety:
                     endGame('win'); 
                     return;
                 }
@@ -1343,7 +1322,6 @@
         }
 
         function displayMissionDescription(index) {
-            // No need to update gameState.currentMissionIndex here, it's set by showMissionMap or selectMission
             const mission = gameConfig.missions[index];
             const panel = document.getElementById('mission-description-panel');
             
@@ -1358,12 +1336,17 @@
             const playerCharOnMap = document.getElementById('player-char-on-map'); 
             const targetIcon = document.querySelector(`.mission-map-icon[data-mission-index="${index}"]`);
             if (targetIcon) {
-                const missionMapScreenRect = document.getElementById('mission-map-screen').getBoundingClientRect();
+                // Ensure targetIcon is visible and rendered to get accurate client rects
+                const mapAreaRect = document.getElementById('map-area').getBoundingClientRect();
                 const targetIconRect = targetIcon.getBoundingClientRect();
                 
-                // Calculate center of the target icon relative to mission-map-screen
-                const centerX = targetIconRect.left - missionMapScreenRect.left + (targetIconRect.width / 2);
-                const centerY = targetIconRect.top - missionMapScreenRect.top + (targetIconRect.height / 2);
+                // Calculate center of the target icon relative to map-area
+                // playerCharOnMap is child of game-process, not map-area
+                // We need position relative to game-process (which is similar to mission-map-screen)
+                const missionMapScreenRect = document.getElementById('mission-map-screen').getBoundingClientRect();
+                
+                const centerX = targetIconRect.left + (targetIconRect.width / 2) - missionMapScreenRect.left;
+                const centerY = targetIconRect.top + (targetIconRect.height / 2) - missionMapScreenRect.top;
 
                 playerCharOnMap.style.left = centerX + 'px';
                 playerCharOnMap.style.top = centerY + 'px';
@@ -1371,8 +1354,6 @@
         }
 
         function selectMission(index){
-            // This is called when an un-locked, un-completed mission is clicked.
-            // It just makes sure the description panel is shown for this mission.
             gameState.currentMissionIndex = index; // Update the actual current mission index
             displayMissionDescription(index);
         }
@@ -1385,45 +1366,43 @@
             // Get questions for this mission based on selected difficulty
             let availableQuestions = gameConfig.questions[gameState.difficulty] || [];
             
-            // Shuffle and select questions for the current mission
+            // Shuffle questions
             availableQuestions.sort(() => 0.5 - Math.random());
 
-            // Number of inventory slots will be limited by available inventory icons AND available questions
-            const numberOfSlots = Math.min(gameConfig.inventoryIcons.length, availableQuestions.length);
+            gameState.currentMissionQuestions = availableQuestions; // All available questions for this mission/difficulty
+            gameState.completedCardsInMission = 0;
 
-            gameState.currentMissionQuestions = availableQuestions.slice(0, numberOfSlots);
-            
-            // Assign random inventory icons to the current mission's slots
-            const shuffledInventoryIcons = [...gameConfig.inventoryIcons].sort(() => 0.5 - Math.random());
-            gameState.currentMissionInventoryIcons = shuffledInventoryIcons.slice(0, numberOfSlots);
+            const cardGridArea = document.getElementById('card-grid-area'); // Back to card-grid-area
+            cardGridArea.innerHTML = '';
 
-            gameState.completedInventorySlotsInMission = 0;
-
-            const inventoryContainer = document.getElementById('inventory-slots-container');
-            inventoryContainer.innerHTML = '';
-
-            if (gameState.currentMissionQuestions.length > 0 && gameState.currentMissionInventoryIcons.length > 0){
+            if (gameState.currentMissionQuestions.length > 0){
                 for (let i = 0; i < gameState.currentMissionQuestions.length; i++){
-                    const slot = createInventorySlotElement(i, gameState.currentMissionInventoryIcons[i]);
-                    inventoryContainer.appendChild(slot);
+                    const card = createCardElement(i); // Create cards
+                    cardGridArea.appendChild(card);
                 }
             } else {
-                console.warn(`No sufficient questions or inventory icons found for mission "${gameConfig.missions[missionIndex].name}" with difficulty "${gameState.difficulty}". Automatically completing mission.`);
+                console.warn(`No questions found for mission "${gameConfig.missions[missionIndex].name}" with difficulty "${gameState.difficulty}". Automatically completing mission.`);
                 setTimeout(() => completeMission(missionIndex), 500);
             }
         }
         
-        function createInventorySlotElement(qIndex, invIconUrl){
-            const slot = document.createElement('div');
-            slot.className = 'inventory-slot';
-            slot.dataset.qindex = qIndex;
-            slot.innerHTML = `<img src="${invIconUrl || 'https://placehold.co/60x60/333/eee?text=?'}" alt="Inventory Icon">`;
-            slot.addEventListener('click', () => {
-                if (!slot.classList.contains('completed')) {
+        function createCardElement(qIndex){
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.qindex = qIndex;
+            card.innerHTML = `<span>${qIndex + 1}</span>`;
+            
+            // Apply custom card background if available
+            if (gameConfig.cardBackground) {
+                card.style.backgroundImage = `url('${gameConfig.cardBackground}')`;
+            }
+
+            card.addEventListener('click', () => {
+                if (!card.classList.contains('completed')) {
                     showQuestionModal(qIndex);
                 }
             });
-            return slot;
+            return card;
         }
 
         function showQuestionModal(qIndex){
@@ -1486,9 +1465,9 @@
                 
                 setTimeout(() => {
                     closeQuestionModal();
-                    const slotEl = document.querySelector(`#inventory-slots-container .inventory-slot[data-qindex="${qIndex}"]`);
-                    slotEl.classList.add('completed');
-                    gameState.completedInventorySlotsInMission++;
+                    const cardEl = document.querySelector(`#card-grid-area .card[data-qindex="${qIndex}"]`); // Target card
+                    cardEl.classList.add('completed');
+                    gameState.completedCardsInMission++;
                     checkMissionCompletion();
                 }, 900);
 
@@ -1513,7 +1492,7 @@
                 endGame('lose');
                 return;
             }
-            if (gameState.completedInventorySlotsInMission >= gameState.currentMissionQuestions.length) {
+            if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
                 setTimeout(() => completeMission(gameState.currentMissionIndex), 500);
             }
         }
@@ -1528,7 +1507,7 @@
                 // Transition to next mission on map
                 gameState.currentMissionIndex = gameConfig.missions.findIndex((_, idx) => !gameState.completedMissions.has(idx));
                 if (gameState.currentMissionIndex === -1) { 
-                     // All missions might be completed, but the previous check failed for some edge case, or no missions were defined
+                     // All missions might be completed, but the previous check failed for some edge case
                      endGame('win');
                      return;
                 }
