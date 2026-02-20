@@ -34,9 +34,10 @@
         input,textarea,select{ width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box; margin-top:5px; margin-bottom:10px; background-color:rgba(0,0,0,0.2); color:var(--text-light); transition:all .3s; }
         input:hover,textarea:hover,select:hover,input:focus,textarea:focus,select:focus{ border-color:var(--accent-color); box-shadow:0 0 5px var(--accent-color); outline:none; }
 
+        /* EDITOR LAYOUT CHANGES */
         #editor-wrapper{ display:flex; gap:20px; height:100%; overflow:hidden; }
-        #editor-panel{ flex:1; min-width:350px; }
-        #preview-section{ flex:1.5; display:flex; flex-direction:column; }
+        #editor-panel{ flex:1; min-width:350px; max-width: 450px; } /* Smaller editor */
+        #preview-section{ flex:2.5; display:flex; flex-direction:column; } /* Larger preview */
 
         .editor-panel-inner{ background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:25px; backdrop-filter:blur(10px); height:100%; box-sizing:border-box; overflow-y:auto; }
         .editor-panel-inner h2, .editor-panel-inner h3{ color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); }
@@ -77,44 +78,70 @@
 
         #game-process{ width:100%; height:100%; position:relative; padding:20px; box-sizing:border-box; display:block; }
         #game-ui-top{ position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; z-index: 100; }
-        #global-timer-display{ font-size:2em; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); }
+        /* Removed #global-timer-display styles */
         #lives-container{ display:flex; gap:5px; font-size:2.0em; }
         .life-heart { transition: all 0.5s ease; }
 
         #character-display{ position:absolute; bottom:5%; left:10%; width:25%; height:50%; display:flex; justify-content:center; align-items:center; z-index: 10; }
         #player-char-img{ max-width:100%; max-height:100%; transition:transform .3s ease, filter .3s ease; }
         #player-char-img.correct-answer{ animation:jump-animation .6s ease; filter: drop-shadow(0 0 15px var(--correct-color)); }
-        #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop-shadow(0 0 15px var(--incorrect-color)); }
+        #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop_shadow(0 0 15px var(--incorrect-color)); }
 
-        #card-grid-area{ position:absolute; bottom:15%; right:10%; width:60%; height:70%; display:flex; flex-wrap: wrap; gap: 15px; align-content: flex-start; justify-content: center; }
-        
-        .card{
-            width: 90px; height: 130px;
-            background:linear-gradient(45deg,#00776b,#00bfa5);
-            color:white;
-            border-radius:12px;
-            display:flex; align-items:center; justify-content:center;
-            font-size:3em; font-weight:bold;
-            cursor:pointer;
+        /* Inventory slots instead of cards */
+        #inventory-slots-container{
+            position:absolute; top:20px; right:20px;
+            display:flex; flex-wrap: wrap; gap:10px;
+            padding:10px; background:rgba(0,0,0,0.3); border-radius:8px;
+            z-index: 50; /* Ensure it's above character/background */
+        }
+        .inventory-slot {
+            width: 70px; /* Smaller slot size */
+            height: 70px;
+            background: linear-gradient(45deg, #1a2a3a, #2a3a4a); /* Empty slot background */
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow:0 5px 15px rgba(0,0,0,.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            position: relative;
         }
-        .card:hover{
-            transform: translateY(-5px);
-            box-shadow:0 8px 20px rgba(0,255,231,0.3);
+        .inventory-slot:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px var(--accent-color);
         }
-        .card.completed{
-            background: var(--correct-color);
+        .inventory-slot.completed {
+            background: var(--correct-color); /* Filled slot background */
+            border-style: solid;
             cursor: not-allowed;
-            opacity: 0.6;
-            color: transparent; /* Hide number */
+            box-shadow: 0 2px 8px var(--correct-color);
         }
-        .card.completed:after {
+        .inventory-slot img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            opacity: 0; /* Hidden initially */
+            transition: opacity 0.5s ease;
+        }
+        .inventory-slot.completed img {
+            opacity: 1; /* Visible when completed */
+        }
+        .inventory-slot.completed::after {
             content: '✔';
+            position: absolute;
             font-size: 1.5em;
             color: white;
-            position: absolute;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+            /* Initially hidden, only shown if no icon or fallback */
+            opacity: 0;
         }
+        .inventory-slot.completed:not(:has(img[src]:not([src*="placehold.co"]))) /* If no actual image */
+        .inventory-slot.completed::after {
+            opacity: 1;
+        }
+
 
         /* MODAL STYLES */
         #question-modal-overlay{
@@ -162,6 +189,16 @@
         }
         .life-heart.lost {
             animation: life-lost-animation 0.5s ease-out forwards;
+        }
+        @keyframes floating {
+            0%   { transform: translateY(0px) rotate(0deg); }
+            25%  { transform: translateY(-5px) rotate(1deg); }
+            50%  { transform: translateY(0px) rotate(0deg); }
+            75%  { transform: translateY(5px) rotate(-1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .mission-map-icon.floating {
+            animation: floating 4s ease-in-out infinite;
         }
 
         /* Editor styles for difficulty columns */
@@ -223,7 +260,7 @@
         }
 
         /* Mission Upload Group */
-        .mission-upload-group {
+        .mission-upload-group, .map-background-upload-group, .inventory-icon-upload-group {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -233,26 +270,33 @@
             padding:10px;
             border-radius:6px;
             border:1px solid var(--border-color);
-            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+            flex-wrap: wrap;
         }
-        .mission-upload-group > div {
+        .mission-upload-group > div, .map-background-upload-group > div, .inventory-icon-upload-group > div {
             flex-grow: 1;
         }
-        .mission-upload-group img {
-            width: 50px; /* Larger for mission icons */
+        .mission-upload-group img, .inventory-icon-upload-group img {
+            width: 50px;
             height: 50px;
             object-fit: cover;
-            border-radius: 8px; /* Slightly rounded corners */
+            border-radius: 8px;
             flex-shrink: 0;
         }
-        .mission-upload-group label {
-            flex-grow: 1; /* Allow label to take available space */
+        .map-background-upload-group img {
+            width: 100px; /* Larger preview for map background */
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .mission-upload-group label, .map-background-upload-group label, .inventory-icon-upload-group label {
+            flex-grow: 1;
         }
         .mission-upload-group input[type="text"] {
             width: calc(100% - 22px);
         }
-        .mission-upload-group .char-remove-btn-x { /* Reusing styles for mission remove */
-            top: -8px; /* Adjust position */
+        .mission-upload-group .char-remove-btn-x, .inventory-icon-upload-group .char-remove-btn-x {
+            top: -8px;
             right: -8px;
         }
 
@@ -261,7 +305,7 @@
             display: flex;
             gap: 15px;
             margin-bottom: 25px;
-            width: 100%; /* Ensure it spans */
+            width: 100%;
             max-width: 500px;
         }
         #difficulty-selector button {
@@ -280,145 +324,20 @@
 
         /* Game Styles - Mission Map */
         #mission-map-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            background-image: linear-gradient(180deg,#1a2a3a,#101820); /* Default map background */
-            background-size: cover;
-            background-position: center;
-            border-radius: 12px;
-        }
-        #map-area {
-            position: relative;
-            width: 80%; /* Adjust as needed */
-            height: 80%;
-            display: flex;
-            flex-wrap: wrap; /* For grid-like mission layout */
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-        }
-        .mission-map-icon {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            background-color: var(--panel-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,.4);
+            background-image: var(--map-bg-image, linear-gradient(180deg,#1a2a3a,#101820)); /* Default map background */
         }
         .mission-map-icon:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 8px 20px var(--accent-color);
-        }
-        .mission-map-icon.completed {
-            border-color: var(--correct-color);
-            opacity: 0.7;
-            cursor: not-allowed;
-            box-shadow: 0 0 10px var(--correct-color);
+            transform: scale(1.1); /* Increased size on hover */
+            box-shadow:0 0 20px var(--accent-color); /* Stronger glow */
         }
         .mission-map-icon.locked {
-            filter: grayscale(80%);
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .mission-map-icon img {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            margin-bottom: 5px;
-        }
-        .mission-map-icon span {
-            color: var(--text-light);
-            font-size: 0.9em;
-            text-align: center;
-            word-break: break-word; /* For long names */
+            pointer-events: none; /* Cannot click locked missions */
+            cursor: default;
         }
 
-        #player-char-on-map {
-            position: absolute;
-            width: 80px; /* Size of character on map */
-            height: 80px;
-            pointer-events: none; /* Character doesn't block clicks */
-            transition: transform 0.8s ease-in-out; /* Smooth movement */
-            z-index: 50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #player-char-map-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 0 8px var(--accent-color)); /* Glow for character */
-        }
-
-        #mission-description-panel {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px 25px;
-            max-width: 500px;
-            text-align: center;
-            z-index: 60;
-            box-shadow: 0 5px 25px rgba(0,0,0,.5);
-        }
-        #mission-description-panel h3 {
-            color: var(--accent-color);
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-        #mission-description-panel p {
-            font-size: 0.9em;
-            line-height: 1.4;
-            margin-bottom: 15px;
-        }
-        #mission-description-panel button {
-            margin-top: 10px;
-        }
 
         #current-mission-game-area {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            padding: 20px;
-            box-sizing: border-box;
-            background-size: cover;
-            background-position: center;
-            border-radius: 12px;
-            background-image:linear-gradient(180deg,#1a2a3a,#101820); /* Default background for mission area */
-        }
-
-        /* Global Game UI elements */
-        #global-timer-display {
-            font-size: 2em;
-            color: var(--accent-color);
-            text-shadow:0 0 5px var(--accent-color);
-        }
-        #game-ui-top {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100; /* Ensure UI is on top */
+            background-image: var(--map-bg-image, linear-gradient(180deg,#1a2a3a,#101820)); /* Default background for mission area */
         }
 
         /* Music Controls */
@@ -466,10 +385,10 @@
         }
 
         /* End screen changes for "Time's Up" */
-        #end-screen.time-up {
+        #end-screen.time-up { /* This class will no longer be used */
             background-color: var(--incorrect-color); /* Red background for time up */
         }
-        #end-screen.time-up h2 {
+        #end-screen.time-up h2 { /* This class will no longer be used */
             color: white;
             text-shadow: 0 0 8px black;
         }
@@ -508,38 +427,52 @@
                             <option value="en">English</option>
                         </select>
 
-                        <label for="card-count-input" data-lang-key="editor_cards_per_mission">Количество карточек в каждой миссии:</label>
-                        <input type="number" id="card-count-input" value="5" min="1">
-
-                        <label for="global-timer-input" data-lang-key="editor_global_timer_minutes">Общее время на игру (минут, 0 = без таймера):</label>
-                        <input type="number" id="global-timer-input" value="15" min="0">
+                        <!-- Removed global-timer-input -->
+                        <!-- Removed card-count-input -->
 
                         <h3 data-lang-key="editor_difficulty_settings">Настройки уровней сложности:</h3>
                         <div class="difficulty-settings-group">
                             <h4><span data-lang-key="difficulty_easy">Легкий</span></h4>
                             <label for="easy-lives" data-lang-key="settings_lives">Жизни:</label><input type="number" id="easy-lives" value="5" min="1">
-                            <label for="easy-time-multiplier" data-lang-key="settings_time_multiplier">Множитель времени (1.0 = норм):</label><input type="number" id="easy-time-multiplier" value="1.2" step="0.1">
+                            <!-- Removed easy-time-multiplier -->
                         </div>
                         <div class="difficulty-settings-group">
                             <h4><span data-lang-key="difficulty_medium">Средний</span></h4>
                             <label for="medium-lives" data-lang-key="settings_lives">Жизни:</label><input type="number" id="medium-lives" value="3" min="1">
-                            <label for="medium-time-multiplier" data-lang-key="settings_time_multiplier">Множитель времени (1.0 = норм):</label><input type="number" id="medium-time-multiplier" value="1.0" step="0.1">
+                            <!-- Removed medium-time-multiplier -->
                         </div>
                         <div class="difficulty-settings-group">
                             <h4><span data-lang-key="difficulty_hard">Сложный</span></h4>
                             <label for="hard-lives" data-lang-key="settings_lives">Жизни:</label><input type="number" id="hard-lives" value="1" min="1">
-                            <label for="hard-time-multiplier" data-lang-key="settings_time_multiplier">Множитель времени (1.0 = норм):</label><input type="number" id="hard-time-multiplier" value="0.8" step="0.1">
+                            <!-- Removed hard-time-multiplier -->
                         </div>
                     </div>
 
                     <div class="editor-section">
-                        <h2 data-lang-key="editor_missions_heading">5. Миссии (до 10)</h2>
+                        <h2 data-lang-key="editor_map_heading">5. Карта</h2>
+                        <div class="map-background-upload-group">
+                            <img src="https://placehold.co/100x50/101820/00ffe7?text=Map" alt="map-preview" id="map-bg-preview-img">
+                            <div>
+                                <input type="file" id="map-bg-upload" accept="image/*">
+                                <label for="map-bg-upload" data-lang-key="editor_upload_map_bg">Загрузить фон карты...</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editor-section">
+                        <h2 data-lang-key="editor_missions_heading">6. Миссии (до 10)</h2>
                         <div id="missions-container"></div>
                         <button id="add-mission-btn" data-lang-key="editor_add_mission">Добавить миссию</button>
                     </div>
 
                     <div class="editor-section">
-                        <h2 data-lang-key="editor_questions_heading">6. Задания по сложности</h2>
+                        <h2 data-lang-key="editor_inventory_heading">7. Иконки инвентаря</h2>
+                        <div id="inventory-icons-container"></div>
+                        <button id="add-inventory-icon-btn" data-lang-key="editor_add_inv_icon">Добавить иконку</button>
+                    </div>
+
+                    <div class="editor-section">
+                        <h2 data-lang-key="editor_questions_heading">8. Задания по сложности</h2>
                         <div class="difficulty-questions-wrapper">
                             <div class="difficulty-column">
                                 <h3 data-lang-key="difficulty_easy">Легкие</h3>
@@ -587,7 +520,7 @@
 
             <div id="game-process" class="hidden">
                 <div id="game-ui-top">
-                    <div id="global-timer-display"></div>
+                    <!-- Removed global-timer-display -->
                     <div id="lives-container"></div>
                     <div id="music-controls">
                         <audio id="game-bg-music" loop></audio>
@@ -603,7 +536,7 @@
                     <div id="player-char-on-map" style="position: absolute; transform: translate(-50%, -50%); top: 0; left: 0;">
                         <img id="player-char-map-img" src="" alt="Ваш персонаж">
                     </div>
-                    <div id="mission-description-panel">
+                    <div id="mission-description-panel" class="hidden">
                         <h3 id="current-mission-title"></h3>
                         <p id="current-mission-description"></p>
                         <button id="start-mission-btn" data-lang-key="game_start_mission">Начать миссию!</button>
@@ -612,7 +545,7 @@
 
                 <div id="current-mission-game-area" class="hidden">
                     <div id="character-display"><img id="player-char-img" src="" alt="Выбранный персонаж"></div>
-                    <div id="card-grid-area"></div>
+                    <div id="inventory-slots-container"></div>
                 </div>
 
                 <div id="question-modal-overlay" class="hidden">
@@ -637,7 +570,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const isPlayerMode = urlParams.get('mode') === 'player';
         let characterDataUrls = []; // Stores URLs for characters
-        let missionData = []; // Stores mission config (name, desc, iconUrl, categories)
+        let missionData = []; // Stores mission config (name, desc, iconUrl)
+        let inventoryIconUrls = []; // Stores URLs for inventory icons
+        let mapBackgroundUrl = null; // Stores map background image URL
         let backgroundMusicUrl = null; // Stores global background music URL
         let isCodeGenerated = false;
 
@@ -649,18 +584,19 @@
                 editor_music_heading: "3. Фоновая музыка",
                 editor_settings: "4. Настройки игры",
                 editor_lang: "Язык интерфейса:",
-                editor_cards_per_mission: "Количество карточек в каждой миссии:",
-                editor_global_timer_minutes: "Общее время на игру (минут, 0 = без таймера):",
                 editor_difficulty_settings: "Настройки уровней сложности:",
                 settings_lives: "Жизни:",
-                settings_time_multiplier: "Множитель времени (1.0 = норм):",
-                editor_missions_heading: "5. Миссии (до 10)",
+                editor_map_heading: "5. Карта",
+                editor_upload_map_bg: "Загрузить фон карты...",
+                editor_missions_heading: "6. Миссии (до 10)",
                 editor_add_mission: "Добавить миссию",
                 mission_name_placeholder: "Название миссии",
                 mission_desc_placeholder: "Краткое описание миссии",
-                mission_icon_upload_label: "Загрузить иконку...",
-                mission_categories_placeholder: "Категории (через запятую)",
-                editor_questions_heading: "6. Задания по сложности",
+                mission_icon_upload_label: "Загрузить иконку миссии...",
+                editor_inventory_heading: "7. Иконки инвентаря",
+                editor_add_inv_icon: "Добавить иконку",
+                inv_icon_upload_label: "Загрузить иконку инвентаря...",
+                editor_questions_heading: "8. Задания по сложности",
                 editor_generate: "Сгенерировать код",
                 editor_copy: "Копировать",
                 editor_copied: "Скопировано!",
@@ -671,7 +607,6 @@
                 q_remove_q: "Удалить вопрос",
                 q_type_mc: "Один из многих",
                 q_type_text: "Ввод текста",
-                q_categories_placeholder: "Категории вопроса (через запятую)",
 
                 game_select_char: "Выберите персонажа:",
                 game_select_difficulty: "Выберите уровень сложности:",
@@ -680,9 +615,8 @@
                 game_end_win: "ТЫ ПОБЕДИЛ!",
                 game_end_lose: "ТЫ ПРОИГРАЛ!",
                 game_play_again: "Сыграть еще раз",
-                game_try_again: "Попробуй еще раз!",
+                game_try_again: "Попробуй еще раз!", // No longer used, but keep for robustness
                 game_start_mission: "Начать миссию!",
-                time_up: "ВРЕМЯ ВЫШЛО!",
                 difficulty_easy: "Легкий",
                 difficulty_medium: "Средний",
                 difficulty_hard: "Сложный",
@@ -698,18 +632,19 @@
                 editor_music_heading: "3. Background Music",
                 editor_settings: "4. Game Settings",
                 editor_lang: "Interface Language:",
-                editor_cards_per_mission: "Cards per Mission:",
-                editor_global_timer_minutes: "Total game time (minutes, 0 = no timer):",
                 editor_difficulty_settings: "Difficulty Settings:",
                 settings_lives: "Lives:",
-                settings_time_multiplier: "Time Multiplier (1.0 = normal):",
-                editor_missions_heading: "5. Missions (up to 10)",
+                editor_map_heading: "5. Map",
+                editor_upload_map_bg: "Upload map background...",
+                editor_missions_heading: "6. Missions (up to 10)",
                 editor_add_mission: "Add Mission",
                 mission_name_placeholder: "Mission Name",
                 mission_desc_placeholder: "Brief mission description",
-                mission_icon_upload_label: "Upload Icon...",
-                mission_categories_placeholder: "Categories (comma-separated)",
-                editor_questions_heading: "6. Questions by Difficulty",
+                mission_icon_upload_label: "Upload Mission Icon...",
+                editor_inventory_heading: "7. Inventory Icons",
+                editor_add_inv_icon: "Add Icon",
+                inv_icon_upload_label: "Upload Inventory Icon...",
+                editor_questions_heading: "8. Questions by Difficulty",
                 editor_generate: "Generate Code",
                 editor_copy: "Copy",
                 editor_copied: "Copied!",
@@ -720,7 +655,6 @@
                 q_remove_q: "Delete Question",
                 q_type_mc: "Multiple Choice",
                 q_type_text: "Text Input",
-                q_categories_placeholder: "Question categories (comma-separated)",
 
                 game_select_char: "Select a Character:",
                 game_select_difficulty: "Select Difficulty Level:",
@@ -731,7 +665,6 @@
                 game_play_again: "Play Again",
                 game_try_again: "Try Again!",
                 game_start_mission: "Start Mission!",
-                time_up: "TIME'S UP!",
                 difficulty_easy: "Easy",
                 difficulty_medium: "Medium",
                 difficulty_hard: "Hard",
@@ -753,13 +686,11 @@
             globalLives: 0,
             currentMissionIndex: 0,
             currentMissionQuestions: [], // Questions for current mission
-            completedCardsInMission: 0,
-            globalTimeLeft: 0, // In seconds
-            globalTimerRunning: false,
-            // Track completed missions by index
-            completedMissions: new Set()
+            completedInventorySlotsInMission: 0, // Renamed from completedCardsInMission
+            // Removed globalTimeLeft, globalTimerRunning, globalTimerInterval
+            completedMissions: new Set(),
+            currentMissionInventoryIcons: [] // Icons for the current mission's inventory slots
         };
-        let globalTimerInterval = null;
         let bgAudioElement = null; // Reference to the game's background audio element
 
         if (isPlayerMode) {
@@ -785,13 +716,33 @@
         function updateUI(lang){
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.dataset.langKey;
-                if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'number')) updateElementText(lang, key, el, 'placeholder');
-                else updateElementText(lang, key, el);
+                // For input types, update placeholder instead of textContent
+                if ((el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'number')) || el.tagName === 'TEXTAREA') {
+                    updateElementText(lang, key, el, 'placeholder');
+                } else {
+                    updateElementText(lang, key, el);
+                }
             });
+
+            // Specific element text content updates
+            const gameTitleInput = document.getElementById('game-title');
+            if (gameTitleInput) {
+                // If the user hasn't changed the default title, update it with translation
+                if (gameTitleInput.value === "Проверь свои знания!" || gameTitleInput.value === "Check your knowledge!") {
+                    gameTitleInput.value = translations[lang].game_title_default || gameTitleInput.value;
+                }
+                // Also update its placeholder
+                gameTitleInput.placeholder = translations[lang].editor_title;
+            }
+
+
             document.querySelectorAll('.question-block').forEach(block => updateQuestionBlockLang(lang, block));
             document.querySelectorAll('.mission-upload-group').forEach(group => updateMissionBlockLang(lang, group));
-            
-            // Specific UI elements that might not have data-lang-key
+            document.querySelectorAll('.inventory-icon-upload-group').forEach(group => updateInventoryIconBlockLang(lang, group));
+            document.querySelector('.map-background-upload-group label').textContent = translations[lang].editor_upload_map_bg;
+
+
+            // Specific UI elements for music toggle
             const musicToggleBtn = document.getElementById('music-toggle-btn');
             if (musicToggleBtn) {
                 musicToggleBtn.textContent = bgAudioElement && !bgAudioElement.paused ? translations[lang].music_on : translations[lang].music_off;
@@ -804,7 +755,7 @@
             const addOptBtn = block.querySelector('.add-option-btn'); if (addOptBtn) addOptBtn.textContent = t.q_add_option;
             block.querySelectorAll('.option-text').forEach((opt, i) => { opt.placeholder = `${t.q_option_placeholder} ${i+1}`; });
             const textIn = block.querySelector('.text-answer-input'); if (textIn) textIn.placeholder = t.q_text_answer_placeholder;
-            const qCategories = block.querySelector('.question-categories-input'); if (qCategories) qCategories.placeholder = t.q_categories_placeholder;
+            // Removed q_categories_placeholder
             const typeSelect = block.querySelector('.question-type-select');
             if (typeSelect && typeSelect.options && typeSelect.options.length >= 2){
                 typeSelect.options[0].textContent = t.q_type_mc;
@@ -817,13 +768,21 @@
             const nameInput = block.querySelector('.mission-name-input'); if (nameInput) nameInput.placeholder = t.mission_name_placeholder;
             const descInput = block.querySelector('.mission-desc-input'); if (descInput) descInput.placeholder = t.mission_desc_placeholder;
             const iconLabel = block.querySelector('.mission-icon-upload-label'); if (iconLabel) iconLabel.textContent = t.mission_icon_upload_label;
-            const categoriesInput = block.querySelector('.mission-categories-input'); if (categoriesInput) categoriesInput.placeholder = t.mission_categories_placeholder;
+            // Removed mission_categories_placeholder
+        }
+
+        function updateInventoryIconBlockLang(lang, block) {
+            const t = translations[lang] || translations.ru;
+            const iconLabel = block.querySelector('.inv-icon-upload-label'); if (iconLabel) iconLabel.textContent = t.inv_icon_upload_label;
         }
 
         function initEditor(){
             document.getElementById('add-character-btn').addEventListener('click', addCharacterInput);
             document.getElementById('bg-music-upload').addEventListener('change', handleMusicUpload);
             document.getElementById('add-mission-btn').addEventListener('click', addMissionBlock);
+            document.getElementById('map-bg-upload').addEventListener('change', handleMapBackgroundUpload);
+            document.getElementById('add-inventory-icon-btn').addEventListener('click', addInventoryIconInput);
+
             document.querySelectorAll('.add-question-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => addQuestionBlock(e.target.dataset.difficulty));
             });
@@ -831,7 +790,12 @@
             document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCodeClick);
             document.getElementById('editor-panel').addEventListener('input', updatePreview);
             document.getElementById('editor-panel').addEventListener('change', updatePreview);
-            document.getElementById('language-select').addEventListener('change', (e) => updateUI(e.target.value));
+            document.getElementById('language-select').addEventListener('change', (e) => {
+                gameState.lang = e.target.value; // Update game state language
+                updateUI(gameState.lang); // Update editor UI
+                updatePreview(); // Update iframe preview
+            });
+
 
             const previewIframe = document.getElementById('preview-iframe');
             previewIframe.src = `${window.location.pathname}?mode=player`;
@@ -840,9 +804,10 @@
                 updatePreview();
             };
 
-            updateUI('ru');
+            updateUI('ru'); // Initial UI update in Russian
             addCharacterInput(); // Add first character input by default
             addMissionBlock(); // Add first mission block by default
+            addInventoryIconInput(); // Add first inventory icon by default
             addQuestionBlock('easy'); // Add first question for each difficulty
             addQuestionBlock('medium');
             addQuestionBlock('hard');
@@ -852,16 +817,16 @@
             const lang = document.getElementById('language-select').value;
             const difficultySettings = {
                 easy: {
-                    lives: parseInt(document.getElementById('easy-lives').value, 10),
-                    timeMultiplier: parseFloat(document.getElementById('easy-time-multiplier').value)
+                    lives: parseInt(document.getElementById('easy-lives').value, 10)
+                    // Removed timeMultiplier
                 },
                 medium: {
-                    lives: parseInt(document.getElementById('medium-lives').value, 10),
-                    timeMultiplier: parseFloat(document.getElementById('medium-time-multiplier').value)
+                    lives: parseInt(document.getElementById('medium-lives').value, 10)
+                    // Removed timeMultiplier
                 },
                 hard: {
-                    lives: parseInt(document.getElementById('hard-lives').value, 10),
-                    timeMultiplier: parseFloat(document.getElementById('hard-time-multiplier').value)
+                    lives: parseInt(document.getElementById('hard-lives').value, 10)
+                    // Removed timeMultiplier
                 }
             };
 
@@ -872,8 +837,8 @@
                     const question = {
                         difficulty: difficulty,
                         type: questionType,
-                        question: block.querySelector('.question-text').value || '',
-                        categories: block.querySelector('.question-categories-input').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+                        question: block.querySelector('.question-text').value || ''
+                        // Removed categories
                     };
                     if (questionType === 'multiple-choice'){
                         question.options = Array.from(block.querySelectorAll('.option-text')).map(i => i.value);
@@ -891,10 +856,12 @@
                 title: document.getElementById('game-title').value,
                 characters: characterDataUrls.filter(Boolean),
                 backgroundMusic: backgroundMusicUrl,
-                cardCountPerMission: parseInt(document.getElementById('card-count-input').value, 10) || 5,
-                globalTimerMinutes: parseInt(document.getElementById('global-timer-input').value, 10) || 0,
+                mapBackground: mapBackgroundUrl, // Added map background
+                // Removed cardCountPerMission
+                // Removed globalTimerMinutes
                 difficultySettings: difficultySettings,
                 missions: missionData.filter(m => m.name && m.name.trim()), // Filter out empty missions
+                inventoryIcons: inventoryIconUrls.filter(Boolean), // Added inventory icons
                 questions: allQuestions
             };
         }
@@ -955,13 +922,15 @@
             group.innerHTML = `
                 <img src="https://placehold.co/40x40/101820/00ffe7?text=+" alt="preview" id="char-preview-${index}">
                 <input type="file" id="char-upload-${index}" accept="image/*">
-                <label for="char-upload-${index}">Загрузить...</label>
+                <label for="char-upload-${index}" data-lang-key="editor_add_char">Загрузить...</label>
                 <button type="button" class="char-remove-btn-x" title="Удалить">&times;</button>
             `;
             container.appendChild(group);
 
+            const lang = document.getElementById('language-select').value;
+            group.querySelector('label').textContent = translations[lang].editor_add_char;
+
             group.querySelector('.char-remove-btn-x').onclick = () => {
-                // Remove from array and DOM, then update all indices
                 characterDataUrls.splice(index, 1);
                 group.remove();
                 updateCharacterInputsIndices(); // Re-index all existing
@@ -987,20 +956,26 @@
         function updateCharacterInputsIndices() {
             const container = document.getElementById('characters-container');
             Array.from(container.children).forEach((group, newIndex) => {
-                const oldIndex = parseInt(group.querySelector('img').id.replace('char-preview-', ''), 10);
-                
                 // Update element IDs and for attributes
                 group.querySelector('img').id = `char-preview-${newIndex}`;
                 const fileInput = group.querySelector('input[type="file"]');
                 fileInput.id = `char-upload-${newIndex}`;
                 group.querySelector('label').setAttribute('for', `char-upload-${newIndex}`);
-
-                // Update array reference if order changed
-                if (oldIndex !== newIndex) {
-                     // This is tricky if elements were truly reordered. Simpler to just rebuild characterDataUrls if order matters.
-                     // For now, if we just remove, the array shrinks and newIndex correctly points to what was at oldIndex.
+                // Ensure characterDataUrls matches actual elements in order
+                const currentFile = fileInput.files[0];
+                if (currentFile) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        characterDataUrls[newIndex] = e.target.result;
+                        if (newIndex === container.children.length -1) updatePreview(); // Update preview once after all re-indexed
+                    };
+                    reader.readAsDataURL(currentFile);
+                } else {
+                    characterDataUrls[newIndex] = null;
+                    if (newIndex === container.children.length -1) updatePreview();
                 }
             });
+            characterDataUrls.length = container.children.length; // Trim array if elements were removed
         }
 
         function handleMusicUpload(event) {
@@ -1026,14 +1001,33 @@
             }
         }
 
+        function handleMapBackgroundUpload(event){
+            const file = event.target.files[0];
+            const previewImg = document.getElementById('map-bg-preview-img');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    mapBackgroundUrl = e.target.result;
+                    previewImg.src = e.target.result;
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                mapBackgroundUrl = null;
+                previewImg.src = "https://placehold.co/100x50/101820/00ffe7?text=Map";
+                updatePreview();
+            }
+        }
+
+
         function addMissionBlock(){
             const container = document.getElementById('missions-container');
             const index = missionData.length;
             missionData.push({
                 name: '',
                 description: '',
-                iconUrl: null,
-                categories: []
+                iconUrl: null
+                // Removed categories
             });
             const block = document.createElement('div');
             block.className = 'mission-upload-group';
@@ -1047,7 +1041,7 @@
                     <input type="text" class="mission-desc-input" placeholder="${t.mission_desc_placeholder}">
                     <input type="file" id="mission-icon-upload-${index}" accept="image/*">
                     <label for="mission-icon-upload-${index}" class="mission-icon-upload-label">${t.mission_icon_upload_label}</label>
-                    <input type="text" class="mission-categories-input" placeholder="${t.mission_categories_placeholder}">
+                    <!-- Removed categories input -->
                 </div>
                 <button type="button" class="char-remove-btn-x" title="Удалить">&times;</button>
             `;
@@ -1066,9 +1060,7 @@
             block.querySelector('.mission-desc-input').addEventListener('input', (e) => {
                 missionData[index].description = e.target.value; updatePreview();
             });
-            block.querySelector('.mission-categories-input').addEventListener('input', (e) => {
-                missionData[index].categories = e.target.value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean); updatePreview();
-            });
+            // Removed event listener for categories input
 
             document.getElementById(`mission-icon-upload-${index}`).addEventListener('change', (event) => {
                 const file = event.target.files[0];
@@ -1090,16 +1082,80 @@
             const container = document.getElementById('missions-container');
             Array.from(container.children).forEach((group, newIndex) => {
                 // Update element IDs and for attributes
-                const oldIndex = parseInt(group.querySelector('img').id.replace('mission-icon-preview-', ''), 10); // Get old index to match old data
-                
                 group.querySelector('img').id = `mission-icon-preview-${newIndex}`;
                 group.querySelector('.mission-name-input').value = missionData[newIndex] ? missionData[newIndex].name : '';
                 group.querySelector('.mission-desc-input').value = missionData[newIndex] ? missionData[newIndex].description : '';
                 const iconInput = group.querySelector('input[type="file"]');
                 iconInput.id = `mission-icon-upload-${newIndex}`;
                 group.querySelector('label.mission-icon-upload-label').setAttribute('for', `mission-icon-upload-${newIndex}`);
-                group.querySelector('.mission-categories-input').value = missionData[newIndex] ? missionData[newIndex].categories.join(',') : '';
+                // Removed categories input update
             });
+             missionData.length = container.children.length; // Trim array if elements were removed
+        }
+
+        function addInventoryIconInput(){
+            const container = document.getElementById('inventory-icons-container');
+            const index = inventoryIconUrls.length;
+            inventoryIconUrls.push(null);
+
+            const group = document.createElement('div');
+            group.className = 'inventory-icon-upload-group';
+            const lang = document.getElementById('language-select').value;
+            const t = translations[lang] || translations.ru;
+
+            group.innerHTML = `
+                <img src="https://placehold.co/50x50/101820/00ffe7?text=I${index+1}" alt="inventory-icon" id="inv-icon-preview-${index}">
+                <input type="file" id="inv-icon-upload-${index}" accept="image/*">
+                <label for="inv-icon-upload-${index}" class="inv-icon-upload-label">${t.inv_icon_upload_label}</label>
+                <button type="button" class="char-remove-btn-x" title="Удалить">&times;</button>
+            `;
+            container.appendChild(group);
+
+            group.querySelector('.char-remove-btn-x').onclick = () => {
+                inventoryIconUrls.splice(index, 1);
+                group.remove();
+                updateInventoryIconInputsIndices();
+                updatePreview();
+            };
+
+            document.getElementById(`inv-icon-upload-${index}`).addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.getElementById(`inv-icon-preview-${index}`);
+                        if (img) img.src = e.target.result;
+                        inventoryIconUrls[index] = e.target.result;
+                        updatePreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            updatePreview();
+        }
+
+        function updateInventoryIconInputsIndices() {
+            const container = document.getElementById('inventory-icons-container');
+            Array.from(container.children).forEach((group, newIndex) => {
+                group.querySelector('img').id = `inv-icon-preview-${newIndex}`;
+                const fileInput = group.querySelector('input[type="file"]');
+                fileInput.id = `inv-icon-upload-${newIndex}`;
+                group.querySelector('label').setAttribute('for', `inv-icon-upload-${newIndex}`);
+                // Re-assign data based on new index
+                const currentFile = fileInput.files[0];
+                if (currentFile) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        inventoryIconUrls[newIndex] = e.target.result;
+                        if (newIndex === container.children.length -1) updatePreview();
+                    };
+                    reader.readAsDataURL(currentFile);
+                } else {
+                    inventoryIconUrls[newIndex] = null;
+                    if (newIndex === container.children.length -1) updatePreview();
+                }
+            });
+            inventoryIconUrls.length = container.children.length;
         }
 
 
@@ -1123,7 +1179,7 @@
                     <option value="text-input">${t.q_type_text}</option>
                 </select>
                 <textarea class="question-text" placeholder="${t.q_placeholder}"></textarea>
-                <input type="text" class="question-categories-input" placeholder="${t.q_categories_placeholder}">
+                <!-- Removed categories input -->
                 <div class="question-type-wrapper multiple-choice">
                     <div class="options-container"></div>
                     <button type="button" class="add-option-btn">${t.q_add_option}</button>
@@ -1214,8 +1270,6 @@
                 bgAudioElement.volume = musicVolumeSlider.value;
                 bgAudioElement.play().catch(e => {
                     console.warn("Autoplay failed, user interaction needed.", e);
-                    // Prompt user to interact if autoplay fails
-                    // e.g., show a play button to start music
                 });
                 musicToggleBtn.textContent = translations[gameState.lang].music_on;
             } else {
@@ -1235,6 +1289,13 @@
             musicVolumeSlider.oninput = (e) => {
                 bgAudioElement.volume = e.target.value;
             };
+
+            // Set map background
+            if (gameConfig.mapBackground) {
+                document.documentElement.style.setProperty('--map-bg-image', `url('${gameConfig.mapBackground}')`);
+            } else {
+                 document.documentElement.style.removeProperty('--map-bg-image');
+            }
         }
 
         function checkStartButton(){
@@ -1256,38 +1317,15 @@
             gameState.globalLives = gameConfig.difficultySettings[gameState.difficulty].lives;
             setupLivesDisplay();
 
-            // Set global timer
-            if (gameConfig.globalTimerMinutes > 0) {
-                gameState.globalTimeLeft = Math.round(gameConfig.globalTimerMinutes * 60 * gameConfig.difficultySettings[gameState.difficulty].timeMultiplier);
-                startGlobalTimer();
-            } else {
-                document.getElementById('global-timer-display').classList.add('hidden');
-            }
+            // Removed global timer setup
+            document.getElementById('global-timer-display').classList.add('hidden');
             
             gameState.currentMissionIndex = 0;
             gameState.completedMissions.clear();
             showMissionMap();
         }
 
-        function startGlobalTimer(){
-            clearInterval(globalTimerInterval);
-            const timerDisplay = document.getElementById('global-timer-display');
-            timerDisplay.classList.remove('hidden');
-            gameState.globalTimerRunning = true;
-
-            globalTimerInterval = setInterval(() => {
-                gameState.globalTimeLeft--;
-                const minutes = Math.floor(gameState.globalTimeLeft / 60);
-                const seconds = gameState.globalTimeLeft % 60;
-                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-                if (gameState.globalTimeLeft <= 0){
-                   clearInterval(globalTimerInterval);
-                   gameState.globalTimerRunning = false;
-                   endGame('timeup');
-                }
-            }, 1000);
-        }
+        // Removed startGlobalTimer function
 
         function setupLivesDisplay(){
             const livesContainer = document.getElementById('lives-container');
@@ -1306,7 +1344,7 @@
         function loseLife(){
             if (gameState.globalLives > 0) {
                  const hearts = document.querySelectorAll('#lives-container .life-heart');
-                 const heartToLose = hearts[gameState.globalLives - 1];
+                 const heartToLose = hearts[gameState.globalLives - 1]; // Get the last active heart
                  if (heartToLose) {
                     heartToLose.classList.add('lost');
                  }
@@ -1329,7 +1367,7 @@
 
             gameConfig.missions.forEach((mission, index) => {
                 const missionIconDiv = document.createElement('div');
-                missionIconDiv.className = 'mission-map-icon';
+                missionIconDiv.className = 'mission-map-icon floating';
                 missionIconDiv.dataset.missionIndex = index;
                 missionIconDiv.innerHTML = `<img src="${mission.iconUrl || 'https://placehold.co/60x60/333/eee?text=M' + (index + 1)}" alt="${mission.name}"><span>${mission.name}</span>`;
 
@@ -1341,6 +1379,8 @@
                 } else if (isLocked) {
                     missionIconDiv.classList.add('locked');
                 } else {
+                    missionIconDiv.addEventListener('mouseenter', () => displayMissionDescription(index));
+                    missionIconDiv.addEventListener('mouseleave', () => document.getElementById('mission-description-panel').classList.add('hidden'));
                     missionIconDiv.onclick = () => selectMission(index);
                 }
                 mapArea.appendChild(missionIconDiv);
@@ -1352,33 +1392,41 @@
                 const iconRect = currentMissionIcon.getBoundingClientRect();
                 const mapRect = mapArea.getBoundingClientRect();
                 // Position relative to mapArea
+                // Use a slight offset to center the character relative to the icon
                 playerCharMapImg.style.transform = `translate(${iconRect.left - mapRect.left + iconRect.width / 2}px, ${iconRect.top - mapRect.top + iconRect.height / 2}px)`;
             } else { // Hide if no mission or first mission not yet rendered (e.g. empty map)
                  playerCharMapImg.style.display = 'none';
             }
 
-            // Hide mission description panel initially or until a mission is selected
+            // Hide mission description panel initially
             document.getElementById('mission-description-panel').classList.add('hidden');
 
-            // If it's the very beginning of the game, auto-select the first mission
-            if (gameState.currentMissionIndex === 0 && !gameState.completedMissions.has(0)) {
-                selectMission(0);
-            } else if (gameState.completedMissions.has(gameState.currentMissionIndex)) {
-                // If current mission completed, and no next mission, show final win
-                if (gameState.currentMissionIndex >= gameConfig.missions.length -1) {
-                    endGame('win');
+            // If all missions are completed, end the game
+            if (gameState.completedMissions.size >= gameConfig.missions.length && gameConfig.missions.length > 0) {
+                endGame('win');
+                return;
+            }
+
+            // If it's the very beginning of the game, auto-select the first available mission
+            // Or if we just completed a mission, move to the next one
+            if (gameState.currentMissionIndex < gameConfig.missions.length && !gameState.completedMissions.has(gameState.currentMissionIndex)) {
+                displayMissionDescription(gameState.currentMissionIndex);
+            } else if (gameState.currentMissionIndex >= gameConfig.missions.length) {
+                // If somehow currentMissionIndex went past all missions, but not all are completed
+                // This shouldn't happen with the `if (all missions completed)` check above
+                // but as a fallback, select the last available uncompleted mission.
+                const firstUncompletedIndex = gameConfig.missions.findIndex((_,idx) => !gameState.completedMissions.has(idx));
+                if (firstUncompletedIndex !== -1) {
+                    gameState.currentMissionIndex = firstUncompletedIndex;
+                    displayMissionDescription(gameState.currentMissionIndex);
                 } else {
-                    // Automatically move to the next mission if current is completed and there are more
-                    selectMission(gameState.currentMissionIndex + 1);
+                    endGame('win'); // All missions should be completed
                 }
-            } else {
-                // If we are on the map and current mission is not completed, select it again to show description
-                 selectMission(gameState.currentMissionIndex);
             }
         }
 
-        function selectMission(index) {
-            gameState.currentMissionIndex = index;
+        function displayMissionDescription(index) {
+            gameState.currentMissionIndex = index; // Set current mission by hover/selection
             const mission = gameConfig.missions[index];
             const panel = document.getElementById('mission-description-panel');
             
@@ -1400,69 +1448,61 @@
             }
         }
 
+
         function startMission(missionIndex) {
             document.getElementById('mission-map-screen').classList.add('hidden');
             document.getElementById('current-mission-game-area').classList.remove('hidden');
             document.getElementById('player-char-on-map').style.display = 'none'; // Hide character on map during mission
 
-            const mission = gameConfig.missions[missionIndex];
-            
-            // Filter questions for this mission based on categories and selected difficulty
+            // Get questions for this mission based on selected difficulty
             let availableQuestions = [];
-            ['easy', 'medium', 'hard'].forEach(diff => {
-                if (gameConfig.questions[diff]) {
-                    gameConfig.questions[diff].forEach(q => {
-                        const questionCategories = new Set(q.categories);
-                        const missionCategories = new Set(mission.categories);
-                        
-                        // Check if question difficulty matches selected global difficulty
-                        // AND if question has at least one category that matches mission category
-                        if (q.difficulty === gameState.difficulty &&
-                            mission.categories.some(mc => questionCategories.has(mc))) {
-                            availableQuestions.push(q);
-                        }
-                    });
-                }
-            });
+            const difficultyQuestions = gameConfig.questions[gameState.difficulty] || [];
+            availableQuestions = difficultyQuestions.slice(); // Use all questions for this difficulty
 
             // Shuffle and select questions for the current mission
             availableQuestions.sort(() => 0.5 - Math.random());
-            gameState.currentMissionQuestions = availableQuestions.slice(0, gameConfig.cardCountPerMission);
-            gameState.completedCardsInMission = 0;
 
-            const gridArea = document.getElementById('card-grid-area');
-            gridArea.innerHTML = '';
+            // Number of inventory slots will be limited by available inventory icons
+            const numberOfSlots = Math.min(gameConfig.inventoryIcons.length, availableQuestions.length);
+
+            gameState.currentMissionQuestions = availableQuestions.slice(0, numberOfSlots);
+            // Assign random inventory icons to the current mission's slots
+            const shuffledInventoryIcons = [...gameConfig.inventoryIcons].sort(() => 0.5 - Math.random());
+            gameState.currentMissionInventoryIcons = shuffledInventoryIcons.slice(0, numberOfSlots);
+
+            gameState.completedInventorySlotsInMission = 0;
+
+            const inventoryContainer = document.getElementById('inventory-slots-container');
+            inventoryContainer.innerHTML = '';
 
             if (gameState.currentMissionQuestions.length > 0){
                 for (let i = 0; i < gameState.currentMissionQuestions.length; i++){
-                    const card = createCardElement(i);
-                    gridArea.appendChild(card);
+                    const slot = createInventorySlotElement(i, gameState.currentMissionInventoryIcons[i]);
+                    inventoryContainer.appendChild(slot);
                 }
             } else {
-                // No questions for this mission/difficulty, automatically complete or handle
-                console.warn(`No questions found for mission "${mission.name}" with difficulty "${gameState.difficulty}" and categories "${mission.categories.join(', ')}".`);
-                // For now, let's treat it as completed if no questions are found.
+                console.warn(`No questions found for mission "${gameConfig.missions[missionIndex].name}" with difficulty "${gameState.difficulty}".`);
                 setTimeout(() => completeMission(missionIndex), 500);
             }
         }
         
-        function createCardElement(qIndex){
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.dataset.qindex = qIndex;
-            card.innerHTML = `<span>${qIndex + 1}</span>`;
-            card.addEventListener('click', () => {
-                if (!card.classList.contains('completed')) {
+        function createInventorySlotElement(qIndex, invIconUrl){
+            const slot = document.createElement('div');
+            slot.className = 'inventory-slot';
+            slot.dataset.qindex = qIndex;
+            slot.innerHTML = `<img src="${invIconUrl || 'https://placehold.co/60x60/333/eee?text=?'}" alt="Inventory Icon">`;
+            slot.addEventListener('click', () => {
+                if (!slot.classList.contains('completed')) {
                     showQuestionModal(qIndex);
                 }
             });
-            return card;
+            return slot;
         }
 
         function showQuestionModal(qIndex){
             const qData = gameState.currentMissionQuestions[qIndex];
             const modalOverlay = document.getElementById('question-modal-overlay');
-            const qTextEl = modalOverlay.querySelector('.card-question');
+            const qTextEl = modalOverlay.querySelector('.card-question'); // Reusing class name for question text
             const content = modalOverlay.querySelector('.card-content-area');
 
             qTextEl.textContent = qData.question || '';
@@ -1516,9 +1556,9 @@
                 
                 setTimeout(() => {
                     closeQuestionModal();
-                    const cardEl = document.querySelector(`#card-grid-area .card[data-qindex="${qIndex}"]`);
-                    cardEl.classList.add('completed');
-                    gameState.completedCardsInMission++;
+                    const slotEl = document.querySelector(`#inventory-slots-container .inventory-slot[data-qindex="${qIndex}"]`);
+                    slotEl.classList.add('completed');
+                    gameState.completedInventorySlotsInMission++;
                     checkMissionCompletion();
                 }, 900);
 
@@ -1543,7 +1583,7 @@
                 endGame('lose');
                 return;
             }
-            if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
+            if (gameState.completedInventorySlotsInMission >= gameState.currentMissionQuestions.length) {
                 setTimeout(() => completeMission(gameState.currentMissionIndex), 500);
             }
         }
@@ -1556,18 +1596,20 @@
                 setTimeout(() => endGame('win'), 1000);
             } else {
                 // Transition to next mission on map
-                gameState.currentMissionIndex++;
+                gameState.currentMissionIndex = gameConfig.missions.findIndex((_, idx) => !gameState.completedMissions.has(idx));
+                if (gameState.currentMissionIndex === -1) { // Should not happen if previous check passed
+                     endGame('win');
+                     return;
+                }
                 setTimeout(() => {
                     document.getElementById('current-mission-game-area').classList.add('hidden');
-                    // Show a temporary "Mission Completed" message before going to map
-                    // For now, directly show map. Could add a small popup here.
                     showMissionMap();
                 }, 1000);
             }
         }
 
         function endGame(status){
-            clearInterval(globalTimerInterval);
+            // Removed clearInterval(globalTimerInterval);
             document.getElementById('game-process').classList.add('hidden');
             const endScreen = document.getElementById('end-screen');
             endScreen.classList.remove('hidden');
@@ -1596,16 +1638,10 @@
                 confetti.classList.add('hidden');
                 endImg.classList.add('sway');
                 try { incorrectSound.play(); } catch(e){}
-            } else if (status === 'timeup') {
-                endScreen.classList.add('time-up');
-                endTitle.textContent = t.time_up;
-                endButton.textContent = t.game_try_again;
-                confetti.classList.add('hidden');
-                endImg.classList.add('sway');
-                try { incorrectSound.play(); } catch(e){}
             }
+            // Removed 'timeup' status
         }
     });
     </script>
 </body>
-</html>
+</html>     
