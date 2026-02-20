@@ -229,7 +229,7 @@
             flex-shrink: 0;
         }
 
-        /* Editor styles for difficulty settings */
+        /* Editor styles for difficulty settings (now part of combined section) */
         .difficulty-settings-group {
             background: rgba(0,0,0,0.2);
             padding: 10px 15px;
@@ -254,8 +254,8 @@
             margin-bottom: 8px;
         }
 
-        /* Mission Upload Group, Map Background, Card Background */
-        .mission-upload-group, .map-background-upload-group, .card-background-upload-group {
+        /* Mission Upload Group, Map Background */
+        .mission-upload-group, .map-background-upload-group {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -267,7 +267,7 @@
             border:1px solid var(--border-color);
             flex-wrap: wrap;
         }
-        .mission-upload-group > div, .map-background-upload-group > div, .card-background-upload-group > div {
+        .mission-upload-group > div, .map-background-upload-group > div {
             flex-grow: 1;
         }
         .mission-upload-group img {
@@ -284,14 +284,8 @@
             border-radius: 8px;
             flex-shrink: 0;
         }
-        .card-background-upload-group img { /* New style for card background preview */
-            width: 100px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 8px;
-            flex-shrink: 0;
-        }
-        .mission-upload-group label, .map-background-upload-group label, .card-background-upload-group label {
+
+        .mission-upload-group label, .map-background-upload-group label {
             flex-grow: 1;
         }
         .mission-upload-group input[type="text"] {
@@ -329,6 +323,7 @@
             background-image: var(--map-bg-image, linear-gradient(180deg,#1a2a3a,#101820)); /* Default map background */
             background-size: cover; /* Ensure background covers */
             background-position: center;
+            position: relative; /* Crucial for positioning playerCharOnMap */
         }
         .mission-map-icon:hover {
             transform: scale(1.1); /* Increased size on hover */
@@ -340,7 +335,20 @@
             filter: grayscale(80%) brightness(0.5); /* Dim and desaturate locked missions */
             opacity: 0.7;
         }
-
+        #player-char-on-map { /* Moved into mission-map-screen, so needs specific styles */
+            position: absolute;
+            width: 80px; /* Size of character on map */
+            height: 80px;
+            pointer-events: none; /* Character doesn't block clicks */
+            transition: left 0.8s ease-in-out, top 0.8s ease-in-out; /* Smooth movement */
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Start off-screen or at 0,0 to move to first mission */
+            left: 0;
+            top: 0;
+        }
 
         #current-mission-game-area {
             background-image: var(--map-bg-image, linear-gradient(180deg,#1a2a3a,#101820)); /* Default background for mission area */
@@ -459,21 +467,10 @@
                         <audio id="bg-music-player-preview" controls class="hidden"></audio>
                     </div>
 
-                    <!-- 7. Фон карточек -->
+                    <!-- 7. Уровни + Задания -->
                     <div class="editor-section">
-                        <h2 data-lang-key="editor_card_background_heading">7. Фон карточек</h2>
-                        <div class="card-background-upload-group">
-                            <img src="https://placehold.co/100x70/101820/00ffe7?text=CardBG" alt="card-bg-preview" id="card-bg-preview-img">
-                            <div>
-                                <input type="file" id="card-bg-upload" accept="image/*">
-                                <label for="card-bg-upload" data-lang-key="editor_upload_card_bg">Загрузить фон карточек...</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 8. Настройки уровней сложности -->
-                    <div class="editor-section">
-                        <h2 data-lang-key="editor_difficulty_settings_heading">8. Настройки уровней сложности:</h2>
+                        <h2 data-lang-key="editor_levels_and_questions_heading">7. Уровни + Задания</h2>
+                        <h3 data-lang-key="editor_difficulty_settings_heading">Настройки уровней сложности:</h3>
                         <div class="difficulty-settings-group">
                             <h4><span data-lang-key="difficulty_easy">Легкий</span></h4>
                             <label for="easy-lives" data-lang-key="settings_lives">Жизни:</label><input type="number" id="easy-lives" value="5" min="1">
@@ -486,11 +483,8 @@
                             <h4><span data-lang-key="difficulty_hard">Сложный</span></h4>
                             <label for="hard-lives" data-lang-key="settings_lives">Жизни:</label><input type="number" id="hard-lives" value="1" min="1">
                         </div>
-                    </div>
 
-                    <!-- 9. Задания по сложности -->
-                    <div class="editor-section">
-                        <h2 data-lang-key="editor_questions_heading">9. Задания по сложности</h2>
+                        <h3 data-lang-key="editor_questions_by_difficulty_heading">Задания по сложности:</h3>
                         <div class="difficulty-questions-wrapper">
                             <div class="difficulty-column">
                                 <h3 data-lang-key="difficulty_easy">Легкие</h3>
@@ -550,6 +544,7 @@
                     <div id="map-area">
                         <!-- Mission icons will be rendered here -->
                     </div>
+                    <!-- PLAYER CHAR ON MAP IS NOW CHILD OF MISSION-MAP-SCREEN -->
                     <div id="player-char-on-map" style="position: absolute; transform: translate(-50%, -50%);">
                         <img id="player-char-map-img" src="" alt="Ваш персонаж">
                     </div>
@@ -589,9 +584,8 @@
         const urlParams = new URLSearchParams(window.location.search);
         const isPlayerMode = urlParams.get('mode') === 'player';
         
-        let mapBackgroundUrl = null; // Stores map background image URL
-        let cardBackgroundUrl = null; // Stores card background image URL
-        let backgroundMusicUrl = null; // Stores global background music URL
+        let mapBackgroundUrl = null; 
+        let backgroundMusicUrl = null; 
         let isCodeGenerated = false;
 
         const translations = {
@@ -609,12 +603,11 @@
                 editor_characters_heading: "5. Персонажи",
                 editor_add_char: "Добавить персонажа",
                 editor_music_heading: "6. Фоновая музыка",
-                editor_card_background_heading: "7. Фон карточек", /* New */
-                editor_upload_card_bg: "Загрузить фон карточек...", /* New */
-                editor_difficulty_settings_heading: "8. Настройки уровней сложности:",
+                editor_levels_and_questions_heading: "7. Уровни + Задания", 
+                editor_difficulty_settings_heading: "Настройки уровней сложности:", 
                 settings_lives: "Жизни:",
-                editor_questions_heading: "9. Задания по сложности",
-                editor_add_q: "Добавить вопрос", /* Added missing translation */
+                editor_questions_by_difficulty_heading: "Задания по сложности:", 
+                editor_add_q: "Добавить вопрос",
                 editor_generate: "Сгенерировать код",
                 editor_copy: "Копировать",
                 editor_copied: "Скопировано!",
@@ -625,6 +618,9 @@
                 q_remove_q: "Удалить вопрос",
                 q_type_mc: "Один из многих",
                 q_type_text: "Ввод текста",
+                no_characters_warning: "Не определены персонажи!", 
+                no_missions_warning: "Не определены миссии!", // Added new warning
+                no_questions_warning: "Нет заданий для выбранной сложности!", // Added new warning
 
                 game_select_char: "Выберите персонажа:",
                 game_select_difficulty: "Выберите уровень сложности:",
@@ -657,12 +653,11 @@
                 editor_characters_heading: "5. Characters",
                 editor_add_char: "Add Character",
                 editor_music_heading: "6. Background Music",
-                editor_card_background_heading: "7. Card Background", /* New */
-                editor_upload_card_bg: "Upload card background...", /* New */
-                editor_difficulty_settings_heading: "8. Difficulty Settings:",
+                editor_levels_and_questions_heading: "7. Levels + Questions", 
+                editor_difficulty_settings_heading: "Difficulty Settings:", 
                 settings_lives: "Lives:",
-                editor_questions_heading: "9. Questions by Difficulty",
-                editor_add_q: "Add Question", /* Added missing translation */
+                editor_questions_by_difficulty_heading: "Questions by Difficulty:", 
+                editor_add_q: "Add Question",
                 editor_generate: "Generate Code",
                 editor_copy: "Copy",
                 editor_copied: "Copied!",
@@ -673,6 +668,9 @@
                 q_remove_q: "Delete Question",
                 q_type_mc: "Multiple Choice",
                 q_type_text: "Text Input",
+                no_characters_warning: "No characters defined!", 
+                no_missions_warning: "No missions defined!",
+                no_questions_warning: "No questions for selected difficulty!",
 
                 game_select_char: "Select a Character:",
                 game_select_difficulty: "Select Difficulty Level:",
@@ -693,21 +691,21 @@
             }
         };
 
-        const correctSound = new Audio('data:audio/wav;base64,UklGRlAZGF0YU'+Array(250).join('123')); // Slightly longer
-        const incorrectSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(250).join('321')); // Slightly longer
+        const correctSound = new Audio('data:audio/wav;base64,UklGRlAZGF0YU'+Array(250).join('123'));
+        const incorrectSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(250).join('321'));
 
         let gameConfig = {};
         let gameState = {
             lang: 'ru',
-            character: '', // Selected character URL
-            difficulty: null, // 'easy', 'medium', 'hard'
+            character: '', 
+            difficulty: null, 
             globalLives: 0,
             currentMissionIndex: 0,
-            currentMissionQuestions: [], // Questions for current mission
-            completedCardsInMission: 0, // Back to cards
+            currentMissionQuestions: [], 
+            completedCardsInMission: 0, 
             completedMissions: new Set()
         };
-        let bgAudioElement = null; // Reference to the game's background audio element
+        let bgAudioElement = null; 
 
         if (isPlayerMode) {
             document.getElementById('editor-wrapper').style.display = 'none';
@@ -747,8 +745,6 @@
             // Specific element for game title input (to handle value update)
             const gameTitleInput = document.getElementById('game-title');
             if (gameTitleInput) {
-                // Only update value if it's the default "Проверь свои знания!" or "Check your knowledge!"
-                // Or if it matches the previous language's default
                 const currentDefaultRu = translations['ru'].editor_title_game;
                 const currentDefaultEn = translations['en'].editor_title_game;
 
@@ -764,9 +760,6 @@
             document.querySelectorAll('.mission-upload-group label.mission-icon-upload-label').forEach(label => {
                 label.textContent = translations[lang].mission_icon_upload_label;
             });
-            document.querySelectorAll('.card-background-upload-group label').forEach(label => {
-                label.textContent = translations[lang].editor_upload_card_bg;
-            });
             document.querySelectorAll('.map-background-upload-group label').forEach(label => {
                 label.textContent = translations[lang].editor_upload_map_bg;
             });
@@ -774,29 +767,23 @@
 
         function initEditor(){
             document.getElementById('language-select').addEventListener('change', (e) => {
-                gameState.lang = e.target.value; // Update game state language
-                updateUI(gameState.lang); // Update editor UI
-                updatePreview(); // Update iframe preview
+                gameState.lang = e.target.value; 
+                updateUI(gameState.lang); 
+                updatePreview(); 
             });
 
-            // Add button event listeners
             document.getElementById('add-character-btn').addEventListener('click', addCharacterInput);
             document.getElementById('add-mission-btn').addEventListener('click', addMissionBlock);
-            // Removed addInventoryIconInput()
 
-            // File input listeners (directly on the inputs)
             document.getElementById('bg-music-upload').addEventListener('change', handleMusicUpload);
             document.getElementById('map-bg-upload').addEventListener('change', handleMapBackgroundUpload);
-            document.getElementById('card-bg-upload').addEventListener('change', handleCardBackgroundUpload); // New
 
-            // Question add buttons
             document.querySelectorAll('.add-question-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => addQuestionBlock(e.target.dataset.difficulty));
             });
 
             document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCodeClick);
             
-            // Event delegation for input/change on editor-panel
             document.getElementById('editor-panel').addEventListener('input', updatePreview);
             document.getElementById('editor-panel').addEventListener('change', updatePreview);
 
@@ -805,19 +792,15 @@
             previewIframe.src = `${window.location.pathname}?mode=player`;
             
             previewIframe.onload = () => {
-                // Ensure the preview iframe is fully loaded before sending config
                 updatePreview();
             };
 
-            // Add initial elements
             addCharacterInput(); 
             addMissionBlock(); 
-            // Removed addInventoryIconInput()
             addQuestionBlock('easy');
             addQuestionBlock('medium');
             addQuestionBlock('hard');
 
-            // Initial UI update after all elements are potentially added
             updateUI(gameState.lang); 
         }
 
@@ -829,14 +812,11 @@
                 hard: { lives: parseInt(document.getElementById('hard-lives').value, 10) || 1 }
             };
 
-            // Collect characters directly from DOM
             const characters = Array.from(document.getElementById('characters-container').children).map(group => {
                 const img = group.querySelector('img');
-                // Only return src if it's a loaded image and not a placeholder
                 return (img && img.src && !img.src.includes('placehold.co')) ? img.src : null;
-            }).filter(Boolean); // Remove any null entries
+            }).filter(Boolean); 
 
-            // Collect missions directly from DOM
             const missions = Array.from(document.getElementById('missions-container').children).map(block => {
                 const img = block.querySelector('img');
                 return {
@@ -844,9 +824,7 @@
                     description: block.querySelector('.mission-desc-input').value || '',
                     iconUrl: (img && img.src && !img.src.includes('placehold.co')) ? img.src : null
                 };
-            }).filter(m => m.name && m.name.trim()); // Only include missions with a non-empty name
-
-            // Removed inventoryIcons collection
+            }).filter(m => m.name && m.name.trim()); 
 
             const allQuestions = {};
             ['easy', 'medium', 'hard'].forEach(difficulty => {
@@ -858,14 +836,14 @@
                         question: block.querySelector('.question-text').value || ''
                     };
                     if (questionType === 'multiple-choice'){
-                        question.options = Array.from(block.querySelectorAll('.option-text')).map(i => i.value).filter(Boolean); // Filter empty options
+                        question.options = Array.from(block.querySelectorAll('.option-text')).map(i => i.value).filter(Boolean); 
                         const correctInput = block.querySelector('input[type="radio"]:checked');
                         question.answer = correctInput ? parseInt(correctInput.value, 10) : 0;
                     } else {
                         question.answer = block.querySelector('.text-answer-input').value || '';
                     }
                     return question;
-                }).filter(q => q.question && q.question.trim()); // Only include questions with text
+                }).filter(q => q.question && q.question.trim()); 
             });
 
             return {
@@ -874,7 +852,6 @@
                 characters: characters,
                 backgroundMusic: backgroundMusicUrl,
                 mapBackground: mapBackgroundUrl, 
-                cardBackground: cardBackgroundUrl, /* New */
                 difficultySettings: difficultySettings,
                 missions: missions,
                 questions: allQuestions
@@ -900,7 +877,7 @@
             if (!isCodeGenerated){
                 const config = collectConfig();
                 const gameUrl = `${window.location.origin}${window.location.pathname}?mode=player`;
-                const configString = JSON.stringify(config).replace(/</g, '\\u003c'); // Escape HTML for script tag safety
+                const configString = JSON.stringify(config).replace(/</g, '\\u003c'); 
 
                 codeTextarea.value =
 `<div style="position: relative; width: 100%; padding-bottom: 56.25%;">
@@ -931,11 +908,11 @@
 
         function addCharacterInput(){
             const container = document.getElementById('characters-container');
-            const uniqueId = Date.now(); // Unique ID for this character group
+            const uniqueId = Date.now(); 
             
             const group = document.createElement('div');
             group.className = 'character-upload-group';
-            group.dataset.id = uniqueId; // Store unique ID in dataset
+            group.dataset.id = uniqueId; 
             const lang = document.getElementById('language-select').value;
 
             group.innerHTML = `
@@ -1007,25 +984,6 @@
             }
         }
 
-        function handleCardBackgroundUpload(event){ /* New function */
-            const file = event.target.files[0];
-            const previewImg = document.getElementById('card-bg-preview-img');
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    cardBackgroundUrl = e.target.result;
-                    previewImg.src = e.target.result;
-                    updatePreview();
-                };
-                reader.readAsDataURL(file);
-            } else {
-                cardBackgroundUrl = null;
-                previewImg.src = "https://placehold.co/100x70/101820/00ffe7?text=CardBG";
-                updatePreview();
-            }
-        }
-
-
         function addMissionBlock(){
             const container = document.getElementById('missions-container');
             const uniqueId = Date.now();
@@ -1072,7 +1030,7 @@
 
         function addQuestionBlock(difficulty){
             const container = document.getElementById(`${difficulty}-questions-container`);
-            const qIndex = Date.now(); // Unique ID for radios
+            const qIndex = Date.now(); 
             const block = document.createElement('div');
             block.className = 'question-block';
             const lang = document.getElementById('language-select').value;
@@ -1139,7 +1097,7 @@
             }
             gameConfig = config;
             gameState.lang = config.lang || 'ru';
-            updateUI(gameState.lang); // Update game UI based on config language
+            updateUI(gameState.lang); 
 
             document.getElementById('game-title-display').textContent = gameConfig.title || '';
             
@@ -1160,6 +1118,7 @@
                 });
             } else {
                  charSelector.innerHTML = `<p style="color:red;">${translations[gameState.lang].no_characters_warning || "No characters defined!"}</p>`;
+                 gameState.character = ''; // Ensure character is empty if none are provided
             }
 
             // Difficulty selection
@@ -1217,14 +1176,37 @@
 
         function checkStartButton(){
             const startBtn = document.getElementById('start-game-btn');
-            // Ensure there's at least one mission, character and question for the selected difficulty
-            const hasQuestionsForDifficulty = gameState.difficulty && gameConfig.questions[gameState.difficulty] && gameConfig.questions[gameState.difficulty].length > 0;
-            const canStart = gameState.character && gameState.difficulty && gameConfig.missions.length > 0 && hasQuestionsForDifficulty;
+            
+            const hasCharacter = !!gameState.character;
+            const hasDifficulty = !!gameState.difficulty;
+            const hasMissions = gameConfig.missions && gameConfig.missions.length > 0;
+            const hasQuestionsForDifficulty = hasDifficulty && gameConfig.questions[gameState.difficulty] && gameConfig.questions[gameState.difficulty].length > 0;
+
+            let warningMessage = '';
+            if (!hasCharacter) warningMessage += translations[gameState.lang].no_characters_warning + '\n';
+            if (!hasMissions) warningMessage += translations[gameState.lang].no_missions_warning + '\n';
+            if (!hasQuestionsForDifficulty) warningMessage += translations[gameState.lang].no_questions_warning + '\n';
+            
+            // Display warnings on start screen if issues exist
+            const startScreen = document.getElementById('start-screen');
+            let existingWarning = startScreen.querySelector('.start-warning');
+            if (warningMessage) {
+                if (!existingWarning) {
+                    existingWarning = document.createElement('p');
+                    existingWarning.className = 'start-warning';
+                    existingWarning.style.color = 'red';
+                    startScreen.insertBefore(existingWarning, document.getElementById('start-game-btn'));
+                }
+                existingWarning.textContent = warningMessage.trim();
+            } else {
+                if (existingWarning) existingWarning.remove();
+            }
+
+            const canStart = hasCharacter && hasDifficulty && hasMissions && hasQuestionsForDifficulty;
             startBtn.disabled = !canStart;
         }
 
         function startGame(){
-            // Preload sounds (browser specific, often requires user interaction)
             try { correctSound.play().then(()=>correctSound.pause(), ()=>{}); correctSound.pause(); } catch(e){}
             try { incorrectSound.play().then(()=>incorrectSound.pause(), ()=>{}); incorrectSound.pause(); } catch(e){}
 
@@ -1233,7 +1215,6 @@
             document.getElementById('player-char-img').src = gameState.character;
             document.getElementById('player-char-map-img').src = gameState.character;
 
-            // Set initial lives based on difficulty
             gameState.globalLives = gameConfig.difficultySettings[gameState.difficulty].lives;
             setupLivesDisplay();
             
@@ -1245,7 +1226,8 @@
         function setupLivesDisplay(){
             const livesContainer = document.getElementById('lives-container');
             livesContainer.innerHTML = '';
-            for (let i=0;i<gameConfig.difficultySettings[gameState.difficulty].lives;i++){
+            const livesCount = Math.max(1, gameConfig.difficultySettings[gameState.difficulty].lives || 1); 
+            for (let i=0;i<livesCount;i++){
                 const heart = document.createElement('span');
                 heart.className = 'life-heart';
                 heart.textContent = '❤️';
@@ -1256,7 +1238,6 @@
         function loseLife(){
             if (gameState.globalLives > 0) {
                  const hearts = document.querySelectorAll('#lives-container .life-heart');
-                 // Only lose life if there are active hearts left
                  if (hearts[gameState.globalLives - 1]) {
                     hearts[gameState.globalLives - 1].classList.add('lost');
                  }
@@ -1276,6 +1257,12 @@
 
             const playerCharOnMap = document.getElementById('player-char-on-map');
             playerCharOnMap.style.display = 'block';
+
+            if (!gameConfig.missions || gameConfig.missions.length === 0) {
+                console.warn("No missions defined. Ending game as won since no missions to complete.");
+                endGame('win'); 
+                return;
+            }
 
             gameConfig.missions.forEach((mission, index) => {
                 const missionIconDiv = document.createElement('div');
@@ -1298,16 +1285,13 @@
                 mapArea.appendChild(missionIconDiv);
             });
             
-            // If all missions are completed, end the game
-            if (gameConfig.missions.length > 0 && gameState.completedMissions.size >= gameConfig.missions.length) {
+            if (gameState.completedMissions.size >= gameConfig.missions.length) {
                 endGame('win');
                 return;
             }
             
-            // Determine which mission to display/select
             let missionToSelect = gameState.currentMissionIndex;
             if (gameState.currentMissionIndex >= gameConfig.missions.length || gameState.completedMissions.has(gameState.currentMissionIndex)) {
-                // If current index is out of bounds or already completed, find the first uncompleted mission
                 const firstUncompletedIndex = gameConfig.missions.findIndex((_, idx) => !gameState.completedMissions.has(idx));
                 if (firstUncompletedIndex !== -1) {
                     missionToSelect = firstUncompletedIndex;
@@ -1316,9 +1300,9 @@
                     return;
                 }
             }
-            gameState.currentMissionIndex = missionToSelect; // Update current mission index
+            gameState.currentMissionIndex = missionToSelect; 
 
-            displayMissionDescription(gameState.currentMissionIndex); // Display info for the current/first uncompleted mission
+            displayMissionDescription(gameState.currentMissionIndex); 
         }
 
         function displayMissionDescription(index) {
@@ -1332,19 +1316,19 @@
             const startMissionBtn = document.getElementById('start-mission-btn');
             startMissionBtn.onclick = () => startMission(index);
 
-            // Update player char position on map to selected mission
             const playerCharOnMap = document.getElementById('player-char-on-map'); 
             const targetIcon = document.querySelector(`.mission-map-icon[data-mission-index="${index}"]`);
             if (targetIcon) {
-                // Ensure targetIcon is visible and rendered to get accurate client rects
-                const mapAreaRect = document.getElementById('map-area').getBoundingClientRect();
+                // To position playerCharOnMap (which is a direct child of #mission-map-screen) correctly
+                // relative to a missionIconDiv (which is a child of #map-area, which is child of #mission-map-screen),
+                // we need to calculate the missionIconDiv's position relative to its parent, then adjust for mapArea's own position.
+                // However, simpler to get the *actual rendered position* on screen, relative to viewport,
+                // then convert that to coordinates relative to #mission-map-screen.
+
+                const missionMapScreenRect = document.getElementById('mission-map-screen').getBoundingClientRect();
                 const targetIconRect = targetIcon.getBoundingClientRect();
                 
-                // Calculate center of the target icon relative to map-area
-                // playerCharOnMap is child of game-process, not map-area
-                // We need position relative to game-process (which is similar to mission-map-screen)
-                const missionMapScreenRect = document.getElementById('mission-map-screen').getBoundingClientRect();
-                
+                // Calculate center of the target icon relative to missionMapScreen
                 const centerX = targetIconRect.left + (targetIconRect.width / 2) - missionMapScreenRect.left;
                 const centerY = targetIconRect.top + (targetIconRect.height / 2) - missionMapScreenRect.top;
 
@@ -1354,34 +1338,39 @@
         }
 
         function selectMission(index){
-            gameState.currentMissionIndex = index; // Update the actual current mission index
+            gameState.currentMissionIndex = index; 
             displayMissionDescription(index);
         }
 
         function startMission(missionIndex) {
             document.getElementById('mission-map-screen').classList.add('hidden');
             document.getElementById('current-mission-game-area').classList.remove('hidden');
-            document.getElementById('player-char-on-map').style.display = 'none'; // Hide character on map during mission
+            document.getElementById('player-char-on-map').style.display = 'none'; 
 
-            // Get questions for this mission based on selected difficulty
             let availableQuestions = gameConfig.questions[gameState.difficulty] || [];
             
-            // Shuffle questions
+            if (availableQuestions.length === 0) {
+                 console.warn(`No questions found for difficulty "${gameState.difficulty}". Automatically completing mission.`);
+                 setTimeout(() => completeMission(missionIndex), 500);
+                 return;
+            }
+
             availableQuestions.sort(() => 0.5 - Math.random());
 
-            gameState.currentMissionQuestions = availableQuestions; // All available questions for this mission/difficulty
+            const maxCardsPerMission = 10; 
+            gameState.currentMissionQuestions = availableQuestions.slice(0, Math.min(availableQuestions.length, maxCardsPerMission)); 
             gameState.completedCardsInMission = 0;
 
-            const cardGridArea = document.getElementById('card-grid-area'); // Back to card-grid-area
+            const cardGridArea = document.getElementById('card-grid-area'); 
             cardGridArea.innerHTML = '';
 
             if (gameState.currentMissionQuestions.length > 0){
                 for (let i = 0; i < gameState.currentMissionQuestions.length; i++){
-                    const card = createCardElement(i); // Create cards
+                    const card = createCardElement(i); 
                     cardGridArea.appendChild(card);
                 }
             } else {
-                console.warn(`No questions found for mission "${gameConfig.missions[missionIndex].name}" with difficulty "${gameState.difficulty}". Automatically completing mission.`);
+                console.warn(`After filtering and shuffling, no questions left for mission "${gameConfig.missions[missionIndex].name}" with difficulty "${gameState.difficulty}". Automatically completing mission.`);
                 setTimeout(() => completeMission(missionIndex), 500);
             }
         }
@@ -1392,11 +1381,6 @@
             card.dataset.qindex = qIndex;
             card.innerHTML = `<span>${qIndex + 1}</span>`;
             
-            // Apply custom card background if available
-            if (gameConfig.cardBackground) {
-                card.style.backgroundImage = `url('${gameConfig.cardBackground}')`;
-            }
-
             card.addEventListener('click', () => {
                 if (!card.classList.contains('completed')) {
                     showQuestionModal(qIndex);
@@ -1414,7 +1398,6 @@
             qTextEl.textContent = qData.question || '';
             content.innerHTML = '';
 
-            // Reset disabled state for new modal
             modalOverlay.querySelectorAll('button,input').forEach(el => el.disabled = false);
 
             if (qData.type === 'multiple-choice'){
@@ -1428,7 +1411,7 @@
                     });
                     content.appendChild(btn);
                 });
-            } else { // Text input
+            } else { 
                 content.className = 'card-content-area card-input-area';
                 const input = document.createElement('input');
                 input.type = 'text';
@@ -1465,7 +1448,7 @@
                 
                 setTimeout(() => {
                     closeQuestionModal();
-                    const cardEl = document.querySelector(`#card-grid-area .card[data-qindex="${qIndex}"]`); // Target card
+                    const cardEl = document.querySelector(`#card-grid-area .card[data-qindex="${qIndex}"]`); 
                     cardEl.classList.add('completed');
                     gameState.completedCardsInMission++;
                     checkMissionCompletion();
@@ -1500,14 +1483,11 @@
         function completeMission(missionIndex){
             gameState.completedMissions.add(missionIndex);
             
-            // Check if all missions are completed
             if (gameConfig.missions.length > 0 && gameState.completedMissions.size >= gameConfig.missions.length) {
                 setTimeout(() => endGame('win'), 1000);
             } else {
-                // Transition to next mission on map
                 gameState.currentMissionIndex = gameConfig.missions.findIndex((_, idx) => !gameState.completedMissions.has(idx));
                 if (gameState.currentMissionIndex === -1) { 
-                     // All missions might be completed, but the previous check failed for some edge case
                      endGame('win');
                      return;
                 }
@@ -1552,4 +1532,4 @@
     });
     </script>
 </body>
-</html>
+</html>           
