@@ -459,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const missions = Array.from(document.getElementById('missions-container').children).map(block => {
             const questions = Array.from(block.querySelectorAll('.question-block')).map(qBlock => {
                 return {
-                    type: 'multiple-choice', // Simplified to only one type for now
+                    type: 'multiple-choice',
                     question: qBlock.querySelector('.question-text').value.trim(),
                     options: Array.from(qBlock.querySelectorAll('.option-text')).map(i => i.value),
                     answer: qBlock.querySelector('input[type="radio"]:checked') ? parseInt(qBlock.querySelector('input[type="radio"]:checked').value, 10) : 0
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <details style="margin-top:8px;">
                 <summary>Задания</summary>
                 <div class="mission-questions-container" style="margin-top:8px;"></div>
-                <div style="margin-top:10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                <div class="bulk-add-section" style="margin-top:10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
                     <h4>Массовое добавление</h4>
                     <textarea class="bulk-questions-input" rows="6" placeholder="Вставьте вопросы:\nВопрос 1\n+Правильный ответ\n-Неправильный ответ 1\n\nВопрос 2..."></textarea>
                     <button type="button" class="parse-questions-btn">Добавить вопросы из списка</button>
@@ -679,9 +679,14 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePreview();
         };
         block.querySelector('.parse-questions-btn').onclick = (e) => {
-            const textarea = e.target.previousElementSibling;
-            const questionsContainer = e.target.closest('details').querySelector('.mission-questions-container');
-            parseAndAddQuestions(textarea, questionsContainer);
+            const bulkAddSection = e.target.closest('.bulk-add-section');
+            if (bulkAddSection) {
+                const textarea = bulkAddSection.querySelector('.bulk-questions-input');
+                const questionsContainer = e.target.closest('details').querySelector('.mission-questions-container');
+                if (textarea && questionsContainer) {
+                    parseAndAddQuestions(textarea, questionsContainer);
+                }
+            }
         };
         document.getElementById(`mission-file-${uniqueId}`).addEventListener('change', (e) => {
             if (e.target.files[0]) {
