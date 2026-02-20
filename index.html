@@ -25,6 +25,7 @@
             --title-font: 'Segoe UI', Roboto, Arial, sans-serif;
             --title-size: 1.8em;
             --button-size: 16px;
+            --game-bg-color: transparent;
         }
         html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;font-family:var(--title-font);}
         body{
@@ -57,7 +58,7 @@
         input[type="range"] { padding: 0; }
 
         #editor-wrapper{ display:flex; gap:12px; height:100%; overflow:hidden; padding:12px; box-sizing:border-box; }
-        #editor-panel{ flex:1; min-width:320px; max-width: 420px; }
+        #editor-panel{ flex:1; min-width:320px; max-width: 460px; }
         #preview-section{ flex:2.2; display:flex; flex-direction:column; }
 
         .editor-panel-inner{ background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:18px; backdrop-filter:blur(8px); height:100%; box-sizing:border-box; overflow-y:auto; }
@@ -83,7 +84,7 @@
         #character-selector img{ width:80px; height:80px; border-radius:50%; border:3px solid transparent; cursor:pointer; object-fit:cover; transition:all .2s; }
         #character-selector img.selected{ border-color:var(--dynamic-glow-color); box-shadow:var(--dynamic-glow-shadow); transform:scale(1.05); }
 
-        #game-process{ width:100%; height:100%; position:relative; padding:12px; box-sizing:border-box; display:block; }
+        #game-process{ width:100%; height:100%; position:relative; padding:12px; box-sizing:border-box; display:block; background: var(--game-bg-color); }
         #game-ui-top{ position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; z-index: 100; }
         #lives-container{ display:flex; gap:5px; font-size:1.8em; }
         
@@ -99,7 +100,8 @@
         .card:hover{ transform: translateY(-5px); box-shadow: 0 8px 20px var(--dynamic-glow-color); }
         .card.completed{ background: var(--correct-color); cursor: not-allowed; opacity: 0.6; pointer-events: none; }
         .card.completed::after { content: '✔'; font-size: 2.0em; color: white; position: absolute; }
-        .card.incorrect-flash::after { content: '✖'; position: absolute; font-size: 2.0em; color: white; animation: fade-out 0.8s ease-out forwards; }
+        .card.incorrect { background: var(--incorrect-color); cursor: not-allowed; opacity: 0.85; pointer-events: none; }
+        .card.incorrect::after { content: '✖'; font-size: 2.0em; color: white; position: absolute; }
 
         #question-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center; z-index: 2000; }
         #question-modal-content{ background-color:#e0e0e0; color:var(--text-dark); padding:24px; border-radius:12px; min-width: 420px; max-width: 90vw; }
@@ -122,16 +124,22 @@
         .title-anim-bounce { animation: bounce-title 1.4s ease-in-out infinite; }
         .title-anim-fade { animation: fade-title 2s ease-in-out infinite; }
         .title-anim-pulse { animation: pulse-title 1.6s ease-in-out infinite; }
+        .title-anim-rotate { animation: rotate-title 4s linear infinite; transform-origin: center; }
+        .title-anim-sway { animation: sway-title 2.5s ease-in-out infinite; }
+        .title-anim-zoom { animation: zoom-title 2.2s ease-in-out infinite; }
         @keyframes bounce-title { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
         @keyframes fade-title { 0%{opacity:1}50%{opacity:.6}100%{opacity:1} }
         @keyframes pulse-title { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
+        @keyframes rotate-title { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+        @keyframes sway-title { 0%{transform:translateX(-4px)}50%{transform:translateX(4px)}100%{transform:translateX(-4px)} }
+        @keyframes zoom-title { 0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)} }
 
-        /* mission icons */
+        /* mission icons (bigger) */
         .mission-map-icon { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.25s ease; z-index: 20; transform: translate(-50%, -50%); }
-        .mission-map-icon img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 3px solid var(--dynamic-glow-color); }
-        .mission-map-icon .icon-fallback { width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); border:3px solid var(--dynamic-glow-color); color:white; font-weight:bold; font-size:18px; }
-        .mission-map-icon span { font-size: 0.95em; color: white; text-shadow: 0 0 5px black; background: rgba(0,0,0,0.45); padding: 4px 10px; border-radius: 6px; }
-        .mission-map-icon:not(.locked):hover { transform: scale(1.15) translate(-50%, -50%); }
+        .mission-map-icon img { width: 110px; height: 110px; object-fit: cover; border-radius: 50%; border: 4px solid var(--dynamic-glow-color); }
+        .mission-map-icon .icon-fallback { width:110px; height:110px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); border:4px solid var(--dynamic-glow-color); color:white; font-weight:bold; font-size:28px; }
+        .mission-map-icon span { font-size: 1em; color: white; text-shadow: 0 0 5px black; background: rgba(0,0,0,0.45); padding: 6px 12px; border-radius: 8px; }
+        .mission-map-icon:not(.locked):hover { transform: scale(1.12) translate(-50%, -50%); }
         .mission-map-icon.active { animation: pulse-animation 1.5s ease-in-out infinite; }
         .mission-map-icon.completed { filter: grayscale(100%) brightness(0.75); opacity: 0.85; pointer-events: none; }
         .mission-map-icon.locked { pointer-events: none; filter: grayscale(80%) brightness(0.6); opacity: 0.7; }
@@ -151,6 +159,7 @@
             #editor-panel{ max-width: 280px; }
             #character-selector img{ width:56px;height:56px;}
             .card{ width:76px;height:110px;}
+            .mission-map-icon img, .mission-map-icon .icon-fallback { width:80px;height:80px;font-size:18px;border-width:3px;}
         }
     </style>
 </head>
@@ -182,8 +191,6 @@
 
                     <div class="editor-section">
                         <h2 data-lang-key="editor_design_heading">4. Дизайн</h2>
-                        <label for="cover-upload">Обложка (только с устройства)</label>
-                        <input type="file" id="cover-upload" accept="image/*">
                         <label for="card-bg-upload" data-lang-key="design_card_bg">Фон для карточек (только с устройства)</label>
                         <input type="file" id="card-bg-upload" accept="image/*">
                         <label for="card-color-picker" data-lang-key="design_card_color">Цвет карточек (если нет фона)</label>
@@ -206,6 +213,9 @@
 
                         <label for="button-size-input">Размер кнопок (px)</label>
                         <input type="number" id="button-size-input" value="16" min="10" step="1">
+
+                        <label for="game-bg-color-picker">Цвет фона игры</label>
+                        <input type="color" id="game-bg-color-picker" value="#00000000">
                     </div>
 
                     <div class="editor-section">
@@ -216,21 +226,49 @@
                             <option value="title-anim-bounce">Прыжок</option>
                             <option value="title-anim-fade">Исчезание</option>
                             <option value="title-anim-pulse">Пульсация</option>
+                            <option value="title-anim-rotate">Вращение</option>
+                            <option value="title-anim-sway">Качающийся</option>
+                            <option value="title-anim-zoom">Зум</option>
                         </select>
                     </div>
 
                     <div class="editor-section">
-                        <h2>Звуки ответов</h2>
-                        <label for="correct-sound-upload">Звук правильного ответа (только с устройства)</label>
-                        <input type="file" id="correct-sound-upload" accept="audio/*">
-                        <label for="incorrect-sound-upload">Звук неправильного ответа (только с устройства)</label>
-                        <input type="file" id="incorrect-sound-upload" accept="audio/*">
+                        <h2>Опции генерации</h2>
+                        <label><input type="checkbox" id="compress-images-checkbox" checked> Сжимать изображения при генерации (уменьшать размер финального файла)</label>
+                        <label for="max-image-width">Макс. ширина при сжатии (px)</label>
+                        <input type="number" id="max-image-width" value="1024" min="200">
+                        <label for="jpeg-quality">Качество JPEG при сжатии (0.1–1)</label>
+                        <input type="number" id="jpeg-quality" value="0.75" min="0.1" max="1" step="0.05">
                     </div>
-                    
+
                     <div class="editor-section">
                         <h2 data-lang-key="editor_missions_heading">5. Миссии и Задания (до 5)</h2>
                         <div id="missions-container"></div>
                         <button id="add-mission-btn" data-lang-key="editor_add_mission">Добавить миссию</button>
+                        <p style="font-size:12px;color:#cbd5e1;margin-top:8px;">Иконки миссий должны загружаться с устройства — в редакторе показаны безопасные превью (без «сломанных» изображений).</p>
+                    </div>
+
+                    <div class="editor-section">
+                        <h2>Банк вопросов</h2>
+                        <div id="question-bank-controls" style="display:flex;gap:8px;flex-direction:column;">
+                            <div style="display:flex;gap:8px;">
+                                <select id="bank-q-type">
+                                    <option value="multiple-choice">Один из многих</option>
+                                    <option value="text-input">Текстовый ответ</option>
+                                </select>
+                                <button id="add-bank-question-btn">Добавить в банк</button>
+                            </div>
+                            <textarea id="bank-q-text" placeholder="Текст вопроса..."></textarea>
+                            <div id="bank-mc-options" style="display:block;">
+                                <div id="bank-options-list"></div>
+                                <button id="bank-add-option-btn">+ Добавить вариант</button>
+                            </div>
+                            <div style="display:flex;gap:6px;">
+                                <button id="render-bank-btn">Обновить список</button>
+                            </div>
+                        </div>
+                        <div id="question-bank-list" style="margin-top:10px;"></div>
+                        <p style="font-size:12px;color:#cbd5e1;margin-top:6px;">Используйте банк, чтобы быстро добавлять одинаковые/похожие вопросы в разные миссии.</p>
                     </div>
 
                     <div class="editor-section">
@@ -238,7 +276,7 @@
                         <div id="characters-container"></div>
                         <button id="add-character-btn" data-lang-key="editor_add_char">Добавить персонажа</button>
                     </div>
-                    
+
                     <div class="editor-section">
                         <h2 data-lang-key="editor_music_heading">7. Фоновая музыка</h2>
                         <input type="file" id="bg-music-upload" accept="audio/*">
@@ -320,16 +358,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const TRANSPARENT_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn8B9ah0uQAAAABJRU5ErkJggg==';
     const urlParams = new URLSearchParams(window.location.search);
     const isPlayerMode = urlParams.get('mode') === 'player';
-    
+
     let gameDataUrls = {
         mapBackground: null,
         cardBackground: null,
         backgroundMusic: null,
-        cover: null,
-        correctSound: null,
-        incorrectSound: null,
     };
     let isCodeGenerated = false;
 
@@ -432,7 +468,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let gameConfig = {};
     let gameState = { lang: 'ru', character: '', difficulty: null, globalLives: 0, completedMissions: new Set() };
-    
+
+    // Question bank storage
+    let questionBank = [];
+
     if (isPlayerMode) {
         document.getElementById('editor-wrapper').style.display = 'none';
         document.querySelector('.main-title').style.display = 'none';
@@ -469,17 +508,181 @@ document.addEventListener('DOMContentLoaded', () => {
         const previewIframe = document.getElementById('preview-iframe');
         previewIframe.src = `${window.location.pathname}?mode=player`;
         previewIframe.onload = () => updatePreview();
-        addCharacterInput(); 
+        addCharacterInput();
         addMissionBlock();
         updateUI('ru');
 
-        // file inputs for sounds, cover, card etc
+        // file inputs for images and music
         document.getElementById('map-bg-upload').addEventListener('change', createFileHandler('mapBackground'));
         document.getElementById('card-bg-upload').addEventListener('change', createFileHandler('cardBackground'));
         document.getElementById('bg-music-upload').addEventListener('change', createFileHandler('backgroundMusic'));
-        document.getElementById('cover-upload').addEventListener('change', createFileHandler('cover'));
-        document.getElementById('correct-sound-upload').addEventListener('change', createFileHandler('correctSound'));
-        document.getElementById('incorrect-sound-upload').addEventListener('change', createFileHandler('incorrectSound'));
+
+        // question bank UI
+        setupQuestionBankUI();
+    }
+
+    function setupQuestionBankUI() {
+        const bankOptionsList = document.getElementById('bank-options-list');
+        const bankAddOptionBtn = document.getElementById('bank-add-option-btn');
+        const bankQType = document.getElementById('bank-q-type');
+
+        function addBankOptionElement(value='') {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.gap = '6px';
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Вариант...';
+            input.value = value;
+            const rm = document.createElement('button');
+            rm.type = 'button';
+            rm.textContent = '×';
+            rm.onclick = () => row.remove();
+            row.appendChild(input);
+            row.appendChild(rm);
+            bankOptionsList.appendChild(row);
+        }
+
+        bankAddOptionBtn.onclick = () => addBankOptionElement();
+
+        document.getElementById('add-bank-question-btn').onclick = () => {
+            const type = bankQType.value;
+            const qText = document.getElementById('bank-q-text').value.trim();
+            if (!qText) return alert('Введите текст вопроса');
+            let item = { type, question: qText };
+            if (type === 'multiple-choice') {
+                const opts = Array.from(bankOptionsList.querySelectorAll('input[type="text"]')).map(i => i.value).filter(v=>v.trim());
+                if (opts.length < 2) return alert('Добавьте хотя бы 2 варианта');
+                item.options = opts;
+                // mark first as correct by default
+                item.answer = 0;
+            } else {
+                item.answer = '';
+            }
+            questionBank.push(item);
+            renderQuestionBank();
+            // clear inputs
+            document.getElementById('bank-q-text').value = '';
+            bankOptionsList.innerHTML = '';
+            addBankOptionElement(); addBankOptionElement();
+        };
+
+        document.getElementById('render-bank-btn').onclick = renderQuestionBank;
+
+        // initialize with two empty options
+        addBankOptionElement(); addBankOptionElement();
+        renderQuestionBank();
+    }
+
+    function renderQuestionBank() {
+        const bankList = document.getElementById('question-bank-list');
+        bankList.innerHTML = '';
+        questionBank.forEach((q, idx) => {
+            const div = document.createElement('div');
+            div.style.borderTop = '1px solid rgba(255,255,255,0.04)';
+            div.style.padding = '8px 0';
+            const title = document.createElement('div');
+            title.style.display = 'flex';
+            title.style.justifyContent = 'space-between';
+            title.style.alignItems = 'center';
+            title.innerHTML = `<b>${q.question}</b>`;
+            const actions = document.createElement('div');
+            actions.style.display = 'flex';
+            actions.style.gap = '6px';
+            const addToMissionSel = document.createElement('select');
+            addToMissionSel.style.minWidth = '120px';
+            const missions = Array.from(document.getElementById('missions-container').children);
+            if (missions.length === 0) {
+                const opt = document.createElement('option'); opt.textContent = 'Нет миссий'; opt.disabled = true; addToMissionSel.appendChild(opt);
+            } else {
+                missions.forEach((m, i) => {
+                    const opt = document.createElement('option'); opt.value = i; opt.textContent = m.querySelector('.mission-name-input').value || `Миссия ${i+1}`; addToMissionSel.appendChild(opt);
+                });
+            }
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.textContent = 'Добавить в миссию';
+            addBtn.onclick = () => {
+                const sel = addToMissionSel.value;
+                if (!sel) return alert('Выберите миссию');
+                addBankQuestionToMission(idx, parseInt(sel,10));
+            };
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.textContent = 'Удалить';
+            delBtn.onclick = () => { questionBank.splice(idx,1); renderQuestionBank(); };
+
+            actions.appendChild(addToMissionSel);
+            actions.appendChild(addBtn);
+            actions.appendChild(delBtn);
+            title.appendChild(actions);
+            div.appendChild(title);
+            if (q.type === 'multiple-choice') {
+                const ol = document.createElement('ol');
+                q.options.forEach(o => {
+                    const li = document.createElement('li'); li.textContent = o; ol.appendChild(li);
+                });
+                div.appendChild(ol);
+            } else {
+                const p = document.createElement('div'); p.textContent = 'Текстовый ответ';
+                div.appendChild(p);
+            }
+            bankList.appendChild(div);
+        });
+    }
+
+    function addBankQuestionToMission(bankIndex, missionIndex) {
+        const missions = Array.from(document.getElementById('missions-container').children);
+        const mission = missions[missionIndex];
+        if (!mission) { alert('Миссия не найдена'); return; }
+        const questionsContainer = mission.querySelector('.mission-questions-container');
+        if (!questionsContainer) return;
+        const qdata = questionBank[bankIndex];
+        // create a question-block from qdata
+        const qBlock = document.createElement('div');
+        qBlock.className = 'question-block';
+        qBlock.innerHTML = `
+            <div class="question-header">
+                <span>Вопрос ${questionsContainer.children.length + 1}</span>
+                <button type="button" class="remove-question-btn">Удалить</button>
+            </div>
+            <select class="question-type-select"><option value="multiple-choice">Один из многих</option><option value="text-input">Ввод текста</option></select>
+            <textarea class="question-text" placeholder=""></textarea>
+            <div class="mc-options">
+                <div class="options-container"></div>
+                <button type="button" class="add-option-btn">+ Добавить вариант</button>
+            </div>
+            <div class="text-input-option hidden"><input type="text" class="text-answer-input" placeholder=""></div>
+        `;
+        questionsContainer.appendChild(qBlock);
+
+        qBlock.querySelector('.question-type-select').value = qdata.type;
+        qBlock.querySelector('.question-text').value = qdata.question;
+        const typeSelect = qBlock.querySelector('.question-type-select');
+        typeSelect.onchange = () => {
+            const isMc = typeSelect.value === 'multiple-choice';
+            qBlock.querySelector('.mc-options').classList.toggle('hidden', !isMc);
+            qBlock.querySelector('.text-input-option').classList.toggle('hidden', isMc);
+        };
+        qBlock.querySelector('.remove-question-btn').onclick = () => { qBlock.remove(); updatePreview(); };
+        const optionsContainer = qBlock.querySelector('.options-container');
+        qBlock.querySelector('.add-option-btn').onclick = () => addOption(optionsContainer, Date.now());
+        if (qdata.type === 'multiple-choice') {
+            qdata.options.forEach((opt, i) => {
+                const group = document.createElement('div');
+                group.className = 'option-group';
+                group.innerHTML = `<input type="radio" name="correct_q${Date.now()}" value="${i}"><input type="text" class="option-text" value="${opt}">`;
+                optionsContainer.appendChild(group);
+            });
+            // set correct index if exists
+            const correct = qdata.answer || 0;
+            const radio = optionsContainer.querySelector(`input[type="radio"][value="${correct}"]`);
+            if (radio) radio.checked = true;
+        } else {
+            qBlock.querySelector('.text-answer-input').value = qdata.answer || '';
+            qBlock.querySelector('.mc-options').classList.add('hidden');
+        }
+        updatePreview();
     }
 
     function collectConfig() {
@@ -496,7 +699,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return question;
             }).filter(q => q.question);
-            // ensure we only include icons uploaded from device (stored in mission img src only via file handler)
             const imgEl = block.querySelector('img');
             const iconSrc = imgEl && imgEl.dataset.local === 'true' ? imgEl.src : null;
             return {
@@ -522,18 +724,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 glowColor: document.getElementById('glow-color-picker').value,
                 glowIntensity: document.getElementById('glow-intensity-slider').value,
                 mapBackground: gameDataUrls.mapBackground,
-                cover: gameDataUrls.cover,
                 titleFont: document.getElementById('font-select').value,
                 titleSize: parseFloat(document.getElementById('title-size-input').value) || 1.8,
                 buttonSize: parseInt(document.getElementById('button-size-input').value, 10) || 16,
-                titleAnimation: document.getElementById('title-animation-select').value || 'title-anim-none'
+                titleAnimation: document.getElementById('title-animation-select').value || 'title-anim-none',
+                gameBgColor: document.getElementById('game-bg-color-picker').value || 'transparent'
             },
             sounds: {
-                correct: gameDataUrls.correctSound,
-                incorrect: gameDataUrls.incorrectSound
+                // no uploads: sounds will be generated by WebAudio in player mode
+                correct: null,
+                incorrect: null
             },
             music: gameDataUrls.backgroundMusic,
             missions: missions,
+            questionBank: questionBank
         };
     }
 
@@ -547,13 +751,82 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('generate-code-btn').textContent = translations[config.lang].editor_generate;
     }
 
-    function handleGenerateCodeClick() {
+    // compress image helper: returns promise resolving to dataURL
+    function compressImage(dataUrl, maxWidth = 1024, quality = 0.75) {
+        return new Promise((resolve, reject) => {
+            if (!dataUrl || !dataUrl.startsWith('data:image')) return resolve(dataUrl);
+            const img = new Image();
+            img.onload = () => {
+                const ratio = Math.min(1, maxWidth / img.width);
+                const canvas = document.createElement('canvas');
+                const w = Math.round(img.width * ratio);
+                const h = Math.round(img.height * ratio);
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                // white background for JPEG to avoid black background from transparent PNG
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0,0,w,h);
+                ctx.drawImage(img, 0, 0, w, h);
+                try {
+                    const compressed = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressed);
+                } catch (e) {
+                    // fallback: return original
+                    resolve(dataUrl);
+                }
+            };
+            img.onerror = () => resolve(dataUrl);
+            img.src = dataUrl;
+        });
+    }
+
+    async function compressConfigImages(config, maxWidth, quality) {
+        // compress characters
+        if (Array.isArray(config.characters)) {
+            for (let i=0;i<config.characters.length;i++){
+                if (typeof config.characters[i] === 'string' && config.characters[i].startsWith('data:image')) {
+                    config.characters[i] = await compressImage(config.characters[i], maxWidth, quality);
+                }
+            }
+        }
+        // design images
+        if (config.design) {
+            if (config.design.cardBackground && config.design.cardBackground.startsWith('data:image')) {
+                config.design.cardBackground = await compressImage(config.design.cardBackground, maxWidth, quality);
+            }
+            if (config.design.mapBackground && config.design.mapBackground.startsWith('data:image')) {
+                config.design.mapBackground = await compressImage(config.design.mapBackground, maxWidth, quality);
+            }
+        }
+        // missions icons
+        if (Array.isArray(config.missions)) {
+            for (let m of config.missions) {
+                if (m.iconUrl && m.iconUrl.startsWith('data:image')) {
+                    m.iconUrl = await compressImage(m.iconUrl, maxWidth, quality);
+                }
+            }
+        }
+        return config;
+    }
+
+    async function handleGenerateCodeClick() {
         const codeTextarea = document.getElementById('iframe-code');
         const btn = document.getElementById('generate-code-btn');
         const lang = document.getElementById('language-select').value;
         if (!isCodeGenerated) {
-            const config = collectConfig();
+            let config = collectConfig();
+            // optionally compress images
+            if (document.getElementById('compress-images-checkbox').checked) {
+                const maxW = parseInt(document.getElementById('max-image-width').value,10) || 1024;
+                const q = parseFloat(document.getElementById('jpeg-quality').value) || 0.75;
+                // make a deep copy to avoid modifying editor state
+                let configCopy = JSON.parse(JSON.stringify(config));
+                // compress image strings in copy
+                config = await compressConfigImages(configCopy, maxW, q);
+            }
             const configString = JSON.stringify(config).replace(/</g, '\\u003c');
+            // note: embed same player page (mode=player). The generated iframe will postMessage config on load.
             codeTextarea.value = `<div style="position:relative;width:100%;padding-bottom:56.25%;"><iframe id="game-iframe-123" src="${window.location.href.split('?')[0]}?mode=player" frameborder="0" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script>(function(){var iframe=document.getElementById('game-iframe-123');var gameConfig=${configString};iframe.onload=function(){iframe.contentWindow.postMessage({type:'gameConfig',config:gameConfig},'*');};})();<\/script>`;
             codeTextarea.style.display = 'block';
             btn.textContent = translations[lang].editor_copy;
@@ -566,7 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-    
+
     function createFileHandler(urlKey, previewImgId = null) {
         return (event) => {
             const file = event.target.files[0];
@@ -584,14 +857,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     updatePreview();
                 };
-                // read as dataURL (images and audio)
                 reader.readAsDataURL(file);
             }
         };
     }
-
-    // Hook additional file inputs (in case they were added later)
-    // (Note: already hooked in initEditor)
 
     function addCharacterInput() {
         const container = document.getElementById('characters-container');
@@ -599,8 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const group = document.createElement('div');
         group.className = 'character-upload-group';
         group.style = "display:flex; align-items:center; gap:8px; position:relative;";
-        // default no external placeholder: start with an empty img but mark as not local
-        group.innerHTML = `<img src="" alt="preview" id="preview-${uniqueId}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);"><input type="file" id="${uniqueId}" accept="image/*" style="display:none;"><label for="${uniqueId}" style="flex-grow:1;text-align:center;background-color:#4a5568;padding:8px;border-radius:5px;cursor:pointer;" data-lang-key="editor_add_char">Добавить персонажа</label><button type="button" class="char-remove-btn-x">&times;</button>`;
+        group.innerHTML = `<img src="${TRANSPARENT_PNG}" alt="preview" id="preview-${uniqueId}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);"><input type="file" id="${uniqueId}" accept="image/*" style="display:none;"><label for="${uniqueId}" style="flex-grow:1;text-align:center;background-color:#4a5568;padding:8px;border-radius:5px;cursor:pointer;" data-lang-key="editor_add_char">Добавить персонажа</label><button type="button" class="char-remove-btn-x">&times;</button>`;
         container.appendChild(group);
         group.querySelector('.char-remove-btn-x').onclick = () => { group.remove(); updatePreview(); };
         document.getElementById(uniqueId).addEventListener('change', (e) => {
@@ -611,14 +879,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dataUrl = ev.target.result;
                     const img = document.getElementById(`preview-${uniqueId}`);
                     img.src = dataUrl;
-                    img.dataset.local = 'true'; // mark as local
+                    img.dataset.local = 'true';
                     updatePreview();
                 };
                 r.readAsDataURL(file);
             }
         });
     }
-    
+
     function addMissionBlock() {
         const container = document.getElementById('missions-container');
         const addBtn = document.getElementById('add-mission-btn');
@@ -633,19 +901,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = translations[lang];
 
         block.innerHTML = `
-            <div class="mission-header">
-                <img src="" id="mission-icon-${uniqueId}" style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);width:50px;height:50px;border-radius:8px;object-fit:cover;" data-local="false">
-                <div class="mission-details">
+            <div class="mission-header" style="display:flex;gap:12px;align-items:flex-start;">
+                <img src="${TRANSPARENT_PNG}" id="mission-icon-${uniqueId}" style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);width:70px;height:70px;border-radius:10px;object-fit:cover;" data-local="false">
+                <div style="flex:1;">
                     <input type="text" class="mission-name-input" placeholder="${t.mission_name_placeholder}" value="${t.mission_name_placeholder} ${container.children.length + 1}">
                     <textarea class="mission-desc-input" placeholder="${t.mission_desc_placeholder}" rows="2"></textarea>
-                    <input type="file" id="mission-file-${uniqueId}" accept="image/*" style="display:none;">
-                    <label for="mission-file-${uniqueId}" class="button-like" data-lang-key="mission_icon_upload_label">${t.mission_icon_upload_label}</label>
+                    <div style="display:flex;gap:8px;margin-top:6px;">
+                        <input type="file" id="mission-file-${uniqueId}" accept="image/*" style="display:none;">
+                        <label for="mission-file-${uniqueId}" class="button-like" data-lang-key="mission_icon_upload_label">${t.mission_icon_upload_label}</label>
+                        <button type="button" class="add-from-bank-btn">Добавить вопрос из банка</button>
+                    </div>
                 </div>
                 <button type="button" class="char-remove-btn-x">&times;</button>
             </div>
-            <details class="mission-questions-details">
+            <details class="mission-questions-details" style="margin-top:8px;">
                 <summary data-lang-key="mission_questions_heading">${t.mission_questions_heading}</summary>
-                <div class="mission-questions-container"></div>
+                <div class="mission-questions-container" style="margin-top:8px;"></div>
                 <button type="button" class="add-question-to-mission-btn" data-lang-key="editor_add_q">${t.editor_add_q}</button>
             </details>
         `;
@@ -667,13 +938,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dataUrl = ev.target.result;
                     const img = document.getElementById(`mission-icon-${uniqueId}`);
                     img.src = dataUrl;
-                    img.dataset.local = 'true'; // mark as local
+                    img.dataset.local = 'true';
                     updatePreview();
                 };
                 r.readAsDataURL(file);
             }
         });
+        // add from bank button
+        block.querySelector('.add-from-bank-btn').onclick = () => {
+            // show bank list and allow adding; reuse render list controls
+            const bankList = document.getElementById('question-bank-list');
+            if (questionBank.length === 0) return alert('Банк пуст. Добавьте вопросы в банк.');
+            // simple prompt: choose bank index
+            let list = questionBank.map((q,i)=>`${i+1}: ${q.question}`).join('\n');
+            const idx = parseInt(prompt('Выберите вопрос из банка по номеру:\n' + list),10);
+            if (!isNaN(idx) && idx>=1 && idx<=questionBank.length) {
+                addBankQuestionToMission(idx-1, Array.from(document.getElementById('missions-container').children).indexOf(block));
+            }
+        };
+
         if (container.children.length >= 5) addBtn.disabled = true;
+        updatePreview();
     }
 
     function addQuestionBlock(container) {
@@ -704,12 +989,13 @@ document.addEventListener('DOMContentLoaded', () => {
             block.querySelector('.mc-options').classList.toggle('hidden', !isMc);
             block.querySelector('.text-input-option').classList.toggle('hidden', isMc);
         };
-        
+
         block.querySelector('.remove-question-btn').onclick = () => { block.remove(); updatePreview(); };
         const optionsContainer = block.querySelector('.options-container');
         block.querySelector('.add-option-btn').onclick = () => addOption(optionsContainer, qIndex);
         addOption(optionsContainer, qIndex); addOption(optionsContainer, qIndex);
         optionsContainer.querySelector('input[type="radio"]').checked = true;
+        updatePreview();
     }
 
     function addOption(container, qIndex) {
@@ -720,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
         group.innerHTML = `<input type="radio" name="correct_q${qIndex}" value="${optionIndex}"><input type="text" class="option-text" placeholder="${translations[lang].q_option_placeholder} ${optionIndex+1}">`;
         container.appendChild(group);
     }
-    
+
     // GAME FUNCTIONS
     function initGame(config) {
         gameConfig = config;
@@ -730,9 +1016,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const d = config.design || {};
         const root = document.documentElement;
 
-        // apply design (use data:URL images only)
+        // apply design images/colors
         if (d.mapBackground) {
-            // set CSS variable without additional quotes to avoid issues
             root.style.setProperty('--map-bg-image', `url(${d.mapBackground})`);
         } else {
             root.style.removeProperty('--map-bg-image');
@@ -751,23 +1036,14 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--title-font', d.titleFont || "var(--title-font)");
         root.style.setProperty('--title-size', (d.titleSize ? d.titleSize + 'em' : (getComputedStyle(root).getPropertyValue('--title-size') || '1.8em')));
         root.style.setProperty('--button-size', (d.buttonSize ? d.buttonSize + 'px' : (getComputedStyle(root).getPropertyValue('--button-size') || '16px')));
-        // apply to title element
         const titleEl = document.getElementById('game-title-display');
         titleEl.style.fontFamily = d.titleFont || '';
         titleEl.style.fontSize = d.titleSize ? (d.titleSize + 'em') : '';
-        // animation class
-        titleEl.classList.remove('title-anim-none','title-anim-bounce','title-anim-fade','title-anim-pulse');
+        titleEl.classList.remove('title-anim-none','title-anim-bounce','title-anim-fade','title-anim-pulse','title-anim-rotate','title-anim-sway','title-anim-zoom');
         if (d.titleAnimation) titleEl.classList.add(d.titleAnimation);
 
-        // cover on start-screen (data URL only)
-        const startScreen = document.getElementById('start-screen');
-        if (d.cover) {
-            startScreen.style.backgroundImage = `url(${d.cover})`;
-            startScreen.style.backgroundSize = 'cover';
-            startScreen.style.backgroundPosition = 'center';
-        } else {
-            startScreen.style.backgroundImage = '';
-        }
+        // apply game background color
+        document.documentElement.style.setProperty('--game-bg-color', d.gameBgColor || 'transparent');
 
         document.getElementById('game-title-display').textContent = config.title;
         const charSelector = document.getElementById('character-selector');
@@ -797,25 +1073,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('start-game-btn').onclick = startGame;
         checkStartButton();
 
-        // prepare sounds
-        gameState.sounds = {
-            correct: config.sounds?.correct || null,
-            incorrect: config.sounds?.incorrect || null
-        };
-        // Precreate Audio objects if available
-        if (gameState.sounds.correct) {
-            gameState.correctAudio = new Audio(gameState.sounds.correct);
-        }
-        if (gameState.sounds.incorrect) {
-            gameState.incorrectAudio = new Audio(gameState.sounds.incorrect);
-        }
+        // prepare sounds: use WebAudio synth (built-in), no external files
+        prepareBuiltInSounds();
+
+        // store questionBank if present
+        if (config.questionBank) questionBank = config.questionBank;
     }
 
     function checkStartButton() {
         const btn = document.getElementById('start-game-btn');
         const canStart = gameState.character && gameState.difficulty && gameConfig.missions?.length > 0;
         btn.disabled = !canStart;
-        // removed the red warning on title screen as requested
     }
 
     function startGame() {
@@ -826,9 +1094,8 @@ document.addEventListener('DOMContentLoaded', () => {
         playerImgEl.alt = 'Player';
 
         gameState.globalLives = (gameConfig.difficultySettings && gameConfig.difficultySettings[gameState.difficulty]) ? gameConfig.difficultySettings[gameState.difficulty].lives : 3;
-        if (!gameState.completedMissions) gameState.completedMissions = new Set();
-        else gameState.completedMissions.clear();
-        
+        gameState.completedMissions = new Set();
+
         const music = document.getElementById('game-bg-music');
         if(gameConfig.music) {
             music.src = gameConfig.music;
@@ -865,11 +1132,9 @@ document.addEventListener('DOMContentLoaded', () => {
             iconDiv.style.left = `${pos.x}%`;
             iconDiv.style.top = `${pos.y}%`;
 
-            // if mission.iconUrl exists (data:URL from device), use img, otherwise show fallback local element (no external url)
             if (mission.iconUrl) {
                 iconDiv.innerHTML = `<img src="${mission.iconUrl}" alt="ic"><span>${escapeHtml(mission.name)}</span>`;
             } else {
-                // fallback circle with first letter(s)
                 const initials = (mission.name || '').split(' ').map(w => w[0] || '').join('').slice(0,2).toUpperCase() || 'M';
                 iconDiv.innerHTML = `<div class="icon-fallback">${initials}</div><span>${escapeHtml(mission.name)}</span>`;
             }
@@ -907,12 +1172,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mission-map-screen').classList.add('hidden');
         document.getElementById('current-mission-game-area').classList.remove('hidden');
         updateLivesDisplay();
-        
+
         gameState.currentMissionIndex = missionIndex;
-        gameState.currentMissionQuestions = gameConfig.missions[missionIndex].questions.slice(); // copy
+        gameState.currentMissionQuestions = gameConfig.missions[missionIndex].questions.slice();
         gameState.completedCardsInMission = 0;
 
-        // randomize order of card display (but mapping to question indices)
         const indices = gameState.currentMissionQuestions.map((_, i) => i);
         shuffle(indices);
 
@@ -922,13 +1186,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'card';
             card.dataset.qindex = origIndex;
-            // no numbering; show blank or small symbol
-            card.innerHTML = `<span style="opacity:0.0;">.</span>`; // invisible char to keep layout
+            card.innerHTML = `<span style="opacity:0.0;">.</span>`;
             card.onclick = () => showQuestionModal(origIndex);
             cardGrid.appendChild(card);
         });
     }
-    
+
     let typeWriterTimeout;
     function typewriter(element, text, speed = 40) {
         clearTimeout(typeWriterTimeout);
@@ -965,43 +1228,70 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('hidden');
     }
 
+    // Built-in sounds via WebAudio
+    let audioCtx = null;
+    function ensureAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+    function playTone(freq, duration=0.12, type='sine', gain=0.12) {
+        try {
+            ensureAudioCtx();
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = type;
+            o.frequency.value = freq;
+            g.gain.value = gain;
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start();
+            o.stop(audioCtx.currentTime + duration);
+        } catch (e) {
+            // ignore if audio not allowed
+        }
+    }
+    function playCorrectSound() { playTone(880, 0.12, 'sine', 0.12); playTone(1320, 0.08, 'sine', 0.08); }
+    function playIncorrectSound() { playTone(180, 0.14, 'sawtooth', 0.14); }
+
+    function prepareBuiltInSounds() {
+        // nothing to preload; functions above will synthesize tones
+    }
+
     function handleAnswer(qIndex, isCorrect, buttonEl) {
         const playerImg = document.getElementById('player-char-img');
         playerImg.classList.remove('correct-answer', 'incorrect-answer');
         void playerImg.offsetWidth;
 
-        // find card element matching qIndex (cards were created with origIndex)
         const cardEl = document.querySelector(`.card[data-qindex="${qIndex}"]`);
-        
-        if (isCorrect) {
-            // play correct sound if any
-            if (gameState.correctAudio) {
-                try { gameState.correctAudio.currentTime = 0; gameState.correctAudio.play(); } catch(e){}
-            }
-            playerImg.classList.add('correct-answer');
-        } else {
-            if (gameState.incorrectAudio) {
-                try { gameState.incorrectAudio.currentTime = 0; gameState.incorrectAudio.play(); } catch(e){}
-            }
-            playerImg.classList.add('incorrect-answer');
-            // still mark as incorrect flash
-            if (cardEl) {
-                cardEl.classList.add('incorrect-flash');
-                setTimeout(() => cardEl.classList.remove('incorrect-flash'), 800);
-            }
-            // apply life loss but do not block progression
-            loseLife();
-        }
 
-        // in all cases, mark card completed and increment progress
-        setTimeout(() => {
-            document.getElementById('question-modal-overlay').classList.add('hidden');
-            if (cardEl) cardEl.classList.add('completed');
-            gameState.completedCardsInMission++;
-            if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
-                completeMission(gameState.currentMissionIndex);
+        if (isCorrect) {
+            playCorrectSound();
+            playerImg.classList.add('correct-answer');
+            // mark completed (green check)
+            setTimeout(() => {
+                if (cardEl) cardEl.classList.add('completed');
+                finalizeCardAfterAnswer();
+            }, 400);
+        } else {
+            playIncorrectSound();
+            playerImg.classList.add('incorrect-answer');
+            // mark card with red cross, disable it, lose life
+            if (cardEl) {
+                cardEl.classList.add('incorrect');
             }
-        }, 600);
+            loseLife();
+            setTimeout(() => {
+                finalizeCardAfterAnswer();
+            }, 400);
+        }
+        document.getElementById('question-modal-overlay').classList.add('hidden');
+    }
+
+    function finalizeCardAfterAnswer() {
+        gameState.completedCardsInMission++;
+        if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
+            completeMission(gameState.currentMissionIndex);
+        }
     }
 
     function completeMission(missionIndex) {
@@ -1018,7 +1308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const endScreen = document.getElementById('end-screen');
         endScreen.classList.remove('hidden');
         const endImg = document.getElementById('end-player-img');
-        endImg.src = gameState.character || '';
+        endImg.src = gameState.character || TRANSPARENT_PNG;
         endImg.alt = 'player';
         const titleKey = status === 'win' ? 'all_missions_completed' : 'game_end_lose';
         document.getElementById('end-title').textContent = translations[gameState.lang][titleKey];
