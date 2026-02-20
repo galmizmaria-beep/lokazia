@@ -79,7 +79,9 @@
         .char-remove-btn-x{ position:absolute; top:-5px; right:-5px; width:22px; height:22px; border-radius:50%; background:#e53e3e; color:white; border:none; font-size:16px; font-weight:bold; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; box-shadow:0 2px 4px rgba(0,0,0,.4); }
 
         #preview-iframe{ width:100%; flex-grow:1; border-radius:8px; border:1px solid var(--border-color); background-color:var(--bg-dark); }
-        #iframe-code{ display:none; margin-top:10px; min-height:80px; font-size:12px; }
+        #generation-info{ display:none; margin-top:10px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 14px; line-height: 1.6; }
+        #generation-info code { background: #101820; padding: 2px 6px; border-radius: 4px; color: var(--accent-color); }
+        #generation-info strong { color: #fff; }
 
         /* --- GAME STYLES --- */
         #game-container{ width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; box-sizing:border-box; background:var(--game-bg-color) var(--game-bg-image) no-repeat center center; background-size: cover; }
@@ -167,123 +169,124 @@
 </head>
 <body>
     <div class="master-container">
-        <h1 class="main-title">Генератор интерактивных карточек</h1>
-
-        <div id="editor-wrapper">
-            <div id="editor-panel">
-                <div class="editor-panel-inner">
-                    <div class="editor-section">
-                        <h2>1. Название игры</h2>
-                        <input type="text" id="game-title" value="Проверь свои знания!">
-                    </div>
-
-                    <div class="editor-section">
-                        <h2>2. Язык интерфейса</h2>
-                        <select id="language-select">
-                            <option value="ru">Русский</option>
-                            <option value="en">English</option>
-                        </select>
-                    </div>
-
-                    <div class="editor-section">
-                        <h2>3. Дизайн и обложка</h2>
-                        <label for="game-bg-upload">Загрузить фон/обложку игры</label>
-                        <input type="file" id="game-bg-upload" accept="image/*">
-                        
-                        <label for="card-bg-upload">Фон для карточек</label>
-                        <input type="file" id="card-bg-upload" accept="image/*">
-                        <label for="card-color-picker">Цвет карточек (если нет фона)</label>
-                        <input type="color" id="card-color-picker" value="#00bfa5">
-                        <label for="glow-color-picker">Цвет свечения</label>
-                        <input type="color" id="glow-color-picker" value="#00ffe7">
-                        <label for="glow-intensity-slider">Интенсивность свечения</label>
-                        <input type="range" id="glow-intensity-slider" min="5" max="30" value="15">
-
-                        <label for="font-select">Выбор шрифта названия</label>
-                        <select id="font-select">
-                            <option value="'Segoe UI', Roboto, Arial, sans-serif">System (Segoe/Roboto)</option>
-                            <option value="'Times New Roman', Times, serif">Times New Roman</option>
-                            <option value="Arial, Helvetica, sans-serif">Arial</option>
-                            <option value="Verdana, Geneva, sans-serif">Verdana</option>
-                            <option value="Georgia, serif">Georgia</option>
-                            <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
-                            <option value="'Courier New', monospace">Monospace</option>
-                        </select>
-
-                        <label for="title-size-input">Размер названия (em)</label>
-                        <input type="number" id="title-size-input" value="1.8" step="0.1" min="0.8">
-                        <label for="button-size-input">Размер кнопок (px)</label>
-                        <input type="number" id="button-size-input" value="16" min="10" step="1">
-                        <label for="game-bg-color-picker">Цвет фона игры (если нет обложки)</label>
-                        <input type="color" id="game-bg-color-picker" value="#00000000">
-                    </div>
-
-                    <div class="editor-section">
-                        <h2>4. Анимация названия</h2>
-                        <select id="title-animation-select">
-                            <option value="title-anim-none">Нет</option>
-                            <option value="title-anim-bounce">Прыжок</option>
-                            <option value="title-anim-fade">Исчезание</option>
-                            <option value="title-anim-pulse">Пульсация</option>
-                            <option value="title-anim-rotate">Вращение</option>
-                            <option value="title-anim-sway">Качающийся</option>
-                            <option value="title-anim-zoom">Зум</option>
-                        </select>
-                    </div>
-
-                    <div class="editor-section">
-                        <h2>5. Миссии и Задания (до 5)</h2>
-                        <div id="missions-container"></div>
-                        <button id="add-mission-btn">Добавить миссию</button>
-                    </div>
-
-                    <div class="editor-section">
-                        <h2>6. Персонажи</h2>
-                        <div id="characters-container"></div>
-                        <button id="add-character-btn">Добавить персонажа</button>
-                    </div>
-
-                    <div class="editor-section">
-                        <h2>7. Фоновая музыка</h2>
-                        <input type="file" id="bg-music-upload" accept="audio/*">
-                    </div>
-
-                    <div class="editor-section">
-                        <h2>8. Настройки жизней</h2>
-                        <div>
-                            <label for="easy-lives">Легкий:</label>
-                            <input type="number" id="easy-lives" value="5" min="0">
+        <div id="editor-view">
+            <h1 class="main-title">Генератор интерактивных карточек</h1>
+            <div id="editor-wrapper">
+                <div id="editor-panel">
+                    <div class="editor-panel-inner">
+                        <div class="editor-section">
+                            <h2>1. Название игры</h2>
+                            <input type="text" id="game-title" value="Проверь свои знания!">
                         </div>
-                        <div>
-                            <label for="medium-lives">Средний:</label>
-                            <input type="number" id="medium-lives" value="3" min="0">
+
+                        <div class="editor-section">
+                            <h2>2. Язык интерфейса</h2>
+                            <select id="language-select">
+                                <option value="ru">Русский</option>
+                                <option value="en">English</option>
+                            </select>
                         </div>
-                        <div>
-                            <label for="hard-lives">Сложный:</label>
-                            <input type="number" id="hard-lives" value="1" min="0">
+
+                        <div class="editor-section">
+                            <h2>3. Дизайн и обложка</h2>
+                            <label for="game-bg-upload">Загрузить фон/обложку игры</label>
+                            <input type="file" id="game-bg-upload" accept="image/*">
+                            
+                            <label for="card-bg-upload">Фон для карточек</label>
+                            <input type="file" id="card-bg-upload" accept="image/*">
+                            <label for="card-color-picker">Цвет карточек (если нет фона)</label>
+                            <input type="color" id="card-color-picker" value="#00bfa5">
+                            <label for="glow-color-picker">Цвет свечения</label>
+                            <input type="color" id="glow-color-picker" value="#00ffe7">
+                            <label for="glow-intensity-slider">Интенсивность свечения</label>
+                            <input type="range" id="glow-intensity-slider" min="5" max="30" value="15">
+
+                            <label for="font-select">Выбор шрифта названия</label>
+                            <select id="font-select">
+                                <option value="'Segoe UI', Roboto, Arial, sans-serif">System (Segoe/Roboto)</option>
+                                <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                                <option value="Arial, Helvetica, sans-serif">Arial</option>
+                                <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                                <option value="Georgia, serif">Georgia</option>
+                                <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
+                                <option value="'Courier New', monospace">Monospace</option>
+                            </select>
+
+                            <label for="title-size-input">Размер названия (em)</label>
+                            <input type="number" id="title-size-input" value="1.8" step="0.1" min="0.8">
+                            <label for="button-size-input">Размер кнопок (px)</label>
+                            <input type="number" id="button-size-input" value="16" min="10" step="1">
+                            <label for="game-bg-color-picker">Цвет фона игры (если нет обложки)</label>
+                            <input type="color" id="game-bg-color-picker" value="#1a2a3a">
+                        </div>
+
+                        <div class="editor-section">
+                            <h2>4. Анимация названия</h2>
+                            <select id="title-animation-select">
+                                <option value="title-anim-none">Нет</option>
+                                <option value="title-anim-bounce">Прыжок</option>
+                                <option value="title-anim-fade">Исчезание</option>
+                                <option value="title-anim-pulse">Пульсация</option>
+                                <option value="title-anim-rotate">Вращение</option>
+                                <option value="title-anim-sway">Качающийся</option>
+                                <option value="title-anim-zoom">Зум</option>
+                            </select>
+                        </div>
+
+                        <div class="editor-section">
+                            <h2>5. Миссии и Задания (до 5)</h2>
+                            <div id="missions-container"></div>
+                            <button id="add-mission-btn">Добавить миссию</button>
+                        </div>
+
+                        <div class="editor-section">
+                            <h2>6. Персонажи</h2>
+                            <div id="characters-container"></div>
+                            <button id="add-character-btn">Добавить персонажа</button>
+                        </div>
+
+                        <div class="editor-section">
+                            <h2>7. Фоновая музыка</h2>
+                            <input type="file" id="bg-music-upload" accept="audio/*">
+                        </div>
+
+                        <div class="editor-section">
+                            <h2>8. Настройки жизней</h2>
+                            <div>
+                                <label for="easy-lives">Легкий:</label>
+                                <input type="number" id="easy-lives" value="5" min="0">
+                            </div>
+                            <div>
+                                <label for="medium-lives">Средний:</label>
+                                <input type="number" id="medium-lives" value="3" min="0">
+                            </div>
+                            <div>
+                                <label for="hard-lives">Сложный:</label>
+                                <input type="number" id="hard-lives" value="1" min="0">
+                            </div>
+                        </div>
+
+                         <div class="editor-section">
+                            <h2>Опции генерации</h2>
+                            <label><input type="checkbox" id="compress-images-checkbox" checked> Сжимать изображения</label>
+                            <label for="max-image-width">Макс. ширина (px)</label>
+                            <input type="number" id="max-image-width" value="1024" min="200">
+                            <label for="jpeg-quality">Качество JPEG (0.1–1)</label>
+                            <input type="number" id="jpeg-quality" value="0.75" min="0.1" max="1" step="0.05">
                         </div>
                     </div>
-
-                     <div class="editor-section">
-                        <h2>Опции генерации</h2>
-                        <label><input type="checkbox" id="compress-images-checkbox" checked> Сжимать изображения</label>
-                        <label for="max-image-width">Макс. ширина (px)</label>
-                        <input type="number" id="max-image-width" value="1024" min="200">
-                        <label for="jpeg-quality">Качество JPEG (0.1–1)</label>
-                        <input type="number" id="jpeg-quality" value="0.75" min="0.1" max="1" step="0.05">
-                    </div>
-
                 </div>
-            </div>
 
-            <div id="preview-section">
-                <iframe id="preview-iframe"></iframe>
-                <button id="generate-code-btn">Сгенерировать код</button>
-                <textarea id="iframe-code"></textarea>
+                <div id="preview-section">
+                    <iframe id="preview-iframe"></iframe>
+                    <button id="generate-html-btn">Сгенерировать и скачать HTML</button>
+                    <div id="generation-info"></div>
+                </div>
             </div>
         </div>
 
         <div id="game-container" class="hidden">
+            <!-- This part is now a template for the generated file and for the preview -->
             <div id="start-screen" class="game-frame">
                 <h1 id="game-title-display"></h1>
                 <h2 data-lang-key="game_select_char">Выберите персонажа:</h2>
@@ -298,7 +301,7 @@
             </div>
 
             <div id="game-process" class="hidden">
-                <div id="mission-map-screen" class="hidden">
+                <div id="mission-map-screen">
                     <div id="game-ui-top">
                          <div id="lives-container"></div>
                          <button id="back-btn-map" data-lang-key="game_back_to_start">Назад</button>
@@ -341,27 +344,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const TRANSPARENT_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn8B9ah0uQAAAABJRU5ErkJggg==';
     const urlParams = new URLSearchParams(window.location.search);
     const isPlayerMode = urlParams.get('mode') === 'player';
+    const isEditorMode = !isPlayerMode;
 
     let gameDataUrls = {
         gameBackground: null,
         cardBackground: null,
         backgroundMusic: null,
     };
-    let isCodeGenerated = false;
 
     const translations = {
         ru: {
             game_back_to_start: "К началу",
             game_back_to_map: "К карте",
             editor_add_mission: "Добавить миссию",
-            editor_add_questions: "Добавить вопросы из списка",
+            editor_add_question: "Добавить задание",
+            editor_add_questions_bulk: "Добавить вопросы из списка",
             editor_questions_added: "Вопросы добавлены!",
             mission_name_placeholder: "Название миссии",
             mission_desc_placeholder: "Описание миссии",
             editor_add_char: "Добавить персонажа",
-            editor_generate: "Сгенерировать код",
-            editor_copy: "Копировать",
-            editor_copied: "Скопировано!",
+            editor_generate_and_download: "Сгенерировать и скачать HTML",
             game_select_char: "Выберите персонажа:",
             game_select_difficulty: "Выберите уровень сложности:",
             game_start: "Начать!",
@@ -378,14 +380,13 @@ document.addEventListener('DOMContentLoaded', () => {
             game_back_to_start: "To Start",
             game_back_to_map: "To Map",
             editor_add_mission: "Add Mission",
-            editor_add_questions: "Add Questions from List",
+            editor_add_question: "Add Question",
+            editor_add_questions_bulk: "Add Questions from List",
             editor_questions_added: "Questions Added!",
             mission_name_placeholder: "Mission Name",
             mission_desc_placeholder: "Mission Description",
             editor_add_char: "Add Character",
-            editor_generate: "Generate Code",
-            editor_copy: "Copy",
-            editor_copied: "Copied!",
+            editor_generate_and_download: "Generate and Download HTML",
             game_select_char: "Select a Character:",
             game_select_difficulty: "Select Difficulty Level:",
             game_start: "Start!",
@@ -414,16 +415,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isPlayerMode) {
-        document.getElementById('editor-wrapper').style.display = 'none';
-        document.querySelector('.main-title').style.display = 'none';
-        document.body.style.padding = '0';
+        document.getElementById('editor-view').style.display = 'none';
+        document.body.style.background = 'transparent'; // Game container will have its own background
+        document.querySelector('.master-container').style.padding = '0';
         document.getElementById('game-container').classList.remove('hidden');
+        
+        // In player mode, the config is expected to be in a global variable
+        // This is handled in the generated HTML file. For preview, we use postMessage.
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'gameConfig') {
                 initGame(event.data.config);
             }
         });
-    } else {
+    } else { // Editor Mode
         document.querySelector('.master-container').classList.add('editor');
         initEditor();
     }
@@ -439,10 +443,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- EDITOR FUNCTIONS ---
     function initEditor() {
         document.getElementById('add-character-btn').addEventListener('click', addCharacterInput);
         document.getElementById('add-mission-btn').addEventListener('click', addMissionBlock);
-        document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCodeClick);
+        document.getElementById('generate-html-btn').addEventListener('click', handleGenerateHtmlClick);
         document.getElementById('editor-panel').addEventListener('input', updatePreview);
         document.getElementById('editor-panel').addEventListener('change', updatePreview);
 
@@ -462,11 +467,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function collectConfig() {
         const missions = Array.from(document.getElementById('missions-container').children).map(block => {
             const questions = Array.from(block.querySelectorAll('.question-block')).map(qBlock => {
+                const checkedRadio = qBlock.querySelector('input[type="radio"]:checked');
                 return {
                     type: 'multiple-choice',
                     question: qBlock.querySelector('.question-text').value.trim(),
                     options: Array.from(qBlock.querySelectorAll('.option-text')).map(i => i.value),
-                    answer: qBlock.querySelector('input[type="radio"]:checked') ? parseInt(qBlock.querySelector('input[type="radio"]:checked').value, 10) : 0
+                    answer: checkedRadio ? parseInt(checkedRadio.value, 10) : 0
                 };
             }).filter(q => q.question);
 
@@ -484,9 +490,9 @@ document.addEventListener('DOMContentLoaded', () => {
             title: document.getElementById('game-title').value,
             characters: Array.from(document.getElementById('characters-container').querySelectorAll('img')).map(img => img.dataset.local === 'true' ? img.src : null).filter(Boolean),
             difficultySettings: {
-                easy: { lives: parseInt(document.getElementById('easy-lives').value, 10) },
-                medium: { lives: parseInt(document.getElementById('medium-lives').value, 10) },
-                hard: { lives: parseInt(document.getElementById('hard-lives').value, 10) },
+                easy: { lives: parseInt(document.getElementById('easy-lives').value, 10) || 0 },
+                medium: { lives: parseInt(document.getElementById('medium-lives').value, 10) || 0 },
+                hard: { lives: parseInt(document.getElementById('hard-lives').value, 10) || 0 },
             },
             design: {
                 gameBackground: gameDataUrls.gameBackground,
@@ -511,9 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (previewIframe.contentWindow) {
             previewIframe.contentWindow.postMessage({ type: 'gameConfig', config }, '*');
         }
-        isCodeGenerated = false;
-        const lang = document.getElementById('language-select').value || 'ru';
-        document.getElementById('generate-code-btn').textContent = translations[lang].editor_generate;
+        document.getElementById('generation-info').style.display = 'none';
     }
 
     function compressImage(dataUrl, maxWidth = 1024, quality = 0.75) {
@@ -527,8 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const h = Math.round(img.height * ratio);
                 canvas.width = w; canvas.height = h;
                 const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0,0,w,h);
                 ctx.drawImage(img, 0, 0, w, h);
                 try { resolve(canvas.toDataURL('image/jpeg', quality)); } catch (e) { resolve(dataUrl); }
             };
@@ -551,37 +553,66 @@ document.addEventListener('DOMContentLoaded', () => {
         return config;
     }
 
-    async function handleGenerateCodeClick() {
-        const codeTextarea = document.getElementById('iframe-code');
-        const btn = document.getElementById('generate-code-btn');
-        const lang = document.getElementById('language-select').value;
-        if (!isCodeGenerated) {
-            let config = collectConfig();
-            if (document.getElementById('compress-images-checkbox').checked) {
-                const maxW = parseInt(document.getElementById('max-image-width').value,10) || 1024;
-                const q = parseFloat(document.getElementById('jpeg-quality').value) || 0.75;
-                config = await compressConfigImages(JSON.parse(JSON.stringify(config)), maxW, q);
-            }
-            const configString = JSON.stringify(config).replace(/</g, '\\u003c');
-            // FIX: Changed src to a placeholder and added instructions.
-            codeTextarea.value = `<!-- 
-ИНСТРУКЦИЯ ДЛЯ GENIALLY:
-1. Сохраните ваш генератор как HTML-файл (например, my-game.html).
-2. Загрузите этот файл на хостинг (Netlify, Vercel, Tilda и т.д.) и получите публичную ссылку.
-3. Замените "URL_ВАШЕЙ_ИГРЫ.html" в строке ниже на вашу публичную ссылку.
-4. Вставьте итоговый код в Genially.
--->
-<div style="position:relative;width:100%;padding-bottom:56.25%;"><iframe id="game-iframe-123" src="URL_ВАШЕЙ_ИГРЫ.html?mode=player" frameborder="0" allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script>(function(){var iframe=document.getElementById('game-iframe-123');var gameConfig=${configString};var sendConf=function(){if(iframe.contentWindow){iframe.contentWindow.postMessage({type:'gameConfig',config:gameConfig},'*');}else{setTimeout(sendConf,100);}};if(iframe.contentDocument&&iframe.contentDocument.readyState==='complete'){sendConf();}else{iframe.onload=sendConf;}})();<\/script>`;
-            codeTextarea.style.display = 'block';
-            btn.textContent = translations[lang].editor_copy;
-            isCodeGenerated = true;
-        } else {
-            codeTextarea.select();
-            navigator.clipboard.writeText(codeTextarea.value).then(() => {
-                btn.textContent = translations[lang].editor_copied;
-                setTimeout(() => { btn.textContent = translations[lang].editor_copy; }, 2000);
-            });
+    async function handleGenerateHtmlClick() {
+        let config = collectConfig();
+        if (document.getElementById('compress-images-checkbox').checked) {
+            const maxW = parseInt(document.getElementById('max-image-width').value, 10) || 1024;
+            const q = parseFloat(document.getElementById('jpeg-quality').value) || 0.75;
+            config = await compressConfigImages(JSON.parse(JSON.stringify(config)), maxW, q);
         }
+        const configString = JSON.stringify(config, null, 2);
+
+        // Get the entire current document as a string template
+        const pageHtml = `
+<!DOCTYPE html>
+<html lang="${config.lang || 'ru'}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>${escapeHtml(config.title)}</title>
+    <style>${document.querySelector('style').innerHTML}</style>
+</head>
+<body>
+    <div class="master-container">
+        <!-- Editor view is removed in the final file -->
+        <div id="game-container">
+            ${document.getElementById('game-container').innerHTML}
+        </div>
+    </div>
+    <script>
+        // The entire game script is embedded here
+        ${document.querySelector('script').innerHTML}
+
+        // The generated configuration is embedded directly
+        const gameConfig = ${configString};
+        
+        // Initialize the game with the embedded config on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initGame(gameConfig);
+        });
+    <\/script>
+</body>
+</html>`;
+        
+        const blob = new Blob([pageHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'interactive-game.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        const infoDiv = document.getElementById('generation-info');
+        infoDiv.innerHTML = `
+            <strong>Файл <code>interactive-game.html</code> успешно скачан!</strong><br>
+            1. Загрузите этот файл на любой хостинг (Netlify, Vercel, Tilda и т.д.).<br>
+            2. Получите прямую публичную ссылку на файл.<br>
+            3. Вставьте в Genially простой iframe, используя вашу ссылку:<br>
+            <code>&lt;iframe src="ВАША_ССЫЛКА_ЗДЕСЬ"&gt;&lt;/iframe&gt;</code>
+        `;
+        infoDiv.style.display = 'block';
     }
 
     function createFileHandler(urlKey) {
@@ -602,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('characters-container');
         const uniqueId = `char-${Date.now()}`;
         const group = document.createElement('div');
-        group.style = "display:flex; align-items:center; gap:8px; position:relative;";
+        group.style = "display:flex; align-items:center; gap:8px; position:relative; margin-bottom: 8px;";
         group.innerHTML = `<img src="${TRANSPARENT_PNG}" alt="preview" id="preview-${uniqueId}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);"><input type="file" id="${uniqueId}" accept="image/*" style="display:none;"><label for="${uniqueId}" style="flex-grow:1;text-align:center;background-color:#4a5568;padding:8px;border-radius:5px;cursor:pointer;">Добавить</label><button type="button" class="char-remove-btn-x">&times;</button>`;
         container.appendChild(group);
         group.querySelector('.char-remove-btn-x').onclick = () => { group.remove(); updatePreview(); };
@@ -640,12 +671,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (correctAnswers.length === 0 || (correctAnswers.length + incorrectAnswers.length < 2)) return;
             
             const firstCorrectAnswerText = correctAnswers[0];
-            let allOptions = [...correctAnswers, ...incorrectAnswers];
-            allOptions = shuffle(allOptions);
+            let allOptions = shuffle([...correctAnswers, ...incorrectAnswers]);
             const correctIndex = allOptions.indexOf(firstCorrectAnswerText);
 
-            createQuestionElementFromData({
-                type: 'multiple-choice',
+            addQuestionElementFromData({
                 question: questionText,
                 options: allOptions,
                 answer: correctIndex >= 0 ? correctIndex : 0
@@ -673,8 +702,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="display:flex;gap:12px;align-items:flex-start;position:relative;">
                 <img src="${TRANSPARENT_PNG}" id="mission-icon-${uniqueId}" style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);width:70px;height:70px;border-radius:50%;object-fit:cover;" data-local="false">
                 <div style="flex:1;">
-                    <input type="text" class="mission-name-input" placeholder="Название миссии" value="Миссия ${container.children.length + 1}">
-                    <textarea class="mission-desc-input" placeholder="Описание миссии" rows="2"></textarea>
+                    <input type="text" class="mission-name-input" placeholder="${translations.ru.mission_name_placeholder}" value="Миссия ${container.children.length + 1}">
+                    <textarea class="mission-desc-input" placeholder="${translations.ru.mission_desc_placeholder}" rows="2"></textarea>
                     <input type="file" id="mission-file-${uniqueId}" accept="image/*" style="display:none;">
                     <label for="mission-file-${uniqueId}" style="cursor:pointer; text-decoration:underline;">Загрузить иконку</label>
                 </div>
@@ -683,14 +712,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <details style="margin-top:8px;">
                 <summary>Задания</summary>
                 <div class="mission-questions-container" style="margin-top:8px;"></div>
+                <button type="button" class="add-question-manual-btn" style="margin-top:8px; width:100%;">${translations.ru.editor_add_question}</button>
                 <div class="bulk-add-section" style="margin-top:10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
                     <h4>Массовое добавление</h4>
                     <textarea class="bulk-questions-input" rows="6" placeholder="Вставьте вопросы:\nВопрос 1\n+Правильный ответ\n-Неправильный ответ 1\n\nВопрос 2..."></textarea>
-                    <button type="button" class="parse-questions-btn">Добавить вопросы из списка</button>
+                    <button type="button" class="parse-questions-btn">${translations.ru.editor_add_questions_bulk}</button>
                 </div>
             </details>
         `;
         container.appendChild(block);
+        const questionsContainer = block.querySelector('.mission-questions-container');
 
         block.querySelector('.char-remove-btn-x').onclick = () => {
             block.remove();
@@ -698,32 +729,29 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePreview();
         };
 
+        block.querySelector('.add-question-manual-btn').onclick = () => {
+            addEmptyQuestionBlock(questionsContainer);
+            block.querySelector('details').open = true;
+        };
+
         block.querySelector('.parse-questions-btn').onclick = (e) => {
             const button = e.target;
             const detailsElement = button.closest('details');
-            
-            if (detailsElement) {
-                const textarea = detailsElement.querySelector('.bulk-questions-input');
-                const questionsContainer = detailsElement.querySelector('.mission-questions-container');
+            if (!detailsElement) return;
 
-                if (textarea && questionsContainer) {
-                    if (parseAndAddQuestions(textarea, questionsContainer)) {
-                        // FIX: Automatically open the details section to show the new questions.
-                        detailsElement.open = true;
-
-                        const lang = document.getElementById('language-select').value;
-                        const originalText = translations[lang].editor_add_questions;
-                        button.style.backgroundColor = 'var(--correct-color)';
-                        button.style.color = 'var(--text-dark)';
-                        button.textContent = translations[lang].editor_questions_added;
-                        
-                        setTimeout(() => {
-                           button.style.backgroundColor = '';
-                           button.style.color = '';
-                           button.textContent = originalText;
-                        }, 2500);
-                    }
-                }
+            const textarea = detailsElement.querySelector('.bulk-questions-input');
+            if (parseAndAddQuestions(textarea, questionsContainer)) {
+                detailsElement.open = true;
+                const lang = document.getElementById('language-select').value;
+                const originalText = button.textContent;
+                button.style.backgroundColor = 'var(--correct-color)';
+                button.style.color = 'var(--text-dark)';
+                button.textContent = translations[lang].editor_questions_added;
+                setTimeout(() => {
+                   button.style.backgroundColor = '';
+                   button.style.color = '';
+                   button.textContent = originalText;
+                }, 2500);
             }
         };
 
@@ -731,8 +759,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.files[0]) {
                 const r = new FileReader();
                 r.onload = (ev) => {
-                    document.getElementById(`mission-icon-${uniqueId}`).src = ev.target.result;
-                    document.getElementById(`mission-icon-${uniqueId}`).dataset.local = 'true';
+                    const iconEl = document.getElementById(`mission-icon-${uniqueId}`);
+                    iconEl.src = ev.target.result;
+                    iconEl.dataset.local = 'true';
                     updatePreview();
                 };
                 r.readAsDataURL(e.target.files[0]);
@@ -742,50 +771,64 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview();
     }
     
-    function createQuestionElementFromData(qData, container) {
-        const qIndex = Date.now() + Math.random();
+    function addEmptyQuestionBlock(container) {
+        addQuestionElementFromData({ question: '', options: ['', ''], answer: 0 }, container);
+    }
+
+    function addQuestionElementFromData(qData, container) {
+        const qRadioName = `correct_q_${Date.now()}_${Math.random()}`;
         const block = document.createElement('div');
         block.className = 'question-block';
         block.innerHTML = `
-            <div class="question-header"><span>Вопрос ${container.children.length + 1}</span><button type="button" class="remove-question-btn">Удалить</button></div>
-            <textarea class="question-text" rows="2"></textarea>
-            <div class="mc-options"><div class="options-container"></div><button type="button" class="add-option-btn">+ Добавить вариант</button></div>
+            <div class="question-header"><span>Вопрос ${container.children.length + 1}</span><button type="button" class="remove-question-btn" style="padding: 2px 8px; font-size: 12px;">Удалить</button></div>
+            <textarea class="question-text" rows="2" placeholder="Текст вопроса">${escapeHtml(qData.question)}</textarea>
+            <div class="mc-options">
+                <div class="options-container"></div>
+                <button type="button" class="add-option-btn" style="margin-top: 4px; font-size: 12px; padding: 4px 8px;">+ Добавить вариант</button>
+            </div>
         `;
         container.appendChild(block);
-
-        block.querySelector('.question-text').value = qData.question;
         const optionsContainer = block.querySelector('.options-container');
 
         qData.options.forEach((opt, index) => {
-            const group = document.createElement('div');
-            group.className = 'option-group';
-            group.innerHTML = `<input type="radio" name="correct_q${qIndex}" value="${index}"><input type="text" class="option-text" value="${escapeHtml(opt)}">`;
-            optionsContainer.appendChild(group);
+            addOption(optionsContainer, qRadioName, opt, index === qData.answer);
         });
-        const correctRadio = optionsContainer.querySelector(`input[value="${qData.answer}"]`);
-        if (correctRadio) correctRadio.checked = true;
         
         block.querySelector('.remove-question-btn').onclick = () => { block.remove(); updatePreview(); };
-        block.querySelector('.add-option-btn').onclick = () => addOption(optionsContainer, qIndex);
+        block.querySelector('.add-option-btn').onclick = () => addOption(optionsContainer, qRadioName);
     }
 
-    function addOption(container, qIndex) {
+    function addOption(container, radioName, value = '', isChecked = false) {
         const optionIndex = container.children.length;
         const group = document.createElement('div');
         group.className = 'option-group';
-        group.innerHTML = `<input type="radio" name="correct_q${qIndex}" value="${optionIndex}"><input type="text" class="option-text" placeholder="Вариант ${optionIndex + 1}">`;
+        group.innerHTML = `
+            <input type="radio" name="${radioName}" value="${optionIndex}" ${isChecked ? 'checked' : ''}>
+            <input type="text" class="option-text" placeholder="Вариант ${optionIndex + 1}" value="${escapeHtml(value)}">
+            <button type="button" class="remove-option-btn" style="padding:0; width:24px; height:24px; font-size:16px;">×</button>
+        `;
+        group.querySelector('.remove-option-btn').onclick = () => {
+            group.remove();
+            // Re-index subsequent radio buttons
+            Array.from(container.children).forEach((child, idx) => {
+                child.querySelector('input[type="radio"]').value = idx;
+                child.querySelector('input[type="text"]').placeholder = `Вариант ${idx + 1}`;
+            });
+            updatePreview();
+        };
         container.appendChild(group);
     }
 
-    // GAME FUNCTIONS
+    // --- GAME FUNCTIONS ---
     function initGame(config) {
+        if (!config) { console.error("Game config not found!"); return; }
         gameConfig = config;
         gameState.lang = config.lang || 'ru';
         updateUI(gameState.lang);
-
         const d = config.design || {};
-        const root = document.documentElement;
-
+        const root = isEditorMode ? document.getElementById('preview-iframe').contentDocument.documentElement : document.documentElement;
+        if (!root) return; // Guard against iframe not being ready
+        
         root.style.setProperty('--game-bg-image', d.gameBackground ? `url(${d.gameBackground})` : 'none');
         root.style.setProperty('--card-bg-image', d.cardBackground ? `url(${d.cardBackground})` : 'none');
         root.style.setProperty('--card-bg-color', d.cardColor || 'transparent');
@@ -795,13 +838,17 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--title-size', (d.titleSize ? d.titleSize + 'em' : '1.8em'));
         root.style.setProperty('--button-size', (d.buttonSize ? d.buttonSize + 'px' : '16px'));
         root.style.setProperty('--game-bg-color', d.gameBgColor || 'transparent');
-
-        const titleEl = document.getElementById('game-title-display');
+        
+        const gameContainer = isEditorMode ? document.getElementById('preview-iframe').contentDocument.getElementById('game-container') : document.getElementById('game-container');
+        if (!gameContainer) return;
+        gameContainer.style.background = `${d.gameBgColor || 'transparent'} ${d.gameBackground ? `url(${d.gameBackground})` : 'none'} no-repeat center center / cover`;
+        
+        const titleEl = gameContainer.querySelector('#game-title-display');
         titleEl.textContent = config.title;
-        titleEl.className = ''; // Clear previous animations, leave only main-title from HTML
+        titleEl.className = '';
         if (d.titleAnimation) titleEl.classList.add(d.titleAnimation);
 
-        const charSelector = document.getElementById('character-selector');
+        const charSelector = gameContainer.querySelector('#character-selector');
         charSelector.innerHTML = '';
         if (config.characters?.length > 0) {
             config.characters.forEach(url => {
@@ -816,56 +863,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 charSelector.appendChild(img);
             });
         }
-        document.querySelectorAll('#difficulty-selector button').forEach(btn => {
+        
+        gameContainer.querySelectorAll('#difficulty-selector button').forEach(btn => {
             btn.onclick = () => {
-                document.querySelectorAll('#difficulty-selector button').forEach(b => b.classList.remove('selected'));
+                gameContainer.querySelectorAll('#difficulty-selector button').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
                 gameState.difficulty = btn.dataset.difficulty;
                 checkStartButton();
             };
         });
         
-        document.getElementById('start-game-btn').onclick = startGame;
-        document.getElementById('back-btn-map').onclick = showStartScreen;
-        document.getElementById('back-btn-mission').onclick = showMissionMap;
-        document.getElementById('play-again-btn').onclick = showStartScreen;
-
+        gameContainer.querySelector('#start-game-btn').onclick = startGame;
+        gameContainer.querySelector('#back-btn-map').onclick = showStartScreen;
+        gameContainer.querySelector('#back-btn-mission').onclick = showMissionMap;
+        gameContainer.querySelector('#play-again-btn').onclick = showStartScreen;
+        
+        if(isPlayerMode) showStartScreen();
         checkStartButton();
-        prepareBuiltInSounds();
+    }
+    
+    function getGameElement(selector) {
+         return isEditorMode ? document.getElementById('preview-iframe').contentDocument.querySelector(selector) : document.querySelector(selector);
+    }
+    
+    function getGameElements(selector) {
+         return isEditorMode ? document.getElementById('preview-iframe').contentDocument.querySelectorAll(selector) : document.querySelectorAll(selector);
     }
 
     function checkStartButton() {
-        const btn = document.getElementById('start-game-btn');
+        const btn = getGameElement('#start-game-btn');
+        if(!btn) return;
         const canStart = !!(gameState.character && gameState.difficulty && gameConfig.missions?.length > 0);
         btn.disabled = !canStart;
     }
 
     function showStartScreen() {
-        document.getElementById('game-process').classList.add('hidden');
-        document.getElementById('end-screen').classList.add('hidden');
-        document.getElementById('start-screen').classList.remove('hidden');
-        const music = document.getElementById('game-bg-music');
+        getGameElement('#game-process').classList.add('hidden');
+        getGameElement('#end-screen').classList.add('hidden');
+        getGameElement('#mission-map-screen').classList.add('hidden');
+        getGameElement('#start-screen').classList.remove('hidden');
+        const music = getGameElement('#game-bg-music');
         if (music) {
             music.pause();
             music.currentTime = 0;
         }
-        // Reset state for a new game
         gameState.completedMissions = new Set();
         gameState.character = '';
         gameState.difficulty = null;
-        document.querySelectorAll('#character-selector img.selected').forEach(el => el.classList.remove('selected'));
-        document.querySelectorAll('#difficulty-selector button.selected').forEach(el => el.classList.remove('selected'));
+        getGameElements('#character-selector img.selected').forEach(el => el.classList.remove('selected'));
+        getGameElements('#difficulty-selector button.selected').forEach(el => el.classList.remove('selected'));
         checkStartButton();
     }
 
     function startGame() {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('game-process').classList.remove('hidden');
-        document.getElementById('player-char-img').src = gameState.character || '';
+        getGameElement('#start-screen').classList.add('hidden');
+        getGameElement('#game-process').classList.remove('hidden');
+        getGameElement('#player-char-img').src = gameState.character || '';
         gameState.globalLives = gameConfig.difficultySettings?.[gameState.difficulty]?.lives ?? 3;
         gameState.completedMissions = new Set();
-        const music = document.getElementById('game-bg-music');
-        if(gameConfig.music) {
+        const music = getGameElement('#game-bg-music');
+        if(gameConfig.music && music) {
             music.src = gameConfig.music;
             music.play().catch(()=>{});
         }
@@ -873,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateLivesDisplay() {
-        document.querySelectorAll('#lives-container').forEach(container => {
+        getGameElements('#lives-container').forEach(container => {
             container.innerHTML = Array(Math.max(0, gameState.globalLives)).fill('<span>❤️</span>').join('');
         });
     }
@@ -885,11 +942,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showMissionMap() {
-        document.getElementById('current-mission-game-area').classList.add('hidden');
-        document.getElementById('mission-map-screen').classList.remove('hidden');
+        getGameElement('#current-mission-game-area').classList.add('hidden');
+        getGameElement('#mission-map-screen').classList.remove('hidden');
         updateLivesDisplay();
 
-        const mapArea = document.getElementById('map-area');
+        const mapArea = getGameElement('#map-area');
         mapArea.innerHTML = '';
         const firstUncompleted = gameConfig.missions.findIndex((_, idx) => !gameState.completedMissions.has(idx));
 
@@ -912,7 +969,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!iconDiv.classList.contains('completed') && !iconDiv.classList.contains('locked')) {
                 iconDiv.onmouseenter = () => displayMissionDescription(mission);
-                iconDiv.onmouseleave = () => document.getElementById('mission-description-panel').classList.add('hidden');
+                iconDiv.onmouseleave = () => getGameElement('#mission-description-panel').classList.add('hidden');
                 iconDiv.onclick = () => startMission(index);
             }
             mapArea.appendChild(iconDiv);
@@ -920,22 +977,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayMissionDescription(mission) {
-        const panel = document.getElementById('mission-description-panel');
+        const panel = getGameElement('#mission-description-panel');
         panel.querySelector('h3').textContent = mission.name;
         typewriter(panel.querySelector('p'), mission.description || '');
         panel.classList.remove('hidden');
     }
 
     function startMission(missionIndex) {
-        document.getElementById('mission-map-screen').classList.add('hidden');
-        document.getElementById('current-mission-game-area').classList.remove('hidden');
+        getGameElement('#mission-map-screen').classList.add('hidden');
+        getGameElement('#current-mission-game-area').classList.remove('hidden');
         updateLivesDisplay();
 
         gameState.currentMissionIndex = missionIndex;
-        gameState.currentMissionQuestions = shuffle(gameConfig.missions[missionIndex].questions.slice());
+        gameState.currentMissionQuestions = shuffle([...gameConfig.missions[missionIndex].questions]);
         gameState.completedCardsInMission = 0;
 
-        const cardGrid = document.getElementById('card-grid-area');
+        const cardGrid = getGameElement('#card-grid-area');
         cardGrid.innerHTML = '';
         gameState.currentMissionQuestions.forEach((q, index) => {
             const card = document.createElement('div');
@@ -948,6 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let typeWriterTimeout;
     function typewriter(element, text, speed = 40) {
+        if (!element) return;
         clearTimeout(typeWriterTimeout);
         element.textContent = "";
         let i = 0;
@@ -957,11 +1015,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showQuestionModal(qIndex) {
         const qData = gameState.currentMissionQuestions[qIndex];
-        const modal = document.getElementById('question-modal-overlay');
+        const modal = getGameElement('#question-modal-overlay');
         modal.querySelector('.card-question').textContent = qData.question;
         const content = modal.querySelector('.card-content-area');
         content.innerHTML = '';
-        content.className = 'card-content-area card-answers';
         
         qData.options.forEach((opt, i) => {
             const btn = document.createElement('button');
@@ -984,13 +1041,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function playCorrectSound() { playTone(880, 0.12, 'sine', 0.12); playTone(1320, 0.08, 'sine', 0.08); }
     function playIncorrectSound() { playTone(180, 0.14, 'sawtooth', 0.14); }
-    function prepareBuiltInSounds() {}
 
     function handleAnswer(qIndex, isCorrect) {
-        const playerImg = document.getElementById('player-char-img');
+        const playerImg = getGameElement('#player-char-img');
         playerImg.classList.remove('correct-answer', 'incorrect-answer');
         void playerImg.offsetWidth;
-        const cardEl = document.querySelector(`.card[data-qindex="${qIndex}"]`);
+        const cardEl = getGameElement(`.card[data-qindex="${qIndex}"]`);
 
         if (isCorrect) {
             playCorrectSound();
@@ -1002,14 +1058,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cardEl) cardEl.classList.add('incorrect');
             loseLife();
         }
-        document.getElementById('question-modal-overlay').classList.add('hidden');
-        setTimeout(finalizeCardAfterAnswer, 400);
-    }
-
-    function finalizeCardAfterAnswer() {
-        gameState.completedCardsInMission++;
-        if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
-            completeMission(gameState.currentMissionIndex);
+        getGameElement('#question-modal-overlay').classList.add('hidden');
+        if (gameState.globalLives > 0) {
+           setTimeout(() => {
+                gameState.completedCardsInMission++;
+                if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
+                    completeMission(gameState.currentMissionIndex);
+                }
+           }, 400);
         }
     }
 
@@ -1023,17 +1079,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endGame(status) {
-        document.getElementById('game-process').classList.add('hidden');
-        const endScreen = document.getElementById('end-screen');
+        getGameElement('#game-process').classList.add('hidden');
+        const endScreen = getGameElement('#end-screen');
         endScreen.classList.remove('hidden');
-        document.getElementById('end-player-img').src = gameState.character || TRANSPARENT_PNG;
+        getGameElement('#end-player-img').src = gameState.character || TRANSPARENT_PNG;
         const titleKey = status === 'win' ? 'all_missions_completed' : 'game_end_lose';
-        document.getElementById('end-title').textContent = translations[gameState.lang][titleKey];
+        getGameElement('#end-title').textContent = translations[gameState.lang][titleKey];
     }
 
     function escapeHtml(text) {
         if (typeof text !== 'string') return '';
-        return text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+        return text.replace(/[&<>"']/g, m => map[m]);
     }
 });
 </script>
