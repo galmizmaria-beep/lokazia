@@ -331,7 +331,8 @@
             <div id="end-screen" class="hidden">
                 <div class="end-player"><img id="end-player-img" src=""></div>
                 <h2 id="end-title">Игра окончена!</h2>
-                <button onclick="window.location.reload()" data-lang-key="game_play_again">Сыграть еще раз</button>
+                <!-- FIX: Changed from window.location.reload() to a button with an ID for iframe compatibility -->
+                <button id="play-again-btn" data-lang-key="game_play_again">Сыграть еще раз</button>
             </div>
         </div>
     </div>
@@ -354,6 +355,8 @@ document.addEventListener('DOMContentLoaded', () => {
             game_back_to_start: "К началу",
             game_back_to_map: "К карте",
             editor_add_mission: "Добавить миссию",
+            editor_add_questions: "Добавить вопросы из списка",
+            editor_questions_added: "Вопросы добавлены!",
             mission_name_placeholder: "Название миссии",
             mission_desc_placeholder: "Описание миссии",
             editor_add_char: "Добавить персонажа",
@@ -376,6 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
             game_back_to_start: "To Start",
             game_back_to_map: "To Map",
             editor_add_mission: "Add Mission",
+            editor_add_questions: "Add Questions from List",
+            editor_questions_added: "Questions Added!",
             mission_name_placeholder: "Mission Name",
             mission_desc_placeholder: "Mission Description",
             editor_add_char: "Add Character",
@@ -559,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 config = await compressConfigImages(JSON.parse(JSON.stringify(config)), maxW, q);
             }
             const configString = JSON.stringify(config).replace(/</g, '\\u003c');
-            codeTextarea.value = `<div style="position:relative;width:100%;padding-bottom:56.25%;"><iframe id="game-iframe-123" src="${window.location.href.split('?')[0]}?mode=player" frameborder="0" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script>(function(){var iframe=document.getElementById('game-iframe-123');var gameConfig=${configString};iframe.onload=function(){iframe.contentWindow.postMessage({type:'gameConfig',config:gameConfig},'*');};})();<\/script>`;
+            codeTextarea.value = `<div style="position:relative;width:100%;padding-bottom:56.25%;"><iframe id="game-iframe-123" src="${window.location.href.split('?')[0]}?mode=player" frameborder="0" allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script>(function(){var iframe=document.getElementById('game-iframe-123');var gameConfig=${configString};var sendConf=function(){if(iframe.contentWindow){iframe.contentWindow.postMessage({type:'gameConfig',config:gameConfig},'*');}else{setTimeout(sendConf,100);}};if(iframe.contentDocument&&iframe.contentDocument.readyState==='complete'){sendConf();}else{iframe.onload=sendConf;}})();<\/script>`;
             codeTextarea.style.display = 'block';
             btn.textContent = translations[lang].editor_copy;
             isCodeGenerated = true;
@@ -608,9 +613,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // FIX: Modified this function to return true if questions were added, for UI feedback.
     function parseAndAddQuestions(textarea, questionsContainer) {
         const text = textarea.value.trim();
-        if (!text) return;
+        if (!text) return false;
+        
+        let questionsAdded = 0;
         const questionBlocks = text.split(/\n\s*\n/);
 
         questionBlocks.forEach(blockText => {
@@ -636,10 +644,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: allOptions,
                 answer: correctIndex >= 0 ? correctIndex : 0
             }, questionsContainer);
+            questionsAdded++;
         });
 
-        textarea.value = '';
-        updatePreview();
+        if (questionsAdded > 0) {
+            textarea.value = '';
+            updatePreview();
+            return true;
+        }
+        return false;
     }
 
     function addMissionBlock() {
@@ -678,16 +691,32 @@ document.addEventListener('DOMContentLoaded', () => {
             addBtn.disabled = container.children.length >= 5;
             updatePreview();
         };
+
+        // FIX: Added UI feedback for the "Add Questions" button.
         block.querySelector('.parse-questions-btn').onclick = (e) => {
-            const bulkAddSection = e.target.closest('.bulk-add-section');
+            const button = e.target;
+            const bulkAddSection = button.closest('.bulk-add-section');
             if (bulkAddSection) {
                 const textarea = bulkAddSection.querySelector('.bulk-questions-input');
-                const questionsContainer = e.target.closest('details').querySelector('.mission-questions-container');
+                const questionsContainer = button.closest('details').querySelector('.mission-questions-container');
                 if (textarea && questionsContainer) {
-                    parseAndAddQuestions(textarea, questionsContainer);
+                    if (parseAndAddQuestions(textarea, questionsContainer)) {
+                        const lang = document.getElementById('language-select').value;
+                        const originalText = translations[lang].editor_add_questions;
+                        button.style.backgroundColor = 'var(--correct-color)';
+                        button.style.color = 'var(--text-dark)';
+                        button.textContent = translations[lang].editor_questions_added;
+                        
+                        setTimeout(() => {
+                           button.style.backgroundColor = '';
+                           button.style.color = '';
+                           button.textContent = originalText;
+                        }, 2500);
+                    }
                 }
             }
         };
+
         document.getElementById(`mission-file-${uniqueId}`).addEventListener('change', (e) => {
             if (e.target.files[0]) {
                 const r = new FileReader();
@@ -759,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const titleEl = document.getElementById('game-title-display');
         titleEl.textContent = config.title;
-        titleEl.className = ''; // Clear previous animations
+        titleEl.className = 'main-title'; // Clear previous animations
         if (d.titleAnimation) titleEl.classList.add(d.titleAnimation);
 
         const charSelector = document.getElementById('character-selector');
@@ -789,6 +818,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('start-game-btn').onclick = startGame;
         document.getElementById('back-btn-map').onclick = showStartScreen;
         document.getElementById('back-btn-mission').onclick = showMissionMap;
+        // FIX: Added event listener for the new play-again button ID
+        document.getElementById('play-again-btn').onclick = showStartScreen;
 
         checkStartButton();
         prepareBuiltInSounds();
@@ -805,7 +836,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('end-screen').classList.add('hidden');
         document.getElementById('start-screen').classList.remove('hidden');
         const music = document.getElementById('game-bg-music');
-        if (music) music.pause();
+        if (music) {
+            music.pause();
+            music.currentTime = 0;
+        }
+        // Reset state for a new game
+        gameState.completedMissions = new Set();
+        gameState.character = '';
+        gameState.difficulty = null;
+        document.querySelectorAll('#character-selector img.selected').forEach(el => el.classList.remove('selected'));
+        document.querySelectorAll('#difficulty-selector button.selected').forEach(el => el.classList.remove('selected'));
+        checkStartButton();
     }
 
     function startGame() {
@@ -857,10 +898,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (gameState.completedMissions.has(index)) iconDiv.classList.add('completed');
-            else if (index > firstUncompleted) iconDiv.classList.add('locked');
+            else if (firstUncompleted !== -1 && index > firstUncompleted) iconDiv.classList.add('locked');
             else if (index === firstUncompleted) iconDiv.classList.add('active');
 
-            if (index === firstUncompleted) {
+            if (!gameState.completedMissions.has(index) && (firstUncompleted === -1 || index <= firstUncompleted)) {
                 iconDiv.onmouseenter = () => displayMissionDescription(mission);
                 iconDiv.onmouseleave = () => document.getElementById('mission-description-panel').classList.add('hidden');
                 iconDiv.onclick = () => startMission(index);
