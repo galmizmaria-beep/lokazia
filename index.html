@@ -192,9 +192,104 @@
             75%  { transform: translateY(5px) rotate(-1deg); }
             100% { transform: translateY(0px) rotate(0deg); }
         }
+        /* New styles for map and mission icons */
+        #map-area { /* This is where mission icons are appended */
+            position: absolute;
+            inset: 0; /* Cover the entire mission-map-screen */
+        }
+        .mission-map-icon {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease, transform 0.3s ease; /* Add transform to transition */
+            z-index: 20;
+            filter: drop-shadow(0 0 5px rgba(0,255,231,0.5));
+            transform: translate(-50%, -50%); /* Center the icon on its X,Y coordinates */
+        }
+        .mission-map-icon img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--accent-color);
+            transition: border-color 0.3s ease;
+        }
+        .mission-map-icon span {
+            font-size: 0.9em;
+            color: white;
+            text-shadow: 0 0 5px black;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap; /* Prevent mission name from wrapping */
+        }
         .mission-map-icon.floating {
             animation: floating 4s ease-in-out infinite;
         }
+        .mission-map-icon.completed {
+            filter: grayscale(100%) brightness(0.7) drop-shadow(0 0 5px var(--correct-color));
+            opacity: 0.8;
+            pointer-events: none;
+            cursor: default;
+        }
+        .mission-map-icon.completed img {
+            border-color: var(--correct-color);
+        }
+        .mission-map-icon.completed::after {
+            content: '✔';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--correct-color);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            box-shadow: 0 0 8px rgba(0,255,231,0.5);
+            animation: none; /* Disable floating for completed */
+        }
+
+        #mission-description-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 20px;
+            backdrop-filter: blur(8px);
+            max-width: 80%;
+            min-width: 300px;
+            text-align: center;
+            z-index: 60;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        #mission-description-panel:not(.hidden) {
+            opacity: 1;
+            visibility: visible;
+        }
+        #mission-description-panel h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+            text-shadow: 0 0 3px var(--accent-color);
+        }
+        #mission-description-panel p {
+            margin-bottom: 15px;
+        }
+        #mission-description-panel button {
+            margin-top: 10px;
+        }
+
 
         /* Editor styles for difficulty columns */
         .difficulty-questions-wrapper {
@@ -288,8 +383,10 @@
         .mission-upload-group label, .map-background-upload-group label {
             flex-grow: 1;
         }
-        .mission-upload-group input[type="text"] {
+        .mission-upload-group input[type="text"], .mission-upload-group input[type="number"] { /* Added number type */
             width: calc(100% - 22px);
+            margin-left: 0;
+            margin-right: 0;
         }
         .mission-upload-group .char-remove-btn-x {
             top: -8px;
@@ -326,7 +423,7 @@
             position: relative; /* Crucial for positioning playerCharOnMap */
         }
         .mission-map-icon:hover {
-            transform: scale(1.1); /* Increased size on hover */
+            transform: scale(1.1) translate(-45%, -45%); /* Increased size on hover, adjusted translate to keep centered */
             box-shadow:0 0 20px var(--accent-color); /* Stronger glow */
         }
         .mission-map-icon.locked {
@@ -345,9 +442,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Start off-screen or at 0,0 to move to first mission */
-            left: 0;
-            top: 0;
+            transform: translate(-50%, -50%); /* Center the character on its coordinates */
+            /* Initial left/top will be set by JS */
         }
 
         #current-mission-game-area {
@@ -545,7 +641,7 @@
                         <!-- Mission icons will be rendered here -->
                     </div>
                     <!-- PLAYER CHAR ON MAP IS NOW CHILD OF MISSION-MAP-SCREEN -->
-                    <div id="player-char-on-map" style="position: absolute; transform: translate(-50%, -50%);">
+                    <div id="player-char-on-map">
                         <img id="player-char-map-img" src="" alt="Ваш персонаж">
                     </div>
                     <div id="mission-description-panel" class="hidden">
@@ -599,6 +695,8 @@
                 editor_add_mission: "Добавить миссию",
                 mission_name_placeholder: "Название миссии",
                 mission_desc_placeholder: "Краткое описание миссии",
+                mission_xpos_placeholder: "Позиция X (%)", // New
+                mission_ypos_placeholder: "Позиция Y (%)", // New
                 mission_icon_upload_label: "Загрузить иконку миссии...",
                 editor_characters_heading: "5. Персонажи",
                 editor_add_char: "Добавить персонажа",
@@ -649,6 +747,8 @@
                 editor_add_mission: "Add Mission",
                 mission_name_placeholder: "Mission Name",
                 mission_desc_placeholder: "Brief mission description",
+                mission_xpos_placeholder: "X Position (%)", // New
+                mission_ypos_placeholder: "Y Position (%)", // New
                 mission_icon_upload_label: "Upload Mission Icon...",
                 editor_characters_heading: "5. Characters",
                 editor_add_char: "Add Character",
@@ -703,7 +803,8 @@
             currentMissionIndex: 0,
             currentMissionQuestions: [], 
             completedCardsInMission: 0, 
-            completedMissions: new Set()
+            completedMissions: new Set(),
+            playerCharOnMapInitialized: false // Track if player character on map has been positioned
         };
         let bgAudioElement = null; 
 
@@ -762,6 +863,13 @@
             });
             document.querySelectorAll('.map-background-upload-group label').forEach(label => {
                 label.textContent = translations[lang].editor_upload_map_bg;
+            });
+            // Update placeholders for new mission position inputs
+            document.querySelectorAll('.mission-upload-group input.mission-xpos-input').forEach(input => {
+                input.placeholder = translations[lang].mission_xpos_placeholder;
+            });
+            document.querySelectorAll('.mission-upload-group input.mission-ypos-input').forEach(input => {
+                input.placeholder = translations[lang].mission_ypos_placeholder;
             });
         }
 
@@ -822,7 +930,9 @@
                 return {
                     name: block.querySelector('.mission-name-input').value || '',
                     description: block.querySelector('.mission-desc-input').value || '',
-                    iconUrl: (img && img.src && !img.src.includes('placehold.co')) ? img.src : null
+                    iconUrl: (img && img.src && !img.src.includes('placehold.co')) ? img.src : null,
+                    xPos: parseFloat(block.querySelector('.mission-xpos-input').value) || 50, // Default to 50%
+                    yPos: parseFloat(block.querySelector('.mission-ypos-input').value) || 50  // Default to 50%
                 };
             }).filter(m => m.name && m.name.trim()); 
 
@@ -919,7 +1029,7 @@
                 <img src="https://placehold.co/40x40/101820/00ffe7?text=+" alt="preview" id="char-preview-${uniqueId}">
                 <input type="file" id="char-upload-${uniqueId}" accept="image/*">
                 <label for="char-upload-${uniqueId}">${translations[lang].editor_add_char}</label>
-                <button type="button" class="char-remove-btn-x" title="Удалить">&times;</button>
+                <button type="button" class="char-remove-btn-x" title="${translations[lang].q_remove_q}">&times;</button>
             `;
             container.appendChild(group);
 
@@ -998,10 +1108,12 @@
                 <div>
                     <input type="text" class="mission-name-input" placeholder="${t.mission_name_placeholder}" value="${t.mission_name_placeholder} ${container.children.length + 1}">
                     <input type="text" class="mission-desc-input" placeholder="${t.mission_desc_placeholder}">
+                    <input type="number" class="mission-xpos-input" placeholder="${t.mission_xpos_placeholder}" min="0" max="100" value="${Math.floor(Math.random() * 70) + 15}">
+                    <input type="number" class="mission-ypos-input" placeholder="${t.mission_ypos_placeholder}" min="0" max="100" value="${Math.floor(Math.random() * 70) + 15}">
                     <input type="file" id="mission-icon-upload-${uniqueId}" accept="image/*">
                     <label for="mission-icon-upload-${uniqueId}" class="mission-icon-upload-label">${t.mission_icon_upload_label}</label>
                 </div>
-                <button type="button" class="char-remove-btn-x" title="Удалить">&times;</button>
+                <button type="button" class="char-remove-btn-x" title="${t.q_remove_q}">&times;</button>
             `;
             container.appendChild(block);
 
@@ -1012,6 +1124,8 @@
 
             block.querySelector('.mission-name-input').addEventListener('input', updatePreview);
             block.querySelector('.mission-desc-input').addEventListener('input', updatePreview);
+            block.querySelector('.mission-xpos-input').addEventListener('input', updatePreview); // New event listener
+            block.querySelector('.mission-ypos-input').addEventListener('input', updatePreview); // New event listener
 
             document.getElementById(`mission-icon-upload-${uniqueId}`).addEventListener('change', (event) => {
                 const file = event.target.files[0];
@@ -1220,6 +1334,7 @@
             
             gameState.currentMissionIndex = 0;
             gameState.completedMissions.clear();
+            gameState.playerCharOnMapInitialized = false; // Reset for new game
             showMissionMap();
         }
 
@@ -1264,11 +1379,24 @@
                 return;
             }
 
+            // Set initial position of player character to center of map
+            // This ensures smooth animation to the first mission.
+            if (!gameState.playerCharOnMapInitialized) {
+                playerCharOnMap.style.left = '50%'; // Start at center of map
+                playerCharOnMap.style.top = '50%';
+                gameState.playerCharOnMapInitialized = true;
+            }
+
+
             gameConfig.missions.forEach((mission, index) => {
                 const missionIconDiv = document.createElement('div');
                 missionIconDiv.className = 'mission-map-icon floating';
                 missionIconDiv.dataset.missionIndex = index;
                 missionIconDiv.innerHTML = `<img src="${mission.iconUrl || 'https://placehold.co/60x60/333/eee?text=M' + (index + 1)}" alt="${mission.name}"><span>${mission.name}</span>`;
+
+                // Apply positioning from config
+                missionIconDiv.style.left = `${mission.xPos}%`;
+                missionIconDiv.style.top = `${mission.yPos}%`;
 
                 const isLocked = index > 0 && !gameState.completedMissions.has(index - 1);
                 const isCompleted = gameState.completedMissions.has(index);
@@ -1291,17 +1419,19 @@
             }
             
             let missionToSelect = gameState.currentMissionIndex;
+            // If current mission index is out of bounds or already completed, find the first uncompleted one
             if (gameState.currentMissionIndex >= gameConfig.missions.length || gameState.completedMissions.has(gameState.currentMissionIndex)) {
                 const firstUncompletedIndex = gameConfig.missions.findIndex((_, idx) => !gameState.completedMissions.has(idx));
                 if (firstUncompletedIndex !== -1) {
                     missionToSelect = firstUncompletedIndex;
                 } else {
                     endGame('win'); 
-                    return;
+                    return; // All missions completed
                 }
             }
             gameState.currentMissionIndex = missionToSelect; 
-
+            
+            // Immediately show description for the selected mission, which also moves the player
             displayMissionDescription(gameState.currentMissionIndex); 
         }
 
@@ -1311,7 +1441,7 @@
             
             document.getElementById('current-mission-title').textContent = mission.name;
             document.getElementById('current-mission-description').textContent = mission.description;
-            panel.classList.remove('hidden');
+            panel.classList.remove('hidden'); // Show panel
 
             const startMissionBtn = document.getElementById('start-mission-btn');
             startMissionBtn.onclick = () => startMission(index);
@@ -1319,21 +1449,11 @@
             const playerCharOnMap = document.getElementById('player-char-on-map'); 
             const targetIcon = document.querySelector(`.mission-map-icon[data-mission-index="${index}"]`);
             if (targetIcon) {
-                // To position playerCharOnMap (which is a direct child of #mission-map-screen) correctly
-                // relative to a missionIconDiv (which is a child of #map-area, which is child of #mission-map-screen),
-                // we need to calculate the missionIconDiv's position relative to its parent, then adjust for mapArea's own position.
-                // However, simpler to get the *actual rendered position* on screen, relative to viewport,
-                // then convert that to coordinates relative to #mission-map-screen.
-
-                const missionMapScreenRect = document.getElementById('mission-map-screen').getBoundingClientRect();
-                const targetIconRect = targetIcon.getBoundingClientRect();
-                
-                // Calculate center of the target icon relative to missionMapScreen
-                const centerX = targetIconRect.left + (targetIconRect.width / 2) - missionMapScreenRect.left;
-                const centerY = targetIconRect.top + (targetIconRect.height / 2) - missionMapScreenRect.top;
-
-                playerCharOnMap.style.left = centerX + 'px';
-                playerCharOnMap.style.top = centerY + 'px';
+                // Move player character to the center of the target icon.
+                // The mission icon itself is already centered via transform: translate(-50%, -50%).
+                // So, we just need to set playerCharOnMap's left/top to the icon's left/top.
+                playerCharOnMap.style.left = targetIcon.style.left;
+                playerCharOnMap.style.top = targetIcon.style.top;
             }
         }
 
@@ -1532,4 +1652,4 @@
     });
     </script>
 </body>
-</html>           
+</html>
