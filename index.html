@@ -20,114 +20,137 @@
             --card-bg-color: transparent;
             --dynamic-glow-color: var(--accent-color);
             --dynamic-glow-shadow: 0 0 15px var(--dynamic-glow-color);
+
+            /* Customizable */
+            --title-font: 'Segoe UI', Roboto, Arial, sans-serif;
+            --title-size: 1.8em;
+            --button-size: 16px;
         }
-        html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+        html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;font-family:var(--title-font);}
         body{
             background-image:linear-gradient(180deg,#1a2a3a,#101820);
             color:var(--text-light);
             display:flex;justify-content:center;align-items:center;
         }
-        .master-container{ width:100%; height:100%; display:flex; flex-direction:column; }
-        .main-title{ text-align:center; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); margin-bottom:20px; flex-shrink:0; }
+        .master-container{ width:100%; height:100%; display:flex; flex-direction:column; box-sizing:border-box; padding:12px; }
+        /* Editor mode: keep 16:9 and centered */
+        .master-container.editor{
+            width: min(1400px, 95vw);
+            aspect-ratio: 16 / 9;
+            height: auto;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(26,42,58,0.95), rgba(16,24,32,0.95));
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
 
-        button{ background-color:transparent; color:var(--accent-color); border:1px solid var(--accent-color); padding:10px 15px; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; transition:all .3s; }
+        .main-title{ text-align:center; color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); margin-bottom:8px; flex-shrink:0; font-family:var(--title-font); }
+
+        button{ background-color:transparent; color:var(--accent-color); border:1px solid var(--accent-color); padding:8px 12px; border-radius:6px; cursor:pointer; font-size:var(--button-size); font-weight:bold; transition:all .25s; }
         button:hover{ background-color:var(--accent-color); color:var(--bg-dark); box-shadow:0 0 15px var(--accent-color); }
         button:disabled{ background-color:#4a5568; border-color:#4a5568; color:#a0aec0; cursor:not-allowed; box-shadow:none; }
 
-        input,textarea,select{ width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box; margin-top:5px; margin-bottom:10px; background-color:rgba(0,0,0,0.2); color:var(--text-light); transition:all .3s; }
+        input,textarea,select{ width:100%; padding:8px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box; margin-top:5px; margin-bottom:10px; background-color:rgba(0,0,0,0.15); color:var(--text-light); transition:all .3s; font-size:14px; }
         input:hover,textarea:hover,select:hover,input:focus,textarea:focus,select:focus{ border-color:var(--accent-color); box-shadow:0 0 5px var(--accent-color); outline:none; }
         input[type="color"] { padding: 0; height: 40px; border-radius: 8px; cursor: pointer; }
         input[type="range"] { padding: 0; }
 
-        #editor-wrapper{ display:flex; gap:20px; height:100%; overflow:hidden; }
-        #editor-panel{ flex:1; min-width:350px; max-width: 450px; }
-        #preview-section{ flex:2.5; display:flex; flex-direction:column; }
+        #editor-wrapper{ display:flex; gap:12px; height:100%; overflow:hidden; padding:12px; box-sizing:border-box; }
+        #editor-panel{ flex:1; min-width:320px; max-width: 420px; }
+        #preview-section{ flex:2.2; display:flex; flex-direction:column; }
 
-        .editor-panel-inner{ background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:25px; backdrop-filter:blur(10px); height:100%; box-sizing:border-box; overflow-y:auto; }
-        .editor-panel-inner h2, .editor-panel-inner h3{ color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); }
+        .editor-panel-inner{ background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:18px; backdrop-filter:blur(8px); height:100%; box-sizing:border-box; overflow-y:auto; }
+        .editor-panel-inner h2, .editor-panel-inner h3{ color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); margin:6px 0; }
 
-        .editor-section{ margin-bottom:15px; padding:10px; border-radius:8px; border:1px solid transparent; transition:all .3s; }
+        .editor-section{ margin-bottom:12px; padding:10px; border-radius:8px; border:1px solid transparent; transition:all .3s; }
         .editor-section:hover{ background-color:var(--hover-bg); border-color:var(--border-color); }
 
-        .question-block{ background:rgba(0,0,0,0.2); padding:15px; border-radius:6px; margin-bottom:15px; border:1px solid var(--border-color); }
-        .question-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-        .option-group{ display:flex; align-items:center; margin-bottom:8px; }
+        .question-block{ background:rgba(0,0,0,0.18); padding:12px; border-radius:6px; margin-bottom:12px; border:1px solid var(--border-color); }
+        .question-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .option-group{ display:flex; align-items:center; margin-bottom:8px; gap:8px; }
 
         .char-remove-btn-x{ position:absolute; top:-5px; right:-5px; width:22px; height:22px; border-radius:50%; background:#e53e3e; color:white; border:none; font-size:16px; font-weight:bold; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; box-shadow:0 2px 4px rgba(0,0,0,.4); }
 
-        #preview-iframe{ width:100%; flex-grow:1; border-radius:12px; border:1px solid var(--border-color); background-color:var(--bg-dark); }
+        #preview-iframe{ width:100%; flex-grow:1; border-radius:8px; border:1px solid var(--border-color); background-color:var(--bg-dark); }
         #iframe-code{ display:none; margin-top:10px; min-height:80px; font-size:12px; }
 
         /* --- GAME STYLES --- */
         #game-container{ width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; box-sizing:border-box; background:none; }
-        #start-screen{ width:100%; max-width:700px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:30px; backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; box-sizing:border-box; }
-        #game-title-display{ text-align:center; color:var(--accent-color); font-size:1.8em; margin:0; text-shadow:0 0 5px var(--accent-color); }
-        #character-selector{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom: 20px; }
+        #start-screen{ width:100%; max-width:900px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:22px; backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-sizing:border-box; position:relative; background-size:cover; background-position:center; }
+        #game-title-display{ text-align:center; color:var(--accent-color); font-size:var(--title-size); margin:6px 0; text-shadow:0 0 5px var(--accent-color); font-family:var(--title-font); }
+        #character-selector{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom: 8px; }
         #character-selector img{ width:80px; height:80px; border-radius:50%; border:3px solid transparent; cursor:pointer; object-fit:cover; transition:all .2s; }
         #character-selector img.selected{ border-color:var(--dynamic-glow-color); box-shadow:var(--dynamic-glow-shadow); transform:scale(1.05); }
 
-        #game-process{ width:100%; height:100%; position:relative; padding:20px; box-sizing:border-box; display:block; }
+        #game-process{ width:100%; height:100%; position:relative; padding:12px; box-sizing:border-box; display:block; }
         #game-ui-top{ position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; z-index: 100; }
-        #lives-container{ display:flex; gap:5px; font-size:2.0em; }
+        #lives-container{ display:flex; gap:5px; font-size:1.8em; }
         
         /* New Mission Layout */
-        #current-mission-game-area { display: flex; align-items: center; justify-content: space-around; gap: 20px; width: 100%; height: 100%; }
-        #character-display { position: relative; flex: 1; max-width: 40%; height: 90%; display: flex; justify-content: center; align-items: flex-end; }
+        #current-mission-game-area { display: flex; align-items: center; justify-content: space-around; gap: 12px; width: 100%; height: 100%; }
+        #character-display { position: relative; flex: 1; max-width: 36%; height: 90%; display: flex; justify-content: center; align-items: flex-end; }
         #player-char-img{ max-width:100%; max-height:100%; object-fit: contain; transition:transform .3s ease, filter .3s ease; }
         #player-char-img.correct-answer{ animation:jump-animation .6s ease; filter: drop-shadow(var(--dynamic-glow-shadow)); }
         #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop-shadow(0 0 15px var(--incorrect-color)); }
 
-        #card-grid-area{ position: relative; flex: 1.5; max-width: 55%; height: 90%; overflow-y: auto; display:flex; flex-wrap: wrap; gap:15px; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; align-content: flex-start; justify-content: center; }
-        .card{ width: 90px; height: 130px; background-image: var(--card-bg-image); background-color: var(--card-bg-color); background-size: cover; background-position: center; color:white; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:3em; font-weight:bold; cursor:pointer; transition: all 0.3s ease; box-shadow:0 5px 15px rgba(0,0,0,.3); position: relative; }
+        #card-grid-area{ position: relative; flex: 1.5; max-width: 60%; height: 90%; overflow-y: auto; display:flex; flex-wrap: wrap; gap:12px; padding:12px; background:rgba(0,0,0,0.25); border-radius:8px; align-content: flex-start; justify-content: center; }
+        .card{ width: 90px; height: 130px; background-image: var(--card-bg-image); background-color: var(--card-bg-color); background-size: cover; background-position: center; color:white; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:2.2em; font-weight:bold; cursor:pointer; transition: all 0.3s ease; box-shadow:0 5px 15px rgba(0,0,0,.3); position: relative; }
         .card:hover{ transform: translateY(-5px); box-shadow: 0 8px 20px var(--dynamic-glow-color); }
-        .card.completed{ background: var(--correct-color); cursor: not-allowed; opacity: 0.6; color: transparent; pointer-events: none; }
-        .card.completed::after { content: '✔'; font-size: 2.5em; color: white; position: absolute; }
-        .card.incorrect-flash::after { content: '✖'; position: absolute; font-size: 2.5em; color: white; animation: fade-out 0.8s ease-out forwards; }
+        .card.completed{ background: var(--correct-color); cursor: not-allowed; opacity: 0.6; pointer-events: none; }
+        .card.completed::after { content: '✔'; font-size: 2.0em; color: white; position: absolute; }
+        .card.incorrect-flash::after { content: '✖'; position: absolute; font-size: 2.0em; color: white; animation: fade-out 0.8s ease-out forwards; }
 
-        #question-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center; z-index: 1000; }
-        #question-modal-content{ background-color:#e0e0e0; color:var(--text-dark); padding:30px; border-radius:12px; min-width: 450px; max-width: 90vw; }
-        .card-question{ font-size:1.2em; font-weight:bold; margin-bottom:20px; }
-        .card-answers button, .card-input-area button{ width:100%; margin-bottom:10px; background-color:#f1f5f9; color:var(--text-dark); border:1px solid #ccc; text-align:left; padding:10px; }
+        #question-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center; z-index: 2000; }
+        #question-modal-content{ background-color:#e0e0e0; color:var(--text-dark); padding:24px; border-radius:12px; min-width: 420px; max-width: 90vw; }
+        .card-question{ font-size:1.1em; font-weight:bold; margin-bottom:12px; }
+        .card-answers button, .card-input-area button{ width:100%; margin-bottom:10px; background-color:#f1f5f9; color:var(--text-dark); border:1px solid #ccc; text-align:left; padding:10px; font-size:14px; }
 
-        #end-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; max-width:700px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:30px; box-sizing:border-box; }
-        #end-screen .end-player{ width:160px; height:160px; border-radius:12px; display:flex; align-items:center; justify-content:center; }
+        #end-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; max-width:900px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:22px; box-sizing:border-box; }
+        #end-screen .end-player{ width:45%; max-width:320px; height:auto; border-radius:12px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        #end-player-img{ width:100%; height:auto; object-fit:contain; display:block; }
 
         .hidden{ display:none !important; }
 
-        @keyframes jump-animation{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-30px);} }
-        @keyframes shake-animation{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-12px) rotate(-3deg);} 75%{ transform:translateX(12px) rotate(3deg);} }
-        @keyframes fade-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.5); } }
+        @keyframes jump-animation{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-20px);} }
+        @keyframes shake-animation{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-8px) rotate(-2deg);} 75%{ transform:translateX(8px) rotate(2deg);} }
+        @keyframes fade-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.4); } }
         @keyframes pulse-animation { 0% { box-shadow: var(--dynamic-glow-shadow); } 50% { box-shadow: 0 0 25px var(--dynamic-glow-color); } 100% { box-shadow: var(--dynamic-glow-shadow); } }
 
-        #map-area { position: absolute; inset: 0; }
-        .mission-map-icon { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: transform 0.3s ease; z-index: 20; transform: translate(-50%, -50%); }
-        .mission-map-icon img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 3px solid var(--dynamic-glow-color); }
-        .mission-map-icon span { font-size: 0.9em; color: white; text-shadow: 0 0 5px black; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px; }
-        .mission-map-icon:not(.locked):hover { transform: scale(1.2) translate(-41%, -41%); }
-        .mission-map-icon.active { animation: pulse-animation 1.5s ease-in-out infinite; }
-        .mission-map-icon.completed { filter: grayscale(100%) brightness(0.7); opacity: 0.8; pointer-events: none; }
-        .mission-map-icon.locked { pointer-events: none; filter: grayscale(80%) brightness(0.5); opacity: 0.7; }
-        .mission-map-icon.locked::before { content: '🔒'; position: absolute; font-size: 2.5em; color: white; z-index: 10; }
+        /* Start title animations */
+        .title-anim-none {}
+        .title-anim-bounce { animation: bounce-title 1.4s ease-in-out infinite; }
+        .title-anim-fade { animation: fade-title 2s ease-in-out infinite; }
+        .title-anim-pulse { animation: pulse-title 1.6s ease-in-out infinite; }
+        @keyframes bounce-title { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+        @keyframes fade-title { 0%{opacity:1}50%{opacity:.6}100%{opacity:1} }
+        @keyframes pulse-title { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
 
-        #mission-description-panel { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px 20px; max-width: 80%; text-align: center; z-index: 60; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s ease; }
+        /* mission icons */
+        .mission-map-icon { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.25s ease; z-index: 20; transform: translate(-50%, -50%); }
+        .mission-map-icon img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 3px solid var(--dynamic-glow-color); }
+        .mission-map-icon .icon-fallback { width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); border:3px solid var(--dynamic-glow-color); color:white; font-weight:bold; font-size:18px; }
+        .mission-map-icon span { font-size: 0.95em; color: white; text-shadow: 0 0 5px black; background: rgba(0,0,0,0.45); padding: 4px 10px; border-radius: 6px; }
+        .mission-map-icon:not(.locked):hover { transform: scale(1.15) translate(-50%, -50%); }
+        .mission-map-icon.active { animation: pulse-animation 1.5s ease-in-out infinite; }
+        .mission-map-icon.completed { filter: grayscale(100%) brightness(0.75); opacity: 0.85; pointer-events: none; }
+        .mission-map-icon.locked { pointer-events: none; filter: grayscale(80%) brightness(0.6); opacity: 0.7; }
+
+        #map-area { position: absolute; inset: 0; }
+        #mission-description-panel { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; max-width: 80%; text-align: center; z-index: 60; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease; }
         #mission-description-panel:not(.hidden) { opacity: 1; visibility: visible; }
-        #mission-description-panel h3 { margin-top: 0; color: var(--accent-color); }
+        #mission-description-panel h3 { margin-top: 0; color: var(--accent-color); font-size:1.05em; }
         #mission-description-panel p { margin-bottom: 0; min-height: 1.2em; }
 
-        .mission-upload-group { background:rgba(0,0,0,0.2); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:15px; }
-        .mission-header { display: flex; align-items: center; gap: 10px; position: relative; }
-        .mission-header img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-        .mission-details { flex-grow: 1; }
-        details.mission-questions-details { margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px; }
-        details summary { cursor: pointer; color: var(--accent-color); font-weight: bold; }
-        
-        #difficulty-selector button.selected { background-color: var(--dynamic-glow-color); color: var(--bg-dark); box-shadow: var(--dynamic-glow-shadow); transform: scale(1.05); }
+        /* ensure the dynamic variables are used */
+        #start-screen button, #start-screen select, #start-screen input { font-size: var(--button-size); }
 
-        #mission-map-screen, #current-mission-game-area {
-             background-image: var(--map-bg-image, linear-gradient(180deg,#1a2a3a,#101820)); 
-             background-size: cover; 
-             background-position: center; 
-             width: 100%; height: 100%; position: relative;
+        /* small responsive tweak inside editor aspect */
+        @media (max-width:700px){
+            .master-container.editor{ aspect-ratio: 16/9; width: 100vw; }
+            #editor-panel{ max-width: 280px; }
+            #character-selector img{ width:56px;height:56px;}
+            .card{ width:76px;height:110px;}
         }
     </style>
 </head>
@@ -153,13 +176,15 @@
 
                     <div class="editor-section">
                         <h2 data-lang-key="editor_map_heading">3. Карта</h2>
-                        <label for="map-bg-upload" data-lang-key="editor_upload_map_bg">Загрузить фон карты</label>
+                        <label for="map-bg-upload" data-lang-key="editor_upload_map_bg">Загрузить фон карты (только с устройства)</label>
                         <input type="file" id="map-bg-upload" accept="image/*">
                     </div>
 
                     <div class="editor-section">
                         <h2 data-lang-key="editor_design_heading">4. Дизайн</h2>
-                        <label for="card-bg-upload" data-lang-key="design_card_bg">Фон для карточек</label>
+                        <label for="cover-upload">Обложка (только с устройства)</label>
+                        <input type="file" id="cover-upload" accept="image/*">
+                        <label for="card-bg-upload" data-lang-key="design_card_bg">Фон для карточек (только с устройства)</label>
                         <input type="file" id="card-bg-upload" accept="image/*">
                         <label for="card-color-picker" data-lang-key="design_card_color">Цвет карточек (если нет фона)</label>
                         <input type="color" id="card-color-picker" value="#00bfa5">
@@ -167,6 +192,39 @@
                         <input type="color" id="glow-color-picker" value="#00ffe7">
                         <label for="glow-intensity-slider" data-lang-key="design_glow_intensity">Интенсивность свечения</label>
                         <input type="range" id="glow-intensity-slider" min="5" max="30" value="15">
+
+                        <label for="font-select">Выбор шрифта названия</label>
+                        <select id="font-select">
+                            <option value="'Segoe UI', Roboto, Arial, sans-serif">System (Segoe/Roboto)</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
+                            <option value="'Courier New', monospace">Monospace</option>
+                        </select>
+
+                        <label for="title-size-input">Размер названия (em)</label>
+                        <input type="number" id="title-size-input" value="1.8" step="0.1" min="0.8">
+
+                        <label for="button-size-input">Размер кнопок (px)</label>
+                        <input type="number" id="button-size-input" value="16" min="10" step="1">
+                    </div>
+
+                    <div class="editor-section">
+                        <h2>Анимация</h2>
+                        <label for="title-animation-select">Эффект названия</label>
+                        <select id="title-animation-select">
+                            <option value="title-anim-none">Нет</option>
+                            <option value="title-anim-bounce">Прыжок</option>
+                            <option value="title-anim-fade">Исчезание</option>
+                            <option value="title-anim-pulse">Пульсация</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-section">
+                        <h2>Звуки ответов</h2>
+                        <label for="correct-sound-upload">Звук правильного ответа (только с устройства)</label>
+                        <input type="file" id="correct-sound-upload" accept="audio/*">
+                        <label for="incorrect-sound-upload">Звук неправильного ответа (только с устройства)</label>
+                        <input type="file" id="incorrect-sound-upload" accept="audio/*">
                     </div>
                     
                     <div class="editor-section">
@@ -190,15 +248,15 @@
                         <h2 data-lang-key="editor_difficulty_settings_heading">8. Настройки жизней</h2>
                         <div>
                             <label for="easy-lives"><span data-lang-key="difficulty_easy">Легкий</span>:</label>
-                            <input type="number" id="easy-lives" value="5" min="1">
+                            <input type="number" id="easy-lives" value="5" min="0">
                         </div>
                         <div>
                             <label for="medium-lives"><span data-lang-key="difficulty_medium">Средний</span>:</label>
-                            <input type="number" id="medium-lives" value="3" min="1">
+                            <input type="number" id="medium-lives" value="3" min="0">
                         </div>
                         <div>
                             <label for="hard-lives"><span data-lang-key="difficulty_hard">Сложный</span>:</label>
-                            <input type="number" id="hard-lives" value="1" min="1">
+                            <input type="number" id="hard-lives" value="1" min="0">
                         </div>
                     </div>
                 </div>
@@ -269,6 +327,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mapBackground: null,
         cardBackground: null,
         backgroundMusic: null,
+        cover: null,
+        correctSound: null,
+        incorrectSound: null,
     };
     let isCodeGenerated = false;
 
@@ -383,6 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     } else {
+        // mark container as editor mode for 16:9
+        document.querySelector('.master-container').classList.add('editor');
         initEditor();
     }
 
@@ -391,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = el.dataset.langKey;
             const translation = translations[lang]?.[key];
             if (!translation) return;
-            if (el.placeholder !== undefined) el.placeholder = translation;
+            if ('placeholder' in el && el.placeholder !== undefined) el.placeholder = translation;
             else el.textContent = translation;
         });
     }
@@ -409,6 +472,14 @@ document.addEventListener('DOMContentLoaded', () => {
         addCharacterInput(); 
         addMissionBlock();
         updateUI('ru');
+
+        // file inputs for sounds, cover, card etc
+        document.getElementById('map-bg-upload').addEventListener('change', createFileHandler('mapBackground'));
+        document.getElementById('card-bg-upload').addEventListener('change', createFileHandler('cardBackground'));
+        document.getElementById('bg-music-upload').addEventListener('change', createFileHandler('backgroundMusic'));
+        document.getElementById('cover-upload').addEventListener('change', createFileHandler('cover'));
+        document.getElementById('correct-sound-upload').addEventListener('change', createFileHandler('correctSound'));
+        document.getElementById('incorrect-sound-upload').addEventListener('change', createFileHandler('incorrectSound'));
     }
 
     function collectConfig() {
@@ -425,10 +496,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return question;
             }).filter(q => q.question);
+            // ensure we only include icons uploaded from device (stored in mission img src only via file handler)
+            const imgEl = block.querySelector('img');
+            const iconSrc = imgEl && imgEl.dataset.local === 'true' ? imgEl.src : null;
             return {
                 name: block.querySelector('.mission-name-input').value,
                 description: block.querySelector('.mission-desc-input').value,
-                iconUrl: block.querySelector('img').src.includes('placehold.co') ? null : block.querySelector('img').src,
+                iconUrl: iconSrc || null,
                 questions: questions,
             };
         }).filter(m => m.name && m.questions.length > 0);
@@ -436,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return {
             lang: document.getElementById('language-select').value,
             title: document.getElementById('game-title').value,
-            characters: Array.from(document.getElementById('characters-container').querySelectorAll('img')).map(img => img.src).filter(src => !src.includes('placehold.co')),
+            characters: Array.from(document.getElementById('characters-container').querySelectorAll('img')).map(img => img.dataset.local === 'true' ? img.src : null).filter(Boolean),
             difficultySettings: {
                 easy: { lives: parseInt(document.getElementById('easy-lives').value, 10) },
                 medium: { lives: parseInt(document.getElementById('medium-lives').value, 10) },
@@ -448,6 +522,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 glowColor: document.getElementById('glow-color-picker').value,
                 glowIntensity: document.getElementById('glow-intensity-slider').value,
                 mapBackground: gameDataUrls.mapBackground,
+                cover: gameDataUrls.cover,
+                titleFont: document.getElementById('font-select').value,
+                titleSize: parseFloat(document.getElementById('title-size-input').value) || 1.8,
+                buttonSize: parseInt(document.getElementById('button-size-input').value, 10) || 16,
+                titleAnimation: document.getElementById('title-animation-select').value || 'title-anim-none'
+            },
+            sounds: {
+                correct: gameDataUrls.correctSound,
+                incorrect: gameDataUrls.incorrectSound
             },
             music: gameDataUrls.backgroundMusic,
             missions: missions,
@@ -490,28 +573,50 @@ document.addEventListener('DOMContentLoaded', () => {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    gameDataUrls[urlKey] = e.target.result;
-                    if(previewImgId) document.getElementById(previewImgId).src = e.target.result;
+                    const dataUrl = e.target.result;
+                    gameDataUrls[urlKey] = dataUrl;
+                    if(previewImgId) {
+                        const el = document.getElementById(previewImgId);
+                        if (el && el.tagName.toLowerCase() === 'img') {
+                            el.src = dataUrl;
+                            el.dataset.local = 'true';
+                        }
+                    }
                     updatePreview();
                 };
+                // read as dataURL (images and audio)
                 reader.readAsDataURL(file);
             }
         };
     }
-    document.getElementById('map-bg-upload').addEventListener('change', createFileHandler('mapBackground'));
-    document.getElementById('card-bg-upload').addEventListener('change', createFileHandler('cardBackground'));
-    document.getElementById('bg-music-upload').addEventListener('change', createFileHandler('backgroundMusic'));
+
+    // Hook additional file inputs (in case they were added later)
+    // (Note: already hooked in initEditor)
 
     function addCharacterInput() {
         const container = document.getElementById('characters-container');
-        const uniqueId = `char-${Date.now()}`;
+        const uniqueId = `char-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
         const group = document.createElement('div');
         group.className = 'character-upload-group';
-        group.style = "display:flex; align-items:center; gap:10px; position:relative;";
-        group.innerHTML = `<img src="https://placehold.co/40x40/101820/00ffe7?text=+" alt="preview" id="preview-${uniqueId}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"><input type="file" id="${uniqueId}" accept="image/*" style="display:none;"><label for="${uniqueId}" style="flex-grow:1;text-align:center;background-color:#4a5568;padding:8px;border-radius:5px;cursor:pointer;" data-lang-key="editor_add_char">Добавить персонажа</label><button type="button" class="char-remove-btn-x">&times;</button>`;
+        group.style = "display:flex; align-items:center; gap:8px; position:relative;";
+        // default no external placeholder: start with an empty img but mark as not local
+        group.innerHTML = `<img src="" alt="preview" id="preview-${uniqueId}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);"><input type="file" id="${uniqueId}" accept="image/*" style="display:none;"><label for="${uniqueId}" style="flex-grow:1;text-align:center;background-color:#4a5568;padding:8px;border-radius:5px;cursor:pointer;" data-lang-key="editor_add_char">Добавить персонажа</label><button type="button" class="char-remove-btn-x">&times;</button>`;
         container.appendChild(group);
         group.querySelector('.char-remove-btn-x').onclick = () => { group.remove(); updatePreview(); };
-        document.getElementById(uniqueId).addEventListener('change', createFileHandler(null, `preview-${uniqueId}`));
+        document.getElementById(uniqueId).addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    const dataUrl = ev.target.result;
+                    const img = document.getElementById(`preview-${uniqueId}`);
+                    img.src = dataUrl;
+                    img.dataset.local = 'true'; // mark as local
+                    updatePreview();
+                };
+                r.readAsDataURL(file);
+            }
+        });
     }
     
     function addMissionBlock() {
@@ -521,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addBtn.disabled = true;
             return;
         }
-        const uniqueId = Date.now();
+        const uniqueId = Date.now() + '-' + Math.random().toString(36).slice(2,6);
         const block = document.createElement('div');
         block.className = 'mission-upload-group';
         const lang = document.getElementById('language-select').value;
@@ -529,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         block.innerHTML = `
             <div class="mission-header">
-                <img src="https://placehold.co/50x50/101820/00ffe7?text=M" id="mission-icon-${uniqueId}">
+                <img src="" id="mission-icon-${uniqueId}" style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);width:50px;height:50px;border-radius:8px;object-fit:cover;" data-local="false">
                 <div class="mission-details">
                     <input type="text" class="mission-name-input" placeholder="${t.mission_name_placeholder}" value="${t.mission_name_placeholder} ${container.children.length + 1}">
                     <textarea class="mission-desc-input" placeholder="${t.mission_desc_placeholder}" rows="2"></textarea>
@@ -554,7 +659,20 @@ document.addEventListener('DOMContentLoaded', () => {
         block.querySelector('.add-question-to-mission-btn').onclick = (e) => {
             addQuestionBlock(e.target.closest('details').querySelector('.mission-questions-container'));
         };
-        document.getElementById(`mission-file-${uniqueId}`).addEventListener('change', createFileHandler(null, `mission-icon-${uniqueId}`));
+        document.getElementById(`mission-file-${uniqueId}`).addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    const dataUrl = ev.target.result;
+                    const img = document.getElementById(`mission-icon-${uniqueId}`);
+                    img.src = dataUrl;
+                    img.dataset.local = 'true'; // mark as local
+                    updatePreview();
+                };
+                r.readAsDataURL(file);
+            }
+        });
         if (container.children.length >= 5) addBtn.disabled = true;
     }
 
@@ -609,13 +727,47 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.lang = config.lang || 'ru';
         updateUI(gameState.lang);
 
-        const d = config.design;
+        const d = config.design || {};
         const root = document.documentElement;
-        root.style.setProperty('--map-bg-image', d.mapBackground ? `url('${d.mapBackground}')` : '');
-        root.style.setProperty('--card-bg-image', d.cardBackground ? `url('${d.cardBackground}')` : '');
+
+        // apply design (use data:URL images only)
+        if (d.mapBackground) {
+            // set CSS variable without additional quotes to avoid issues
+            root.style.setProperty('--map-bg-image', `url(${d.mapBackground})`);
+        } else {
+            root.style.removeProperty('--map-bg-image');
+        }
+        if (d.cardBackground) {
+            root.style.setProperty('--card-bg-image', `url(${d.cardBackground})`);
+        } else {
+            root.style.setProperty('--card-bg-image', 'none');
+            root.style.setProperty('--card-bg-color', d.cardColor || 'transparent');
+        }
         root.style.setProperty('--card-bg-color', d.cardColor || 'transparent');
         root.style.setProperty('--dynamic-glow-color', d.glowColor || '#00ffe7');
         root.style.setProperty('--dynamic-glow-shadow', `0 0 ${d.glowIntensity || 15}px ${d.glowColor || '#00ffe7'}`);
+
+        // title font/size/button size/animation
+        root.style.setProperty('--title-font', d.titleFont || "var(--title-font)");
+        root.style.setProperty('--title-size', (d.titleSize ? d.titleSize + 'em' : (getComputedStyle(root).getPropertyValue('--title-size') || '1.8em')));
+        root.style.setProperty('--button-size', (d.buttonSize ? d.buttonSize + 'px' : (getComputedStyle(root).getPropertyValue('--button-size') || '16px')));
+        // apply to title element
+        const titleEl = document.getElementById('game-title-display');
+        titleEl.style.fontFamily = d.titleFont || '';
+        titleEl.style.fontSize = d.titleSize ? (d.titleSize + 'em') : '';
+        // animation class
+        titleEl.classList.remove('title-anim-none','title-anim-bounce','title-anim-fade','title-anim-pulse');
+        if (d.titleAnimation) titleEl.classList.add(d.titleAnimation);
+
+        // cover on start-screen (data URL only)
+        const startScreen = document.getElementById('start-screen');
+        if (d.cover) {
+            startScreen.style.backgroundImage = `url(${d.cover})`;
+            startScreen.style.backgroundSize = 'cover';
+            startScreen.style.backgroundPosition = 'center';
+        } else {
+            startScreen.style.backgroundImage = '';
+        }
 
         document.getElementById('game-title-display').textContent = config.title;
         const charSelector = document.getElementById('character-selector');
@@ -624,6 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
             config.characters.forEach(url => {
                 const img = document.createElement('img');
                 img.src = url;
+                img.dataset.local = 'true';
                 img.onclick = () => {
                     charSelector.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
                     img.classList.add('selected');
@@ -643,35 +796,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.getElementById('start-game-btn').onclick = startGame;
         checkStartButton();
+
+        // prepare sounds
+        gameState.sounds = {
+            correct: config.sounds?.correct || null,
+            incorrect: config.sounds?.incorrect || null
+        };
+        // Precreate Audio objects if available
+        if (gameState.sounds.correct) {
+            gameState.correctAudio = new Audio(gameState.sounds.correct);
+        }
+        if (gameState.sounds.incorrect) {
+            gameState.incorrectAudio = new Audio(gameState.sounds.incorrect);
+        }
     }
 
     function checkStartButton() {
         const btn = document.getElementById('start-game-btn');
         const canStart = gameState.character && gameState.difficulty && gameConfig.missions?.length > 0;
         btn.disabled = !canStart;
-        
-        let warning = document.getElementById('start-warning-msg');
-        if (!canStart && !warning) {
-            warning = document.createElement('p');
-            warning.id = 'start-warning-msg';
-            warning.style.color = 'red';
-            btn.before(warning);
-        }
-        if (warning) {
-            let msg = '';
-            if (!gameState.character) msg = translations[gameState.lang].no_characters_warning;
-            else if (!gameConfig.missions?.length > 0) msg = translations[gameState.lang].no_missions_warning;
-            warning.textContent = msg;
-        }
+        // removed the red warning on title screen as requested
     }
 
     function startGame() {
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-process').classList.remove('hidden');
-        document.getElementById('player-char-img').src = gameState.character;
+        const playerImgEl = document.getElementById('player-char-img');
+        playerImgEl.src = gameState.character || '';
+        playerImgEl.alt = 'Player';
 
-        gameState.globalLives = gameConfig.difficultySettings[gameState.difficulty].lives;
-        gameState.completedMissions.clear();
+        gameState.globalLives = (gameConfig.difficultySettings && gameConfig.difficultySettings[gameState.difficulty]) ? gameConfig.difficultySettings[gameState.difficulty].lives : 3;
+        if (!gameState.completedMissions) gameState.completedMissions = new Set();
+        else gameState.completedMissions.clear();
         
         const music = document.getElementById('game-bg-music');
         if(gameConfig.music) {
@@ -683,7 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateLivesDisplay() {
         document.querySelectorAll('#lives-container').forEach(container => {
-            container.innerHTML = Array(gameState.globalLives).fill('<span>❤️</span>').join('');
+            container.innerHTML = Array(Math.max(0, gameState.globalLives)).fill('<span>❤️</span>').join('');
         });
     }
 
@@ -708,7 +864,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const pos = MISSION_POSITIONS[index];
             iconDiv.style.left = `${pos.x}%`;
             iconDiv.style.top = `${pos.y}%`;
-            iconDiv.innerHTML = `<img src="${mission.iconUrl || 'https://placehold.co/60x60/333/eee?text=M' + (index + 1)}"><span>${mission.name}</span>`;
+
+            // if mission.iconUrl exists (data:URL from device), use img, otherwise show fallback local element (no external url)
+            if (mission.iconUrl) {
+                iconDiv.innerHTML = `<img src="${mission.iconUrl}" alt="ic"><span>${escapeHtml(mission.name)}</span>`;
+            } else {
+                // fallback circle with first letter(s)
+                const initials = (mission.name || '').split(' ').map(w => w[0] || '').join('').slice(0,2).toUpperCase() || 'M';
+                iconDiv.innerHTML = `<div class="icon-fallback">${initials}</div><span>${escapeHtml(mission.name)}</span>`;
+            }
 
             if (gameState.completedMissions.has(index)) iconDiv.classList.add('completed');
             else if (index > firstUncompleted) iconDiv.classList.add('locked');
@@ -730,23 +894,37 @@ document.addEventListener('DOMContentLoaded', () => {
         panel.classList.remove('hidden');
     }
 
+    // shuffle utility
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     function startMission(missionIndex) {
         document.getElementById('mission-map-screen').classList.add('hidden');
         document.getElementById('current-mission-game-area').classList.remove('hidden');
         updateLivesDisplay();
         
         gameState.currentMissionIndex = missionIndex;
-        gameState.currentMissionQuestions = gameConfig.missions[missionIndex].questions;
+        gameState.currentMissionQuestions = gameConfig.missions[missionIndex].questions.slice(); // copy
         gameState.completedCardsInMission = 0;
+
+        // randomize order of card display (but mapping to question indices)
+        const indices = gameState.currentMissionQuestions.map((_, i) => i);
+        shuffle(indices);
 
         const cardGrid = document.getElementById('card-grid-area');
         cardGrid.innerHTML = '';
-        gameState.currentMissionQuestions.forEach((_, i) => {
+        indices.forEach((origIndex) => {
             const card = document.createElement('div');
             card.className = 'card';
-            card.dataset.qindex = i;
-            card.innerHTML = `<span>${i + 1}</span>`;
-            card.onclick = () => showQuestionModal(i);
+            card.dataset.qindex = origIndex;
+            // no numbering; show blank or small symbol
+            card.innerHTML = `<span style="opacity:0.0;">.</span>`; // invisible char to keep layout
+            card.onclick = () => showQuestionModal(origIndex);
             cardGrid.appendChild(card);
         });
     }
@@ -780,7 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
             content.innerHTML = `<input type="text"><button data-lang-key="game_check">${translations[gameState.lang].game_check}</button>`;
             content.querySelector('button').onclick = () => {
                 const answer = content.querySelector('input').value;
-                const correct = answer.trim().toLowerCase() === qData.answer.trim().toLowerCase();
+                const correct = (qData.answer || '').toString().trim().toLowerCase() === answer.trim().toLowerCase();
                 handleAnswer(qIndex, correct, content.querySelector('button'));
             };
         }
@@ -791,29 +969,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const playerImg = document.getElementById('player-char-img');
         playerImg.classList.remove('correct-answer', 'incorrect-answer');
         void playerImg.offsetWidth;
+
+        // find card element matching qIndex (cards were created with origIndex)
+        const cardEl = document.querySelector(`.card[data-qindex="${qIndex}"]`);
         
         if (isCorrect) {
+            // play correct sound if any
+            if (gameState.correctAudio) {
+                try { gameState.correctAudio.currentTime = 0; gameState.correctAudio.play(); } catch(e){}
+            }
             playerImg.classList.add('correct-answer');
-            setTimeout(() => {
-                document.getElementById('question-modal-overlay').classList.add('hidden');
-                document.querySelector(`.card[data-qindex="${qIndex}"]`).classList.add('completed');
-                gameState.completedCardsInMission++;
-                if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
-                    completeMission(gameState.currentMissionIndex);
-                }
-            }, 800);
         } else {
+            if (gameState.incorrectAudio) {
+                try { gameState.incorrectAudio.currentTime = 0; gameState.incorrectAudio.play(); } catch(e){}
+            }
             playerImg.classList.add('incorrect-answer');
-            const cardEl = document.querySelector(`.card[data-qindex="${qIndex}"]`);
+            // still mark as incorrect flash
             if (cardEl) {
                 cardEl.classList.add('incorrect-flash');
                 setTimeout(() => cardEl.classList.remove('incorrect-flash'), 800);
             }
-            setTimeout(() => {
-                document.getElementById('question-modal-overlay').classList.add('hidden');
-                loseLife();
-            }, 800);
+            // apply life loss but do not block progression
+            loseLife();
         }
+
+        // in all cases, mark card completed and increment progress
+        setTimeout(() => {
+            document.getElementById('question-modal-overlay').classList.add('hidden');
+            if (cardEl) cardEl.classList.add('completed');
+            gameState.completedCardsInMission++;
+            if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
+                completeMission(gameState.currentMissionIndex);
+            }
+        }, 600);
     }
 
     function completeMission(missionIndex) {
@@ -821,7 +1009,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.completedMissions.size >= gameConfig.missions.length) {
             setTimeout(() => endGame('win'), 1000);
         } else {
-            setTimeout(showMissionMap, 1000);
+            setTimeout(showMissionMap, 800);
         }
     }
 
@@ -829,9 +1017,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('game-process').classList.add('hidden');
         const endScreen = document.getElementById('end-screen');
         endScreen.classList.remove('hidden');
-        document.getElementById('end-player-img').src = gameState.character;
+        const endImg = document.getElementById('end-player-img');
+        endImg.src = gameState.character || '';
+        endImg.alt = 'player';
         const titleKey = status === 'win' ? 'all_missions_completed' : 'game_end_lose';
         document.getElementById('end-title').textContent = translations[gameState.lang][titleKey];
+    }
+
+    // small helper to avoid HTML injection in map labels
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/[&<>"']/g, function(m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
     }
 });
 </script>
