@@ -563,7 +563,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 config = await compressConfigImages(JSON.parse(JSON.stringify(config)), maxW, q);
             }
             const configString = JSON.stringify(config).replace(/</g, '\\u003c');
-            codeTextarea.value = `<div style="position:relative;width:100%;padding-bottom:56.25%;"><iframe id="game-iframe-123" src="${window.location.href.split('?')[0]}?mode=player" frameborder="0" allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script>(function(){var iframe=document.getElementById('game-iframe-123');var gameConfig=${configString};var sendConf=function(){if(iframe.contentWindow){iframe.contentWindow.postMessage({type:'gameConfig',config:gameConfig},'*');}else{setTimeout(sendConf,100);}};if(iframe.contentDocument&&iframe.contentDocument.readyState==='complete'){sendConf();}else{iframe.onload=sendConf;}})();<\/script>`;
+            // FIX: Changed src to a placeholder and added instructions.
+            codeTextarea.value = `<!-- 
+ИНСТРУКЦИЯ ДЛЯ GENIALLY:
+1. Сохраните ваш генератор как HTML-файл (например, my-game.html).
+2. Загрузите этот файл на хостинг (Netlify, Vercel, Tilda и т.д.) и получите публичную ссылку.
+3. Замените "URL_ВАШЕЙ_ИГРЫ.html" в строке ниже на вашу публичную ссылку.
+4. Вставьте итоговый код в Genially.
+-->
+<div style="position:relative;width:100%;padding-bottom:56.25%;"><iframe id="game-iframe-123" src="URL_ВАШЕЙ_ИГРЫ.html?mode=player" frameborder="0" allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script>(function(){var iframe=document.getElementById('game-iframe-123');var gameConfig=${configString};var sendConf=function(){if(iframe.contentWindow){iframe.contentWindow.postMessage({type:'gameConfig',config:gameConfig},'*');}else{setTimeout(sendConf,100);}};if(iframe.contentDocument&&iframe.contentDocument.readyState==='complete'){sendConf();}else{iframe.onload=sendConf;}})();<\/script>`;
             codeTextarea.style.display = 'block';
             btn.textContent = translations[lang].editor_copy;
             isCodeGenerated = true;
@@ -690,10 +698,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePreview();
         };
 
-        // FIX: Added UI feedback for the "Add Questions" button.
         block.querySelector('.parse-questions-btn').onclick = (e) => {
             const button = e.target;
-            const detailsElement = button.closest('details'); // Get the parent <details> element
+            const detailsElement = button.closest('details');
             
             if (detailsElement) {
                 const textarea = detailsElement.querySelector('.bulk-questions-input');
@@ -829,7 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkStartButton() {
         const btn = document.getElementById('start-game-btn');
-        const canStart = gameState.character && gameState.difficulty && gameConfig.missions?.length > 0;
+        const canStart = !!(gameState.character && gameState.difficulty && gameConfig.missions?.length > 0);
         btn.disabled = !canStart;
     }
 
