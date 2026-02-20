@@ -15,19 +15,23 @@
             --hover-bg:rgba(0,255,231,0.05);
             --correct-color:#4ade80;
             --incorrect-color:#f87171;
+            /* New Design Properties */
             --card-bg-image: linear-gradient(45deg,#00776b,#00bfa5);
             --card-bg-color: transparent;
             --dynamic-glow-color: var(--accent-color);
             --dynamic-glow-shadow: 0 0 15px var(--dynamic-glow-color);
-            /* Customizable */
-            /* расширенный стек шрифтов (включая популярные кириллические) */
-            --title-font: "Noto Sans", "PT Sans", "Roboto", "Inter", "Segoe UI", "Arial", sans-serif;
+
+            /* More Cyrillic-capable fonts added */
+            --title-font: "Noto Sans", "PT Sans", "Roboto", "Montserrat", "Segoe UI", Roboto, Arial, sans-serif;
             --title-size: 1.8em;
             --button-size: 16px;
             --game-bg-color: transparent;
+
+            /* cover and map vars */
             --map-bg-image: none;
-            --game-cover-image: none;
+            --cover-image: none;
         }
+
         html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;font-family:var(--title-font);}
         body{
             background-image:linear-gradient(180deg,#1a2a3a,#101820);
@@ -35,6 +39,7 @@
             display:flex;justify-content:center;align-items:center;
         }
         .master-container{ width:100%; height:100%; display:flex; flex-direction:column; box-sizing:border-box; padding:12px; }
+        /* Editor mode: keep 16:9 and centered */
         .master-container.editor{
             width: min(1400px, 95vw);
             aspect-ratio: 16 / 9;
@@ -58,9 +63,9 @@
         input[type="range"] { padding: 0; }
 
         #editor-wrapper{ display:flex; gap:12px; height:100%; overflow:hidden; padding:12px; box-sizing:border-box; }
-        #editor-panel{ flex:1; min-width:320px; max-width: 420px; }
-        /* уменьшили секцию предпросмотра */
-        #preview-section{ flex:0.95; display:flex; flex-direction:column; min-width: 420px; max-width:560px; }
+        #editor-panel{ flex:1; min-width:320px; max-width: 460px; }
+        /* Make preview smaller as requested */
+        #preview-section{ flex:1.4; display:flex; flex-direction:column; align-items:stretch; }
 
         .editor-panel-inner{ background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:18px; backdrop-filter:blur(8px); height:100%; box-sizing:border-box; overflow-y:auto; }
         .editor-panel-inner h2, .editor-panel-inner h3{ color:var(--accent-color); text-shadow:0 0 5px var(--accent-color); margin:6px 0; }
@@ -74,61 +79,45 @@
 
         .char-remove-btn-x{ position:absolute; top:-5px; right:-5px; width:22px; height:22px; border-radius:50%; background:#e53e3e; color:white; border:none; font-size:16px; font-weight:bold; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; box-shadow:0 2px 4px rgba(0,0,0,.4); }
 
-        /* предпросмотр iframe */
-        #preview-iframe{ width:100%; flex-grow:1; border-radius:8px; border:1px solid var(--border-color); background-color:var(--bg-dark); min-height:340px; }
-        #open-preview-btn{ margin-top:8px; display:none; }
+        /* preview iframe smaller */
+        #preview-iframe{ width:100%; flex-grow:1; border-radius:8px; border:1px solid var(--border-color); background-color:var(--bg-dark); min-height:220px; }
+        #iframe-code{ display:none; margin-top:10px; min-height:80px; font-size:12px; }
 
         /* --- GAME STYLES --- */
         #game-container{ width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; box-sizing:border-box; background:none; }
-        #start-screen{ width:100%; max-width:900px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:22px; backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-sizing:border-box; position:relative; background-size:cover; background-position:center; /* cover fallback */ background-image: var(--game-cover-image); background-color: var(--game-bg-color); }
+        /* Use cover-image and game-bg-color on start screen and mission areas */
+        #start-screen{ width:100%; max-width:900px; background-color:var(--game-bg-color); background-image: var(--cover-image); background-size:cover; background-position:center; border:1px solid var(--border-color); border-radius:12px; padding:22px; backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-sizing:border-box; position:relative; }
         #game-title-display{ text-align:center; color:var(--accent-color); font-size:var(--title-size); margin:6px 0; text-shadow:0 0 5px var(--accent-color); font-family:var(--title-font); }
+
         #character-selector{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom: 8px; }
         #character-selector img{ width:80px; height:80px; border-radius:50%; border:3px solid transparent; cursor:pointer; object-fit:cover; transition:all .2s; }
         #character-selector img.selected{ border-color:var(--dynamic-glow-color); box-shadow:var(--dynamic-glow-shadow); transform:scale(1.05); }
 
-        #game-process{ width:100%; height:100%; position:relative; padding:12px; box-sizing:border-box; display:block; background: var(--game-bg-color); background-image: var(--game-cover-image); background-size: cover; background-position: center; }
+        #game-process{ width:100%; height:100%; position:relative; padding:12px; box-sizing:border-box; display:block; background: var(--game-bg-color); }
         #game-ui-top{ position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; z-index: 100; }
-        #lives-container{ display:flex; gap:5px; font-size:1.8em; color: #ff6b6b; }
-
-        /* map area uses map background variable (set by JS) */
-        #mission-map-screen{ width:100%; height:100%; position:relative; background-image: var(--map-bg-image); background-size:cover; background-position:center; background-repeat:no-repeat; }
-        #map-area { position: absolute; inset: 0; } /* icons positioned inside */
-
+        #lives-container{ display:flex; gap:5px; font-size:1.8em; }
+        
         /* New Mission Layout */
-        #current-mission-game-area { display: flex; align-items: center; justify-content: space-around; gap: 12px; width: 100%; height: 100%; }
+        #current-mission-game-area { display: flex; align-items: center; justify-content: space-around; gap: 12px; width: 100%; height: 100%; background-image: var(--cover-image); background-size:cover; background-position:center; }
         #character-display { position: relative; flex: 1; max-width: 36%; height: 90%; display: flex; justify-content: center; align-items: flex-end; }
         #player-char-img{ max-width:100%; max-height:100%; object-fit: contain; transition:transform .3s ease, filter .3s ease; }
         #player-char-img.correct-answer{ animation:jump-animation .6s ease; filter: drop-shadow(var(--dynamic-glow-shadow)); }
         #player-char-img.incorrect-answer{ animation:shake-animation .6s ease; filter: drop-shadow(0 0 15px var(--incorrect-color)); }
 
         #card-grid-area{ position: relative; flex: 1.5; max-width: 60%; height: 90%; overflow-y: auto; display:flex; flex-wrap: wrap; gap:12px; padding:12px; background:rgba(0,0,0,0.25); border-radius:8px; align-content: flex-start; justify-content: center; }
-        .card{ width: 90px; height: 90px; /* квадрат для круглой формы */ background-image: var(--card-bg-image); background-color: var(--card-bg-color); background-size: cover; background-position: center; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6em; font-weight:bold; cursor:pointer; transition: all 0.3s ease; box-shadow:0 5px 15px rgba(0,0,0,.3); position: relative; }
+        /* cards slightly circular feel if desired keep rounded */
+        .card{ width: 90px; height: 130px; background-image: var(--card-bg-image); background-color: var(--card-bg-color); background-size: cover; background-position: center; color:white; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:2.2em; font-weight:bold; cursor:pointer; transition: all 0.3s ease; box-shadow:0 5px 15px rgba(0,0,0,.3); position: relative; }
         .card:hover{ transform: translateY(-5px); box-shadow: 0 8px 20px var(--dynamic-glow-color); }
-        .card.completed{ background: var(--correct-color); cursor: not-allowed; opacity: 0.8; pointer-events: none; }
-        .card.completed::after { content: '✔'; font-size: 1.6em; color: white; position: absolute; }
+        .card.completed{ background: var(--correct-color); cursor: not-allowed; opacity: 0.6; pointer-events: none; }
+        .card.completed::after { content: '✔'; font-size: 2.0em; color: white; position: absolute; }
         .card.incorrect { background: var(--incorrect-color); cursor: not-allowed; opacity: 0.85; pointer-events: none; }
-        .card.incorrect::after { content: '✖'; font-size: 1.6em; color: white; position: absolute; }
+        .card.incorrect::after { content: '✖'; font-size: 2.0em; color: white; position: absolute; }
 
         #question-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center; z-index: 2000; }
-        #question-modal-content{ background-color:#e0e0e0; color:var(--text-dark); padding:24px; border-radius:12px; min-width: 320px; max-width: 90vw; }
-        .card-question{ font-size:1.1em; font-weight:bold; margin-bottom:12px; font-family:var(--title-font); }
-        .card-answers button, .card-input-area button{ width:100%; margin-bottom:10px; background-color:#f1f5f9; color:var(--text-dark); border:1px solid #ccc; text-align:left; padding:10px; font-size:14px; font-family:var(--title-font); }
-        .card-input-area input{ font-family:var(--title-font); padding:8px; margin-bottom:8px; width:100%; box-sizing:border-box; }
-
-        /* mission icons (bigger) */
-        .mission-map-icon { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.25s ease; z-index: 20; transform: translate(-50%, -50%); }
-        .mission-map-icon img { width: 110px; height: 110px; object-fit: cover; border-radius: 50%; border: 4px solid var(--dynamic-glow-color); }
-        .mission-map-icon .icon-fallback { width:110px; height:110px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); border:4px solid var(--dynamic-glow-color); color:white; font-weight:bold; font-size:28px; }
-        .mission-map-icon span { font-size: 1em; color: white; text-shadow: 0 0 5px black; background: rgba(0,0,0,0.45); padding: 6px 12px; border-radius: 8px; }
-        .mission-map-icon:not(.locked):hover { transform: scale(1.12) translate(-50%, -50%); }
-        .mission-map-icon.active { animation: pulse-animation 1.5s ease-in-out infinite; }
-        .mission-map-icon.completed { filter: grayscale(100%) brightness(0.75); opacity: 0.85; pointer-events: none; }
-        .mission-map-icon.locked { pointer-events: none; filter: grayscale(80%) brightness(0.6); opacity: 0.7; }
-
-        #mission-description-panel { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; max-width: 80%; text-align: center; z-index: 60; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease; }
-        #mission-description-panel:not(.hidden) { opacity: 1; visibility: visible; }
-        #mission-description-panel h3 { margin-top: 0; color: var(--accent-color); font-size:1.05em; }
-        #mission-description-panel p { margin-bottom: 0; min-height: 1.2em; }
+        #question-modal-content{ background-color:#e0e0e0; color:var(--text-dark); padding:24px; border-radius:12px; min-width: 420px; max-width: 90vw; font-family:var(--title-font); }
+        .card-question{ font-size:1.1em; font-weight:bold; margin-bottom:12px; font-family:var(--title-font); font-size: calc(var(--title-size) * 0.85); }
+        /* answer buttons use title font as requested */
+        .card-answers button, .card-input-area button{ width:100%; margin-bottom:10px; background-color:#f1f5f9; color:var(--text-dark); border:1px solid #ccc; text-align:left; padding:10px; font-size:14px; font-family:var(--title-font); font-size: calc(var(--title-size) * 0.45); }
 
         #end-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; max-width:900px; background-color:var(--panel-bg); border:1px solid var(--border-color); border-radius:12px; padding:22px; box-sizing:border-box; }
         #end-screen .end-player{ width:45%; max-width:320px; height:auto; border-radius:12px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
@@ -139,10 +128,53 @@
         @keyframes jump-animation{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-20px);} }
         @keyframes shake-animation{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-8px) rotate(-2deg);} 75%{ transform:translateX(8px) rotate(2deg);} }
         @keyframes fade-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.4); } }
-        @keyframes pulse-animation { 0% { box-shadow: var(--dynamic-glow-shadow); } 50% { box-shadow: 0 0 25px var(--dynamic-glow-color); } -selector img{ width:56px;height:56px;}
-            .card{ width:76px;height:76px;}
+        @keyframes pulse-animation { 0% { box-shadow: var(--dynamic-glow-shadow); } 50% { box-shadow: 0 0 25px var(--dynamic-glow-color); } 100% { box-shadow: var(--dynamic-glow-shadow); } }
+
+        /* Start title animations */
+        .title-anim-none {}
+        .title-anim-bounce { animation: bounce-title 1.4s ease-in-out infinite; }
+        .title-anim-fade { animation: fade-title 2s ease-in-out infinite; }
+        .title-anim-pulse { animation: pulse-title 1.6s ease-in-out infinite; }
+        .title-anim-rotate { animation: rotate-title 4s linear infinite; transform-origin: center; }
+        .title-anim-sway { animation: sway-title 2.5s ease-in-out infinite; }
+        .title-anim-zoom { animation: zoom-title 2.2s ease-in-out infinite; }
+        @keyframes bounce-title { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+        @keyframes fade-title { 0%{opacity:1}50%{opacity:.6}100%{opacity:1} }
+        @keyframes pulse-title { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
+        @keyframes rotate-title { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+        @keyframes sway-title { 0%{transform:translateX(-4px)}50%{transform:translateX(4px)}100%{transform:translateX(-4px)} }
+        @keyframes zoom-title { 0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)} }
+
+        /* mission icons (bigger) - already circular */
+        .mission-map-icon { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.25s ease; z-index: 20; transform: translate(-50%, -50%); }
+        .mission-map-icon img { width: 110px; height: 110px; object-fit: cover; border-radius: 50%; border: 4px solid var(--dynamic-glow-color); }
+        .mission-map-icon .icon-fallback { width:110px; height:110px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); border:4px solid var(--dynamic-glow-color); color:white; font-weight:bold; font-size:28px; }
+        .mission-map-icon span { font-size: 1em; color: white; text-shadow: 0 0 5px black; background: rgba(0,0,0,0.45); padding: 6px 12px; border-radius: 8px; }
+        .mission-map-icon:not(.locked):hover { transform: scale(1.12) translate(-50%, -50%); }
+        .mission-map-icon.active { animation: pulse-animation 1.5s ease-in-out infinite; }
+        .mission-map-icon.completed { filter: grayscale(100%) brightness(0.75); opacity: 0.85; pointer-events: none; }
+        .mission-map-icon.locked { pointer-events: none; filter: grayscale(80%) brightness(0.6); opacity: 0.7; }
+
+        /* map area uses both map background (if provided) and cover fallback */
+        #map-area { position: absolute; inset: 0; background-image: var(--map-bg-image), var(--cover-image); background-size: cover; background-position: center; }
+
+        #mission-description-panel { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; max-width: 80%; text-align: center; z-index: 60; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease; }
+        #mission-description-panel:not(.hidden) { opacity: 1; visibility: visible; }
+        #mission-description-panel h3 { margin-top: 0; color: var(--accent-color); font-size:1.05em; }
+        #mission-description-panel p { margin-bottom: 0; min-height: 1.2em; }
+
+        /* ensure the dynamic variables are used */
+        #start-screen button, #start-screen select, #start-screen input { font-size: var(--button-size); }
+
+        /* small responsive tweak inside editor aspect */
+        @media (max-width:700px){
+            .master-container.editor{ aspect-ratio: 16/9; width: 100vw; }
+            #editor-panel{ max-width: 280px; }
+            #character-selector img{ width:56px;height:56px;}
+            .card{ width:76px;height:110px;}
             .mission-map-icon img, .mission-map-icon .icon-fallback { width:80px;height:80px;font-size:18px;border-width:3px;}
         }
+
     </style>
 </head>
 <body>
@@ -166,13 +198,1093 @@
                     </div>
 
                     <div class="editor-section">
-                        <h2 data-lang-key="editor_map_heading">3. Карта / Обложка</h2>
-                        <label for="map-bg-upload" data-lang-key="editor_upload_map_bg">Фон карты (отдельно)</label>
+                        <h2 data-lang-key="editor_map_heading">3. Карта</h2>
+                        <label for="map-bg-upload" data-lang-key="editor_upload_map_bg">Загрузить фон карты (только с устройства)</label>
                         <input type="file" id="map-bg-upload" accept="image/*">
-                        <label for="cover-upload">Обложка (единый фон для всей игры)</label>
-                        < s.trim()).filter(Boolean);
-        const result = [];
-        blocks.forEach(block => {
-            const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
-            if (lines.length < 2) return; // need at least question + 1 answer
-            const question
+                    </div>
+
+                    <div class="editor-section">
+                        <h2 data-lang-key="editor_design_heading">4. Дизайн</h2>
+                        <label for="cover-upload">Обложка (будет единым фоном во всей игре)</label>
+                        <input type="file" id="cover-upload" accept="image/*">
+
+                        <label for="card-bg-upload" data-lang-key="design_card_bg">Фон для карточек (только с устройства)</label>
+                        <input type="file" id="card-bg-upload" accept="image/*">
+                        <label for="cardoption>
+                            <option value="'Courier New', monospace">Monospace</option>
+                            <option value="'Montserrat', 'Noto Sans', sans-serif">Montserrat</option>
+                        </select>
+
+                        <label for="title-size-input">Размер названия (em)</label>
+                        <input type="number" id="title-size-input" value="1.8" step="0.1" min="0.8">
+
+                        <label for="button-size-input">Размер кнопок (px)</label>
+                        <input type="number" id="button-size-input" value="16" min="10" step="1">
+
+                        <label for="game-bg-color-picker">Цвет фона игры</label>
+                        <input type="color" id="game-bg-color-picker" value="#00000000">
+                    </div>
+
+                    <div class="editor-section">
+                        <h2>Анимация</h2>
+                        <label for="title-animation-select">Эффект названия</label>
+                        <select id="title-animation-select">
+                            <option value="title-anim-none">Нет</option>
+                            <option value="title-anim-bounce">Прыжок</option>
+                            <option value="title-anim-fade">Исчезание</option>
+                            <option value="title-anim-pulse">Пульсация</option>
+                            <option value="title-anim-rotate">Вращение</option>
+                            <option value="title-anim-sway">Качающийся</option>
+                            <option value="title-anim-zoom">Зум</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-section">
+                        <h2>Опции генерации</h2>
+                        <label><input type="checkbox" id="compress-images-checkbox" checked> Сжимать изображения при генерации (уменьшать размер финального файла)</label>
+                        <label for="max-image-width">Макс. ширина при сжатии (px)</label>
+                        <input type="number" id="max-image-width" value="1024" min="200">
+                        <label for="jpeg-quality">Качество JPEG при сжатии (0.1–1)</label>
+                        <input type="number" id="jpeg-quality" value="0.75" min="0.1" max="1" step="0.05">
+                    </div>
+
+                    <div class="editor-section">
+                        <h2 data-lang-key="editor_missions_heading">5. Миссии и Задания (до 5)</h2>
+                        <div id="missions-container"></div>
+                        <button id="add-mission-btn" data-lang-key="editor_add_mission">Добавить миссию</button>
+                        <p style="font-size:12px;color:#cbd5e1;margin-top:8px;">Иконки миссий должны загружаться с устройства — в редакторе показаны безопасные превью (без «сломанных» изображений).</p>
+                    </div>
+
+                    <!-- Removed question bank as requested -->
+
+                    <div class="editor-section">
+                        <h2 data-lang-key="editor_characters_heading">6. Персонажи</h2>
+                        <div id="characters-container"></div>
+                        <button id="add-character-btn" data-lang-key="editor_add_char">Добавить персонажа</button>
+                    </div>
+
+                    <div class="editor-section">
+                        <h2 data-lang-key="editor_music_heading">7. Фоновая музыка</h2>
+                        <input type="file" id="bg-music-upload" accept="audio/*">
+                    </div>
+
+                    <div class="editor-section">
+                        <h2 data-lang-key="editor_difficulty_settings_heading">8. Настройки жизней</h2>
+                        <div>
+                            <label for="easy-lives"><span data-lang-key="difficulty_easy">Легкий</span>:</label>
+                            <input type="number" id="easy-lives" value="5" min="0">
+                        </div>
+                        <div>
+                            <label for="medium-lives"><span data-lang-key="difficulty_medium">Средний</span>:</label>
+                            <input type="number" id="medium-lives" value="3" min="0">
+                        </div>
+                        <div>
+                            <label for="hard-lives"><span data-lang-key="difficulty_hard">Сложный</span>:</label>
+                            <input type="number" id="hard-lives" value="1" min="0">
+                        </div>
+                    </div>
+
+                    <div class="editor-section">
+                        <h2>Импорт вопросов (списком)</h2>
+                        <p style="font-size:12px;color:#cbd5e1;">Формат: каждая строка — вопрос|||правильный ответ|||неправильный1|||неправильный2 ... (разделитель "|||"). Если указаны только 2 части — будет текстовый ответ.</p>
+                        <textarea id="bulk-questions-text" placeholder="Вопрос|||Правильный|||Неверный1|||Неверный2" rows="6"></textarea>
+                        <button id="import-bulk-btn">Импортировать в миссию</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="preview-section">
+                <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+                    <button id="open-preview-btn">Открыть предпросмотр</button>
+                    <button id="generate-code-btn" data-lang-key="editor_generate">Сгенерировать код</button>
+                </div>
+                <iframe id="preview-iframe"></iframe>
+                <textarea id="iframe-code"></textarea>
+            </div>
+        </div>
+
+        <div id="game-container" class="hidden">
+            <div id="start-screen" class="game-frame">
+                <h1 id="game-title-display"></h1>
+                <h2 data-lang-key="game_select_char">Выберите персонажа:</h2>
+                <div id="character-selector"></div>
+                <h2 data-lang-key="game_select_difficulty">Выберите уровень сложности:</h2>
+                <div id="difficulty-selector">
+                    <button data-difficulty="easy" data-lang-key="difficulty_easy">Легкий</button>
+                    <button data-difficulty="medium" data-lang-key="difficulty_medium">Средний</button>
+                    <button data-difficulty="hard" data-lang-key="difficulty_hard">Сложный</button>
+                </div>
+                <button id="start-game-btn" disabled data-lang-key="game_start">Начать!</button>
+            </div>
+
+            <div id="game-process" class="hidden">
+                <div id="mission-map-screen" class="hidden" style="background-image:var(--cover-image); background-size:cover;">
+                    <div id="game-ui-top">
+                         <div id="lives-container"></div>
+                         <audio id="game-bg-music" loop></audio>
+                    </div>
+                    <div id="map-area"></div>
+                    <div id="mission-description-panel" class="hidden">
+                        <h3 id="current-mission-title"></h3>
+                        <p id="current-mission-description"></p>
+                    </div>
+                </div>
+
+                <div id="current-mission-game-area" class="hidden">
+                     <div id="game-ui-top"><div id="lives-container"></div></div>
+                    <div id="character-display"><img id="player-char-img" src=""></div>
+                    <div id="card-grid-area"></div>
+                </div>
+
+                <div id="question-modal-overlay" class="hidden">
+                    <div id="question-modal-content">
+                        <div class="card-question"></div>
+                        <div class="card-content-area"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="end-screen" class="hidden">
+                <div class="end-player"><img id="end-player-img" src=""></div>
+                <h2 id="end-title">Игра окончена!</h2>
+                <button onclick="window.location.reload()" data-lang-key="game_play_again">Сыграть еще раз</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen preview modal -->
+    <div id="preview-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:3000;align-items:center;justify-content:center;">
+        <div style="position:relative;width:95%;height:95%;background:#000;border-radius:8px;overflow:hidden;">
+            <div style="position:absolute;top:10px;left:10px;z-index:40;">
+                <button id="close-preview-modal">Вернуться</button>
+            </div>
+            <iframe id="preview-full-iframe" style="width:100%;height:100%;border:0;"></iframe>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const TRANSPARENT_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn8B9ah0uQAAAABJRU5ErkJggg==';
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPlayerMode = urlParams.get('mode') === 'player';
+
+    let gameDataUrls = {
+        mapBackground: null,
+        cardBackground: null,
+        backgroundMusic: null,
+        coverImage: null,
+    };
+    let isCodeGenerated = false;
+
+    const translations = {
+        ru: {
+            editor_title_game: "1. Название игры",
+            editor_lang_heading: "2. Язык интерфейса",
+            editor_map_heading: "3. Карта",
+            editor_upload_map_bg: "Загрузить фон карты",
+            editor_design_heading: "4. Дизайн",
+            design_card_bg: "Фон для карточек",
+            design_card_color: "Цвет карточек (если нет фона)",
+            design_glow_color: "Цвет свечения",
+            design_glow_intensity: "Интенсивность свечения",
+            editor_missions_heading: "5. Миссии и Задания (до 5)",
+            editor_add_mission: "Добавить миссию",
+            mission_name_placeholder: "Название миссии",
+            mission_desc_placeholder: "Описание миссии",
+            mission_icon_upload_label: "Иконка",
+            mission_questions_heading: "Задания для этой миссии",
+            editor_characters_heading: "6. Персонажи",
+            editor_add_char: "Добавить персонажа",
+            editor_music_heading: "7. Фоновая музыка",
+            editor_difficulty_settings_heading: "8. Настройки жизней",
+            editor_add_q: "Добавить вопрос",
+            editor_generate: "Сгенерировать код",
+            editor_copy: "Копировать",
+            editor_copied: "Скопировано!",
+            q_placeholder: "Текст вопроса...",
+            q_option_placeholder: "Вариант ответа",
+            q_text_answer_placeholder: "Правильный ответ...",
+            q_add_option: "+ Добавить вариант",
+            q_remove_q: "Удалить",
+            q_type_mc: "Один из многих",
+            q_type_text: "Ввод текста",
+            no_characters_warning: "Создайте хотя бы одного персонажа!",
+            no_missions_warning: "Создайте хотя бы одну миссию!",
+            no_questions_warning: "Добавьте задания в миссии!",
+            game_select_char: "Выберите персонажа:",
+            game_select_difficulty: "Выберите уровень сложности:",
+            game_start: "Начать!",
+            game_check: "Проверить",
+            game_end_win: "ТЫ ПОБЕДИЛ!",
+            game_end_lose: "ТЫ ПРОИГРАЛ!",
+            game_play_again: "Сыграть еще раз",
+            difficulty_easy: "Легкий",
+            difficulty_medium: "Средний",
+            difficulty_hard: "Сложный",
+            all_missions_completed: "Все миссии выполнены!"
+        },
+        en: {
+            editor_title_game: "1. Game Title",
+            editor_lang_heading: "2. Interface Language",
+            editor_map_heading: "3. Map",
+            editor_upload_map_bg: "Upload map background",
+            editor_design_heading: "4. Design",
+            design_card_bg: "Card background",
+            design_card_color: "Card color (if no background)",
+            design_glow_color: "Glow color",
+            design_glow_intensity: "Glow intensity",
+            editor_missions_heading: "5. Missions & Questions (up to 5)",
+            editor_add_mission: "Add Mission",
+            mission_name_placeholder: "Mission Name",
+            mission_desc_placeholder: "Mission Description",
+            mission_icon_upload_label: "Icon",
+            mission_questions_heading: "Questions for this mission",
+            editor_characters_heading: "6. Characters",
+            editor_add_char: "Add Character",
+            editor_music_heading: "7. Background Music",
+            editor_difficulty_settings_heading: "8. Lives Settings",
+            editor_add_q: "Add Question",
+            editor_generate: "Generate Code",
+            editor_copy: "Copy",
+            editor_copied: "Copied!",
+            q_placeholder: "Question text...",
+            q_option_placeholder: "Answer option",
+            q_text_answer_placeholder: "Correct answer...",
+            q_add_option: "+ Add Option",
+            q_remove_q: "Delete",
+            q_type_mc: "Multiple Choice",
+            q_type_text: "Text Input",
+            no_characters_warning: "Create at least one character!",
+            no_missions_warning: "Create at least one mission!",
+            no_questions_warning: "Add questions to your missions!",
+            game_select_char: "Select a Character:",
+            game_select_difficulty: "Select Difficulty Level:",
+            game_start: "Start!",
+            game_check: "Check",
+            game_end_win: "YOU WIN!",
+            game_end_lose: "YOU LOSE!",
+            game_play_again: "Play Again",
+            difficulty_easy: "Easy",
+            difficulty_medium: "Medium",
+            difficulty_hard: "Hard",
+            all_missions_completed: "All Missions Completed!"
+        }
+    };
+
+    const MISSION_POSITIONS = [ { x: 25, y: 20 }, { x: 75, y: 20 }, { x: 50, y: 50 }, { x: 25, y: 80 }, { x: 75, y: 80 } ];
+
+    let gameConfig = {};
+    let gameState = { lang: 'ru', character: '', difficulty: null, globalLives: 0, completedMissions: new Set() };
+
+    if (isPlayerMode) {
+        document.getElementById('editor-wrapper').style.display = 'none';
+        document.querySelector('.main-title').style.display = 'none';
+        document.body.style.padding = '0';
+        document.getElementById('game-container').classList.remove('hidden');
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'gameConfig') {
+                initGame(event.data.config);
+            }
+        });
+    } else {
+        // mark container as editor mode for 16:9
+        document.querySelector('.master-container').classList.add('editor');
+        initEditor();
+    }
+
+    function updateUI(lang) {
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.dataset.langKey;
+            const translation = translations[lang]?.[key];
+            if (!translation) return;
+            if (el.tagName.toLowerCase() === 'input' && el.placeholder !== undefined) el.placeholder = translation;
+            else if ('placeholder' in el && el.placeholder !== undefined && el.dataset.langKey) el.placeholder = translation;
+            else el.textContent = translation;
+        });
+    }
+
+    function initEditor() {
+        document.getElementById('language-select').addEventListener('change', (e) => updateUI(e.target.value));
+        document.getElementById('add-character-btn').addEventListener('click', addCharacterInput);
+        document.getElementById('add-mission-btn').addEventListener('click', addMissionBlock);
+        document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCodeClick);
+        ['input', 'change'].forEach(evt => document.getElementById('editor-panel').addEventListener(evt, updatePreview));
+
+        const previewIframe = document.getElementById('preview-iframe');
+        previewIframe.src = `${window.location.pathname}?mode=player`;
+        previewIframe.onload = () => updatePreview();
+
+        // fullscreen preview controls
+        document.getElementById('open-preview-btn').addEventListener('click', openPreviewModal);
+        document.getElementById('close-preview-modal').addEventListener('click', closePreviewModal);
+
+        addCharacterInput();
+        addMissionBlock();
+        updateUI('ru');
+
+        // file inputs for images and music
+        document.getElementById('map-bg-upload').addEventListener('change', createFileHandler('mapBackground'));
+        document.getElementById('card-bg-upload').addEventListener('change', createFileHandler('cardBackground'));
+        document.getElementById('bg-music-upload').addEventListener('change', createFileHandler('backgroundMusic'));
+        document.getElementById('cover-upload').addEventListener('change', createFileHandler('coverImage'));
+
+        // bulk import button
+        document.getElementById('import-bulk-btn').addEventListener('click', handleBulkImport);
+    }
+
+    function handleBulkImport() {
+        const text = document.getElementById('bulk-questions-text').value.trim();
+        if (!text) return alert('Текст пуст');
+        const missions = Array.from(document.getElementById('missions-container').children);
+        if (missions.length === 0) return alert('Нет миссий для импорта. Создайте миссию.');
+        // choose mission
+        const list = missions.map((m,i)=>`${i+1}: ${m.querySelector('.mission-name-input').value || ('Миссия '+(i+1))}`).join('\n');
+        const idx = parseInt(prompt('Выберите миссию по номеру для импорта:\n' + list),10);
+        if (isNaN(idx) || idx < 1 || idx > missions.length) return alert('Неверный индекс миссии');
+
+        const container = missions[idx-1].querySelector('.mission-questions-container');
+        const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+        lines.forEach(line => {
+            // format: question|||correct|||wrong1|||wrong2...
+            const parts = line.split('|||').map(p=>p.trim()).filter(Boolean);
+            if (parts.length === 0) return;
+            const qText = parts[0];
+            if (parts.length === 2) {
+                // text input
+                const qBlock = createQuestionBlockStructure(qText, 'text-input', [], parts[1]);
+                container.appendChild(qBlock);
+            } else if (parts.length >= 3) {
+                const correct = parts[1];
+                const wrongs = parts.slice(2);
+                // build options: correct + wrongs shuffled, but we need to set answer index
+                const options = [correct, ...wrongs];
+                const shuffled = shuffle(options.slice());
+                const answerIndex = shuffled.indexOf(correct);
+                const qBlock = createQuestionBlockStructure(qText, 'multiple-choice', shuffled, answerIndex);
+                container.appendChild(qBlock);
+            }
+        });
+        updatePreview();
+        alert('Импорт завершен');
+    }
+
+    function createQuestionBlockStructure(questionText, type, optionsArray, answerIndexOrText) {
+        const qIndex = Date.now() + Math.random().toString(36).slice(2,6);
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        const lang = document.getElementById('language-select').value;
+        const t = translations[lang];
+
+        block.innerHTML = `
+            <div class="question-header">
+                <span>Вопрос</span>
+                <button type="button" class="remove-question-btn" data-lang-key="q_remove_q">${t.q_remove_q}</button>
+            </div>
+            <select class="question-type-select"><option value="multiple-choice">${t.q_type_mc}</option><option value="text-input">${t.q_type_text}</option></select>
+            <textarea class="question-text" placeholder="${t.q_placeholder}">${escapeHtml(questionText)}</textarea>
+            <div class="mc-options">
+                <div class="options-container"></div>
+                <button type="button" class="add-option-btn">${t.q_add_option}</button>
+            </div>
+            <div class="text-input-option hidden"><input type="text" class="text-answer-input" placeholder="${t.q_text_answer_placeholder}"></div>
+        `;
+
+        block.querySelector('.remove-question-btn').onclick = () => { block.remove(); updatePreview(); };
+        const typeSelect = block.querySelector('.question-type-select');
+        typeSelect.onchange = () => {
+            const isMc = typeSelect.value === 'multiple-choice';
+            block.querySelector('.mc-options').classList.toggle('hidden', !isMc);
+            block.querySelector('.text-input-option').classList.toggle('hidden', isMc);
+        };
+
+        const optionsContainer = block.querySelector('.options-container');
+        block.querySelector('.add-option-btn').onclick = () => addOption(optionsContainer, qIndex);
+
+        if (type === 'multiple-choice') {
+            typeSelect.value = 'multiple-choice';
+            optionsArray.forEach((opt, i) => {
+                const group = document.createElement('div');
+                group.className = 'option-group';
+                group.innerHTML = `<input type="radio" name="correct_q${qIndex}" value="${i}"><input type="text" class="option-text" value="${escapeHtml(opt)}">`;
+                optionsContainer.appendChild(group);
+            });
+            // set correct
+            const correctRadio = optionsContainer.querySelector(`input[type="radio"][value="${answerIndexOrText}"]`);
+            if (correctRadio) correctRadio.checked = true;
+        } else {
+            typeSelect.value = 'text-input';
+            block.querySelector('.mc-options').classList.add('hidden');
+            block.querySelector('.text-input-option').classList.remove('hidden');
+            block.querySelector('.text-answer-input').value = answerIndexOrText || '';
+        }
+
+        return block;
+    }
+
+    function collectConfig() {
+        const missions = Array.from(document.getElementById('missions-container').children).map(block => {
+            const questions = Array.from(block.querySelectorAll('.question-block')).map(qBlock => {
+                const questionType = qBlock.querySelector('.question-type-select').value;
+                const question = { type: questionType, question: qBlock.querySelector('.question-text').value };
+                if (questionType === 'multiple-choice') {
+                    question.options = Array.from(qBlock.querySelectorAll('.option-text')).map(i => i.value);
+                    const correctInput = qBlock.querySelector('input[type="radio"]:checked');
+                    question.answer = correctInput ? parseInt(correctInput.value, 10) : 0;
+                } else {
+                    question.answer = qBlock.querySelector('.text-answer-input').value;
+                }
+                return question;
+            }).filter(q => q.question);
+            const imgEl = block.querySelector('img');
+            const iconSrc = imgEl && imgEl.dataset.local === 'true' ? imgEl.src : null;
+            return {
+                name: block.querySelector('.mission-name-input').value,
+                description: block.querySelector('.mission-desc-input').value,
+                iconUrl: iconSrc || null,
+                questions: questions,
+            };
+        }).filter(m => m.name && m.questions.length > 0);
+
+        return {
+            lang: document.getElementById('language-select').value,
+            title: document.getElementById('game-title').value,
+            characters: Array.from(document.getElementById('characters-container').querySelectorAll('img')).map(img => img.dataset.local === 'true' ? img.src : null).filter(Boolean),
+            difficultySettings: {
+                easy: { lives: parseInt(document.getElementById('easy-lives').value, 10) },
+                medium: { lives: parseInt(document.getElementById('medium-lives').value, 10) },
+                hard: { lives: parseInt(document.getElementById('hard-lives').value, 10) },
+            },
+            design: {
+                cardBackground: gameDataUrls.cardBackground,
+                cardColor: document.getElementById('card-color-picker').value,
+                glowColor: document.getElementById('glow-color-picker').value,
+                glowIntensity: document.getElementById('glow-intensity-slider').value,
+                mapBackground: gameDataUrls.mapBackground,
+                coverImage: gameDataUrls.coverImage,
+                titleFont: document.getElementById('font-select').value,
+                titleSize: parseFloat(document.getElementById('title-size-input').value) || 1.8,
+                buttonSize: parseInt(document.getElementById('button-size-input').value, 10) || 16,
+                titleAnimation: document.getElementById('title-animation-select').value || 'title-anim-none',
+                gameBgColor: document.getElementById('game-bg-color-picker').value || 'transparent'
+            },
+            sounds: {
+                correct: null,
+                incorrect: null
+            },
+            music: gameDataUrls.backgroundMusic,
+            missions: missions
+        };
+    }
+
+    function updatePreview() {
+        const config = collectConfig();
+        const previewIframe = document.getElementById('preview-iframe');
+        if (previewIframe.contentWindow) {
+            previewIframe.contentWindow.postMessage({ type: 'gameConfig', config }, '*');
+        }
+        isCodeGenerated = false;
+        document.getElementById('generate-code-btn').textContent = translations[config.lang].editor_generate;
+    }
+
+    // compress image helper: returns promise resolving to dataURL
+    function compressImage(dataUrl, maxWidth = 1024, quality = 0.75) {
+        return new Promise((resolve, reject) => {
+            if (!dataUrl || !dataUrl.startsWith('data:image')) return resolve(dataUrl);
+            const img = new Image();
+            img.onload = () => {
+                const ratio = Math.min(1, maxWidth / img.width);
+                const canvas = document.createElement('canvas');
+                const w = Math.round(img.width * ratio);
+                const h = Math.round(img.height * ratio);
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                // white background for JPEG to avoid black background from transparent PNG
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0,0,w,h);
+                ctx.drawImage(img, 0, 0, w, h);
+                try {
+                    const compressed = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressed);
+                } catch (e) {
+                    // fallback: return original
+                    resolve(dataUrl);
+                }
+            };
+            img.onerror = () => resolve(dataUrl);
+            img.src = dataUrl;
+        });
+    }
+
+    async function compressConfigImages(config, maxWidth, quality) {
+        // compress characters
+        if (Array.isArray(config.characters)) {
+            for (let i=0;i<config.characters.length;i++){
+                if (typeof config.characters[i] === 'string' && config.characters[i].startsWith('data:image')) {
+                    config.characters[i] = await compressImage(config.characters[i], maxWidth, quality);
+                }
+            }
+        }
+        // design images
+        if (config.design) {
+            if (config.design.cardBackground && config.design.cardBackground.startsWith('data:image')) {
+                config.design.cardBackground = await compressImage(config.design.cardBackground, maxWidth, quality);
+            }
+            if (config.design.mapBackground && config.design.mapBackground.startsWith('data:image')) {
+                config.design.mapBackground = await compressImage(config.design.mapBackground, maxWidth, quality);
+            }
+            if (config.design.coverImage && config.design.coverImage.startsWith('data:image')) {
+                config.design.coverImage = await compressImage(config.design.coverImage, maxWidth, quality);
+            }
+        }
+        // missions icons
+        if (Array.isArray(config.missions)) {
+            for (let m of config.missions) {
+                if (m.iconUrl && m.iconUrl.startsWith('data:image')) {
+                    m.iconUrl = await compressImage(m.iconUrl, maxWidth, quality);
+                }
+            }
+        }
+        return config;
+    }
+
+    async function handleGenerateCodeClick() {
+        const codeTextarea = document.getElementById('iframe-code');
+        const btn = document.getElementById('generate-code-btn');
+        const lang = document.getElementById('language-select').value;
+        if (!isCodeGenerated) {
+            let config = collectConfig();
+            // optionally compress images
+            if (document.getElementById('compress-images-checkbox').checked) {
+                const maxW = parseInt(document.getElementById('max-image-width').value,10) || 1024;
+                const q = parseFloat(document.getElementById('jpeg-quality').value) || 0.75;
+                // make a deep copy to avoid modifying editor state
+                let configCopy = JSON.parse(JSON.stringify(config));
+                // compress image strings in copy
+                config = await compressConfigImages(configCopy, maxW, q);
+            }
+            const configString = JSON.stringify(config).replace(/</g, '\\u003c');
+            // note: embed same player page (mode=player). The generated iframe will postMessage config on load.
+            codeTextarea.value = `<div style="position:relative;width:100%;padding-bottom:56.25%;"><iframe id="game-iframe-123" src="${window.location.href.split('?')[0]}?mode=player" frameborder="0" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><script>(function(){var iframe=document.getElementById('game-iframe-123');var gameConfig=${configString};iframe.onload=function(){iframe.contentWindow.postMessage({type:'gameConfig',config:gameConfig},'*');};})();<\/script>`;
+            codeTextarea.style.display = 'block';
+            btn.textContent = translations[lang].editor_copy;
+            isCodeGenerated = true;
+        } else {
+            codeTextarea.select();
+            navigator.clipboard.writeText(codeTextarea.value).then(() => {
+                btn.textContent = translations[lang].editor_copied;
+                setTimeout(() => { btn.textContent = translations[lang].editor_copy; }, 2000);
+            });
+        }
+    }
+
+    function createFileHandler(urlKey, previewImgId = null) {
+        return (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target.result;
+                    gameDataUrls[urlKey] = dataUrl;
+                    if(previewImgId) {
+                        const el = document.getElementById(previewImgId);
+                        if (el && el.tagName.toLowerCase() === 'img') {
+                            el.src = dataUrl;
+                            el.dataset.local = 'true';
+                        }
+                    }
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+    }
+
+    function addCharacterInput() {
+        const container = document.getElementById('characters-container');
+        const uniqueId = `char-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+        const group = document.createElement('div');
+        group.className = 'character-upload-group';
+        group.style = "display:flex; align-items:center; gap:8px; position:relative;";
+        group.innerHTML = `<img src="${TRANSPARENT_PNG}" alt="preview" id="preview-${uniqueId}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);"><input type="file" id="${uniqueId}" accept="image/*" style="display:none;"><label for="${uniqueId}" style="flex-grow:1;text-align:center;background-color:#4a5568;padding:8px;border-radius:5px;cursor:pointer;" data-lang-key="editor_add_char">Добавить персонажа</label><button type="button" class="char-remove-btn-x">&times;</button>`;
+        container.appendChild(group);
+        group.querySelector('.char-remove-btn-x').onclick = () => { group.remove(); updatePreview(); };
+        document.getElementById(uniqueId).addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    const dataUrl = ev.target.result;
+                    const img = document.getElementById(`preview-${uniqueId}`);
+                    img.src = dataUrl;
+                    img.dataset.local = 'true';
+                    updatePreview();
+                };
+                r.readAsDataURL(file);
+            }
+        });
+    }
+
+    function addMissionBlock() {
+        const container = document.getElementById('missions-container');
+        const addBtn = document.getElementById('add-mission-btn');
+        if (container.children.length >= 5) {
+            addBtn.disabled = true;
+            return;
+        }
+        const uniqueId = Date.now() + '-' + Math.random().toString(36).slice(2,6);
+        const block = document.createElement('div');
+        block.className = 'mission-upload-group';
+        const lang = document.getElementById('language-select').value;
+        const t = translations[lang];
+
+        block.innerHTML = `
+            <div class="mission-header" style="display:flex;gap:12px;align-items:flex-start;">
+                <img src="${TRANSPARENT_PNG}" id="mission-icon-${uniqueId}" style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.04);width:70px;height:70px;border-radius:50%;object-fit:cover;" data-local="false">
+                <div style="flex:1;">
+                    <input type="text" class="mission-name-input" placeholder="${t.mission_name_placeholder}" value="${t.mission_name_placeholder} ${container.children.length + 1}">
+                    <textarea class="mission-desc-input" placeholder="${t.mission_desc_placeholder}" rows="2"></textarea>
+                    <div style="display:flex;gap:8px;margin-top:6px;">
+                        <input type="file" id="mission-file-${uniqueId}" accept="image/*" style="display:none;">
+                        <label for="mission-file-${uniqueId}" class="button-like" data-lang-key="mission_icon_upload_label">${t.mission_icon_upload_label}</label>
+                    </div>
+                </div>
+                <button type="button" class="char-remove-btn-x">&times;</button>
+            </div>
+            <details class="mission-questions-details" style="margin-top:8px;">
+                <summary data-lang-key="mission_questions_heading">${t.mission_questions_heading}</summary>
+                <div class="mission-questions-container" style="margin-top:8px;"></div>
+                <button type="button" class="add-question-to-mission-btn" data-lang-key="editor_add_q">${t.editor_add_q}</button>
+            </details>
+        `;
+        container.appendChild(block);
+
+        block.querySelector('.char-remove-btn-x').onclick = () => {
+            block.remove();
+            document.getElementById('add-mission-btn').disabled = false;
+            updatePreview();
+        };
+        block.querySelector('.add-question-to-mission-btn').onclick = (e) => {
+            addQuestionBlock(e.target.closest('details').querySelector('.mission-questions-container'));
+        };
+        document.getElementById(`mission-file-${uniqueId}`).addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    const dataUrl = ev.target.result;
+                    const img = document.getElementById(`mission-icon-${uniqueId}`);
+                    img.src = dataUrl;
+                    img.dataset.local = 'true';
+                    updatePreview();
+                };
+                r.readAsDataURL(file);
+            }
+        });
+
+        if (container.children.length >= 5) addBtn.disabled = true;
+        updatePreview();
+    }
+
+    function addQuestionBlock(container) {
+        const qIndex = Date.now();
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        const lang = document.getElementById('language-select').value;
+        const t = translations[lang];
+
+        block.innerHTML = `
+            <div class="question-header">
+                <span>Вопрос ${container.children.length + 1}</span>
+                <button type="button" class="remove-question-btn" data-lang-key="q_remove_q">${t.q_remove_q}</button>
+            </div>
+            <select class="question-type-select"><option value="multiple-choice">${t.q_type_mc}</option><option value="text-input">${t.q_type_text}</option></select>
+            <textarea class="question-text" placeholder="${t.q_placeholder}"></textarea>
+            <div class="mc-options">
+                <div class="options-container"></div>
+                <button type="button" class="add-option-btn">${t.q_add_option}</button>
+            </div>
+            <div class="text-input-option hidden"><input type="text" class="text-answer-input" placeholder="${t.q_text_answer_placeholder}"></div>
+        `;
+        container.appendChild(block);
+
+        const typeSelect = block.querySelector('.question-type-select');
+        typeSelect.onchange = () => {
+            const isMc = typeSelect.value === 'multiple-choice';
+            block.querySelector('.mc-options').classList.toggle('hidden', !isMc);
+            block.querySelector('.text-input-option').classList.toggle('hidden', isMc);
+        };
+
+        block.querySelector('.remove-question-btn').onclick = () => { block.remove(); updatePreview(); };
+        const optionsContainer = block.querySelector('.options-container');
+        block.querySelector('.add-option-btn').onclick = () => addOption(optionsContainer, qIndex);
+        addOption(optionsContainer, qIndex); addOption(optionsContainer, qIndex);
+        const firstRadio = optionsContainer.querySelector('input[type="radio"]');
+        if (firstRadio) firstRadio.checked = true;
+        updatePreview();
+    }
+
+    function addOption(container, qIndex) {
+        const optionIndex = container.children.length;
+        const group = document.createElement('div');
+        group.className = 'option-group';
+        const lang = document.getElementById('language-select').value;
+        group.innerHTML = `<input type="radio" name="correct_q${qIndex}" value="${optionIndex}"><input type="text" class="option-text" placeholder="${translations[lang].q_option_placeholder} ${optionIndex+1}">`;
+        container.appendChild(group);
+    }
+
+    // GAME FUNCTIONS
+    function initGame(config) {
+        gameConfig = config;
+        gameState.lang = config.lang || 'ru';
+        updateUI(gameState.lang);
+
+        const d = config.design || {};
+        const root = document.documentElement;
+
+        // apply design images/colors
+        if (d.mapBackground) {
+            root.style.setProperty('--map-bg-image', `url(${d.mapBackground})`);
+        } else {
+            root.style.setProperty('--map-bg-image', 'none');
+        }
+        if (d.coverImage) {
+            root.style.setProperty('--cover-image', `url(${d.coverImage})`);
+            // set background on start and mission screens
+            const start = document.getElementById('start-screen');
+            if (start) start.style.backgroundImage = `url(${d.coverImage})`;
+            const missionScreen = document.getElementById('mission-map-screen');
+            if (missionScreen) missionScreen.style.backgroundImage = `url(${d.coverImage})`;
+            const currentMissionArea = document.getElementById('current-mission-game-area');
+            if (currentMissionArea) currentMissionArea.style.backgroundImage = `url(${d.coverImage})`;
+        } else {
+            root.style.setProperty('--cover-image', 'none');
+            document.getElementById('start-screen').style.backgroundImage = '';
+            document.getElementById('mission-map-screen').style.backgroundImage = '';
+            document.getElementById('current-mission-game-area').style.backgroundImage = '';
+        }
+
+        if (d.cardBackground) {
+            root.style.setProperty('--card-bg-image', `url(${d.cardBackground})`);
+        } else {
+            root.style.setProperty('--card-bg-image', 'none');
+            root.style.setProperty('--card-bg-color', d.cardColor || 'transparent');
+        }
+        root.style.setProperty('--card-bg-color', d.cardColor || 'transparent');
+        root.style.setProperty('--dynamic-glow-color', d.glowColor || '#00ffe7');
+        root.style.setProperty('--dynamic-glow-shadow', `0 0 ${d.glowIntensity || 15}px ${d.glowColor || '#00ffe7'}`);
+
+        // title font/size/button size/animation
+        root.style.setProperty('--title-font', d.titleFont || "var(--title-font)");
+        root.style.setProperty('--title-size', (d.titleSize ? d.titleSize + 'em' : (getComputedStyle(root).getPropertyValue('--title-size') || '1.8em')));
+        root.style.setProperty('--button-size', (d.buttonSize ? d.buttonSize + 'px' : (getComputedStyle(root).getPropertyValue('--button-size') || '16px')));
+        const titleEl = document.getElementById('game-title-display');
+        titleEl.style.fontFamily = d.titleFont || '';
+        titleEl.style.fontSize = d.titleSize ? (d.titleSize + 'em') : '';
+        titleEl.classList.remove('title-anim-none','title-anim-bounce','title-anim-fade','title-anim-pulse','title-anim-rotate','title-anim-sway','title-anim-zoom');
+        if (d.titleAnimation) titleEl.classList.add(d.titleAnimation);
+
+        // apply game background color to title screen and mission areas
+        document.documentElement.style.setProperty('--game-bg-color', d.gameBgColor || 'transparent');
+        document.getElementById('start-screen').style.backgroundColor = d.gameBgColor || 'transparent';
+        document.getElementById('mission-map-screen').style.backgroundColor = d.gameBgColor || 'transparent';
+        document.getElementById('current-mission-game-area').style.backgroundColor = d.gameBgColor || 'transparent';
+        document.getElementById('game-process').style.background = d.gameBgColor || 'transparent';
+
+        document.getElementById('game-title-display').textContent = config.title;
+        const charSelector = document.getElementById('character-selector');
+        charSelector.innerHTML = '';
+        if (config.characters?.length > 0) {
+            config.characters.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.dataset.local = 'true';
+                img.onclick = () => {
+                    charSelector.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
+                    img.classList.add('selected');
+                    gameState.character = url;
+                    checkStartButton();
+                };
+                charSelector.appendChild(img);
+            });
+        }
+        document.querySelectorAll('#difficulty-selector button').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('#difficulty-selector button').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                gameState.difficulty = btn.dataset.difficulty;
+                checkStartButton();
+            };
+        });
+        document.getElementById('start-game-btn').onclick = startGame;
+        checkStartButton();
+
+        // prepare sounds: use WebAudio synth (built-in), no external files
+        prepareBuiltInSounds();
+    }
+
+    function checkStartButton() {
+        const btn = document.getElementById('start-game-btn');
+        const canStart = gameState.character && gameState.difficulty && gameConfig.missions?.length > 0;
+        btn.disabled = !canStart;
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-process').classList.remove('hidden');
+        const playerImgEl = document.getElementById('player-char-img');
+        playerImgEl.src = gameState.character || '';
+        playerImgEl.alt = 'Player';
+
+        gameState.globalLives = (gameConfig.difficultySettings && gameConfig.difficultySettings[gameState.difficulty]) ? gameConfig.difficultySettings[gameState.difficulty].lives : 3;
+        gameState.completedMissions = new Set();
+
+        const music = document.getElementById('game-bg-music');
+        if(gameConfig.music) {
+            music.src = gameConfig.music;
+            music.play().catch(()=>{});
+        }
+        showMissionMap();
+    }
+
+    function updateLivesDisplay() {
+        document.querySelectorAll('#lives-container').forEach(container => {
+            container.innerHTML = Array(Math.max(0, gameState.globalLives)).fill('<span>❤️</span>').join('');
+        });
+    }
+
+    function loseLife() {
+        if(gameState.globalLives > 0) gameState.globalLives--;
+        updateLivesDisplay();
+        if (gameState.globalLives <= 0) setTimeout(() => endGame('lose'), 700);
+    }
+
+    function showMissionMap() {
+        document.getElementById('current-mission-game-area').classList.add('hidden');
+        document.getElementById('mission-map-screen').classList.remove('hidden');
+        updateLivesDisplay();
+
+        const mapArea = document.getElementById('map-area');
+        mapArea.innerHTML = '';
+        const firstUncompleted = gameConfig.missions.findIndex((_, idx) => !gameState.completedMissions.has(idx));
+
+        gameConfig.missions.slice(0, 5).forEach((mission, index) => {
+            const iconDiv = document.createElement('div');
+            iconDiv.className = 'mission-map-icon';
+            const pos = MISSION_POSITIONS[index];
+            iconDiv.style.left = `${pos.x}%`;
+            iconDiv.style.top = `${pos.y}%`;
+
+            if (mission.iconUrl) {
+                iconDiv.innerHTML = `<img src="${mission.iconUrl}" alt="ic"><span>${escapeHtml(mission.name)}</span>`;
+            } else {
+                const initials = (mission.name || '').split(' ').map(w => w[0] || '').join('').slice(0,2).toUpperCase() || 'M';
+                iconDiv.innerHTML = `<div class="icon-fallback">${initials}</div><span>${escapeHtml(mission.name)}</span>`;
+            }
+
+            if (gameState.completedMissions.has(index)) iconDiv.classList.add('completed');
+            else if (index > firstUncompleted) iconDiv.classList.add('locked');
+            else if (index === firstUncompleted) iconDiv.classList.add('active');
+
+            if (index === firstUncompleted) {
+                iconDiv.onmouseenter = () => displayMissionDescription(mission);
+                iconDiv.onmouseleave = () => document.getElementById('mission-description-panel').classList.add('hidden');
+                iconDiv.onclick = () => startMission(index);
+            }
+            mapArea.appendChild(iconDiv);
+        });
+    }
+
+    function displayMissionDescription(mission) {
+        const panel = document.getElementById('mission-description-panel');
+        panel.querySelector('h3').textContent = mission.name;
+        typewriter(panel.querySelector('p'), mission.description || '');
+        panel.classList.remove('hidden');
+    }
+
+    // shuffle utility
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function startMission(missionIndex) {
+        document.getElementById('mission-map-screen').classList.add('hidden');
+        document.getElementById('current-mission-game-area').classList.remove('hidden');
+        updateLivesDisplay();
+
+        gameState.currentMissionIndex = missionIndex;
+        gameState.currentMissionQuestions = gameConfig.missions[missionIndex].questions.slice();
+        gameState.completedCardsInMission = 0;
+
+        const indices = gameState.currentMissionQuestions.map((_, i) => i);
+        shuffle(indices);
+
+        const cardGrid = document.getElementById('card-grid-area');
+        cardGrid.innerHTML = '';
+        indices.forEach((origIndex) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.qindex = origIndex;
+            card.innerHTML = `<span style="opacity:0.0;">.</span>`;
+            card.onclick = () => showQuestionModal(origIndex);
+            cardGrid.appendChild(card);
+        });
+    }
+
+    let typeWriterTimeout;
+    function typewriter(element, text, speed = 40) {
+        clearTimeout(typeWriterTimeout);
+        element.innerHTML = "";
+        let i = 0;
+        function type() { if (i < text.length) { element.innerHTML += text.charAt(i++); typeWriterTimeout = setTimeout(type, speed); } }
+        type();
+    }
+
+    function showQuestionModal(qIndex) {
+        const qData = gameState.currentMissionQuestions[qIndex];
+        const modal = document.getElementById('question-modal-overlay');
+        modal.querySelector('.card-question').textContent = qData.question;
+        const content = modal.querySelector('.card-content-area');
+        content.innerHTML = '';
+
+        if (qData.type === 'multiple-choice') {
+            content.className = 'card-content-area card-answers';
+            qData.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(qIndex, i === qData.answer, btn);
+                content.appendChild(btn);
+            });
+        } else {
+            content.className = 'card-content-area card-input-area';
+            content.innerHTML = `<input type="text"><button data-lang-key="game_check">${translations[gameState.lang].game_check}</button>`;
+            content.querySelector('button').onclick = () => {
+                const answer = content.querySelector('input').value;
+                const correct = (qData.answer || '').toString().trim().toLowerCase() === answer.trim().toLowerCase();
+                handleAnswer(qIndex, correct, content.querySelector('button'));
+            };
+        }
+        modal.classList.remove('hidden');
+    }
+
+    // Built-in sounds via WebAudio
+    let audioCtx = null;
+    function ensureAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+    function playTone(freq, duration=0.12, type='sine', gain=0.12) {
+        try {
+            ensureAudioCtx();
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = type;
+            o.frequency.value = freq;
+            g.gain.value = gain;
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start();
+            o.stop(audioCtx.currentTime + duration);
+        } catch (e) {
+            // ignore if audio not allowed
+        }
+    }
+    function playCorrectSound() { playTone(880, 0.12, 'sine', 0.12); playTone(1320, 0.08, 'sine', 0.08); }
+    function playIncorrectSound() { playTone(180, 0.14, 'sawtooth', 0.14); }
+
+    function prepareBuiltInSounds() {
+        // nothing to preload; functions above will synthesize tones
+    }
+
+    function handleAnswer(qIndex, isCorrect, buttonEl) {
+        const playerImg = document.getElementById('player-char-img');
+        playerImg.classList.remove('correct-answer', 'incorrect-answer');
+        void playerImg.offsetWidth;
+
+        const cardEl = document.querySelector(`.card[data-qindex="${qIndex}"]`);
+
+        if (isCorrect) {
+            playCorrectSound();
+            playerImg.classList.add('correct-answer');
+            // mark completed (green check)
+            setTimeout(() => {
+                if (cardEl) cardEl.classList.add('completed');
+                finalizeCardAfterAnswer();
+            }, 400);
+        } else {
+            playIncorrectSound();
+            playerImg.classList.add('incorrect-answer');
+            // mark card with red cross, disable it, lose life
+            if (cardEl) {
+                cardEl.classList.add('incorrect');
+            }
+            loseLife();
+            setTimeout(() => {
+                finalizeCardAfterAnswer();
+            }, 400);
+        }
+        document.getElementById('question-modal-overlay').classList.add('hidden');
+    }
+
+    function finalizeCardAfterAnswer() {
+        gameState.completedCardsInMission++;
+        if (gameState.completedCardsInMission >= gameState.currentMissionQuestions.length) {
+            completeMission(gameState.currentMissionIndex);
+        }
+    }
+
+    function completeMission(missionIndex) {
+        gameState.completedMissions.add(missionIndex);
+        if (gameState.completedMissions.size >= gameConfig.missions.length) {
+            setTimeout(() => endGame('win'), 1000);
+        } else {
+            setTimeout(showMissionMap, 800);
+        }
+    }
+
+    function endGame(status) {
+        document.getElementById('game-process').classList.add('hidden');
+        const endScreen = document.getElementById('end-screen');
+        endScreen.classList.remove('hidden');
+        const endImg = document.getElementById('end-player-img');
+        endImg.src = gameState.character || TRANSPARENT_PNG;
+        endImg.alt = 'player';
+        const titleKey = status === 'win' ? 'all_missions_completed' : 'game_end_lose';
+        document.getElementById('end-title').textContent = translations[gameState.lang][titleKey];
+    }
+
+    // small helper to avoid HTML injection in map labels
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/[&<>"']/g, function(m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
+    }
+
+    // Preview modal open/close and pass config
+    function openPreviewModal() {
+        const cfg = collectConfig();
+        const modal = document.getElementById('preview-modal');
+        const iframe = document.getElementById('preview-full-iframe');
+        iframe.src = `${window.location.pathname}?mode=player`;
+        modal.style.display = 'flex';
+        iframe.onload = () => {
+            iframe.contentWindow.postMessage({ type: 'gameConfig', config: cfg }, '*');
+        };
+    }
+    function closePreviewModal() {
+        const modal = document.getElementById('preview-modal');
+        const iframe = document.getElementById('preview-full-iframe');
+        iframe.src = 'about:blank';
+        modal.style.display = 'none';
+        // also refresh small preview iframe
+        updatePreview();
+    }
+
+});
+</script>
+</body>
+</html>
